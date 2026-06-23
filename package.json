@@ -1,1 +1,12 @@
-﻿{"name":"geospherique-framer","version":"1.0.0","type":"module","scripts":{"sync":"node sync/scraper.js","sync:force":"node sync/scraper.js --force"},"dependencies":{"cheerio":"^1.0.0"}}
+﻿{
+  "name": "geospherique-framer",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "sync": "node sync/scraper.js",
+    "sync:force": "node sync/scraper.js --force"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
