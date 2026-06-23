@@ -1,5 +1,3 @@
-$utf8NoBOM = New-Object System.Text.UTF8Encoding $false
-$scraper = @'
 import { writeFileSync, readFileSync, mkdirSync, existsSync } from 'fs'
 import { join, extname, dirname } from 'path'
 import { createHash } from 'crypto'
@@ -10,13 +8,10 @@ const BASE_URL = 'https://iiadil.framer.website'
 const OUT_DIR = 'public'
 const STATE_FILE = 'sync/.state.json'
 const FORCE = process.argv.includes('--force')
-
 const EXTERNAL_HOSTS = ['framerusercontent.com', 'fonts.gstatic.com', 'fonts.googleapis.com']
 
 let state = { pages: {}, assets: {} }
-try {
-  if (existsSync(STATE_FILE)) state = JSON.parse(readFileSync(STATE_FILE, 'utf8'))
-} catch {}
+try { if (existsSync(STATE_FILE)) state = JSON.parse(readFileSync(STATE_FILE, 'utf8')) } catch {}
 
 function md5(content) { return createHash('md5').update(content).digest('hex') }
 function ensureDir(fp) { const d = dirname(fp); if (!existsSync(d)) mkdirSync(d, { recursive: true }) }
@@ -48,7 +43,7 @@ function localRef(absUrl) {
 
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
-  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept': '*/*',
   'Accept-Language': 'fr,en;q=0.9',
 }
 
@@ -65,25 +60,57 @@ async function fetchBuf(url) {
 }
 
 let changed = false
+const assetQueue = new Set()
+const assetDone = new Set()
 
-async function syncAsset(rawUrl, pageUrl) {
+function extractJsUrls(content) {
+  const urls = []
+  const re = /https:\/\/(?:[\w.-]+\.)?framerusercontent\.com\/[^\s"'`\\)>]+/g
+  for (const m of content.matchAll(re)) {
+    try { urls.push(new URL(m[0]).href) } catch {}
+  }
+  return urls
+}
+
+async function syncAsset(rawUrl, baseUrl) {
   let absUrl
-  try { absUrl = new URL(rawUrl, pageUrl).href } catch { return rawUrl }
+  try { absUrl = new URL(rawUrl, baseUrl).href } catch { return rawUrl }
+
   const localPath = assetToLocalPath(absUrl)
   if (!localPath) return rawUrl
+  if (assetDone.has(absUrl)) return localRef(absUrl)
+  assetDone.add(absUrl)
+
   try {
     const buf = await fetchBuf(absUrl)
     const h = md5(buf)
-    if (!FORCE && state.assets[absUrl] === h) return localRef(absUrl)
+    if (!FORCE && state.assets[absUrl] === h && existsSync(localPath)) return localRef(absUrl)
+
     ensureDir(localPath)
     writeFileSync(localPath, buf)
     state.assets[absUrl] = h
     changed = true
-    console.log(`  ↓ asset: ${new URL(absUrl).pathname}`)
+    console.log(`  ↓ ${new URL(absUrl).pathname}`)
+
+    const ext = new URL(absUrl).pathname.split('.').pop()
+    if (['js', 'mjs', 'cjs'].includes(ext)) {
+      const text = buf.toString('utf8')
+      for (const url of extractJsUrls(text)) {
+        if (!assetDone.has(url)) assetQueue.add(url)
+      }
+    }
   } catch (e) {
-    console.warn(`  ⚠ asset failed: ${absUrl} — ${e.message}`)
+    console.warn(`  ⚠ ${absUrl} — ${e.message}`)
   }
   return localRef(absUrl)
+}
+
+async function drainAssetQueue() {
+  while (assetQueue.size > 0) {
+    const batch = [...assetQueue]
+    assetQueue.clear()
+    await Promise.allSettled(batch.map(url => syncAsset(url, url)))
+  }
 }
 
 async function scrapePage(pathname, visited, queue) {
@@ -97,23 +124,18 @@ async function scrapePage(pathname, visited, queue) {
       const src = $(el).attr('src')
       if (src) jobs.push(syncAsset(src, pageUrl).then(r => $(el).attr('src', r)))
     })
-
     $('link[href]').each((_, el) => {
       const href = $(el).attr('href')
       if (href) jobs.push(syncAsset(href, pageUrl).then(r => $(el).attr('href', r)))
     })
-
     $('img[src]').each((_, el) => {
       const src = $(el).attr('src')
       if (src) jobs.push(syncAsset(src, pageUrl).then(r => $(el).attr('src', r)))
     })
-
-    // Réécriture des liens <a> internes + découverte des routes
     $('a[href]').each((_, el) => {
       try {
         const abs = new URL($(el).attr('href') || '', pageUrl)
         if (abs.hostname === new URL(BASE_URL).hostname) {
-          // Réécrire en chemin relatif
           $(el).attr('href', abs.pathname + abs.search + abs.hash)
           if (!visited.has(abs.pathname)) queue.push(abs.pathname)
         }
@@ -121,13 +143,14 @@ async function scrapePage(pathname, visited, queue) {
     })
 
     await Promise.allSettled(jobs)
+    await drainAssetQueue()
 
     const rewritten = $.html()
     const h = md5(rewritten)
     const filePath = routeToFile(pathname)
 
     if (!FORCE && state.pages[pathname] === h && existsSync(filePath)) {
-      console.log(`  = inchangé: ${pathname}`)
+      console.log(`  = ${pathname}`)
       return
     }
 
@@ -136,9 +159,8 @@ async function scrapePage(pathname, visited, queue) {
     state.pages[pathname] = h
     changed = true
     console.log(`  ✓ page: ${pathname}`)
-
   } catch (e) {
-    console.warn(`  ✗ page failed: ${pathname} — ${e.message}`)
+    console.warn(`  ✗ ${pathname} — ${e.message}`)
   }
 }
 
@@ -150,15 +172,10 @@ async function main() {
   try {
     const sitemap = await fetchText(BASE_URL + '/sitemap.xml')
     for (const m of sitemap.matchAll(/<loc>(.*?)<\/loc>/g)) {
-      try {
-        const p = new URL(m[1]).pathname
-        if (!visited.has(p)) queue.push(p)
-      } catch {}
+      try { const p = new URL(m[1]).pathname; if (!visited.has(p)) queue.push(p) } catch {}
     }
-    console.log(`  📋 sitemap: ${queue.length} routes trouvées\n`)
-  } catch {
-    console.log('  📋 pas de sitemap.xml — crawl depuis la homepage\n')
-  }
+    console.log(`  📋 sitemap: ${queue.length} routes\n`)
+  } catch { console.log('  📋 pas de sitemap\n') }
 
   while (queue.length) {
     const p = queue.shift()
@@ -172,19 +189,13 @@ async function main() {
 
   const pages = Object.keys(state.pages).length
   const assets = Object.keys(state.assets).length
-
   if (changed) {
-    console.log(`\n✅  Sync terminé — ${pages} pages, ${assets} assets`)
+    console.log(`\n✅  ${pages} pages, ${assets} assets`)
     process.exit(1)
   } else {
-    console.log(`\n✅  Aucun changement (${pages} pages, ${assets} assets)`)
+    console.log(`\n✅  Aucun changement`)
     process.exit(0)
   }
 }
 
 main().catch(e => { console.error('Fatal:', e); process.exit(2) })
-'@
-[System.IO.File]::WriteAllText((Resolve-Path "sync\scraper.js"), $scraper, $utf8NoBOM)
-git add sync/scraper.js
-git commit -m "fix: réécriture liens <a> internes"
-git push origin main
