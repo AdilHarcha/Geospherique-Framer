@@ -154,6 +154,24 @@ function sectionAteliers(rows) {
 </section>`
 }
 
+function sectionOutils(rows) {
+  if (!rows.length) return ''
+  const cards = rows.map(r => `
+    <article class="geo-cms-card">
+      ${r.main_image ? `<img src="${escapeHtml(r.main_image)}" alt="${escapeHtml(r.title || '')}" loading="lazy">` : ''}
+      <div class="geo-cms-card-body">
+        <h3>${escapeHtml(r.h1 || r.title || '')}</h3>
+        ${r.meta_description ? `<p>${escapeHtml(r.meta_description)}</p>` : ''}
+        ${r.thematique ? `<div><span class="geo-cms-tag">${escapeHtml(r.thematique)}</span></div>` : ''}
+      </div>
+    </article>`).join('')
+  return `${SECTION_STYLE}
+<section class="geo-cms" id="geo-cms-outils" aria-label="Géosphérique Outils">
+  <h2>Les Outils</h2>
+  <div class="geo-cms-grid">${cards}</div>
+</section>`
+}
+
 // ─── Page route → section builder map ──────────────────────────────────────
 const PAGE_MAP = {
   '/geospherique-listes': {
@@ -204,6 +222,14 @@ const PAGE_MAP = {
     ),
     build: sectionAteliers,
   },
+  '/partager-un-savoir/geospherique-tools': {
+    fetch: () => query(
+      'partner_posts',
+      'id,title,h1,meta_description,main_image,thematique,slug',
+      'status=eq.published&post_type=eq.outil&order=published_at.desc'
+    ),
+    build: sectionOutils,
+  },
 }
 
 // Also handle non-encoded variants
@@ -248,11 +274,11 @@ function injectPostMeta(html, post) {
   return html.replace('</body>', section + '\n</body>')
 }
 
-// Route patterns for individual posts
+// Route patterns for individual post pages (matches Framer CMS collection structure)
 const POST_TYPE_PATHS = {
-  'formation': '/partager-un-savoir/geospherique-formations',
+  'formation': '/geospherique-listes/partager-un-savoir',
   'atelier':   '/partager-un-savoir/geospherique-partages',
-  'outil':     '/geospherique-listes',
+  'outil':     '/partager-un-savoir/geospherique-tools',
   'traversée': '/les-traversées-de-geospherique',
 }
 
