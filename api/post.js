@@ -48,7 +48,7 @@ async function fetchPost(slug) {
 
 function loadTemplate(postType) {
   const name = postType === 'traversée' ? 'traversee' : 'formation'
-  const templatePath = join(__dirname, '..', 'sync', 'templates', `${name}.html`)
+  const templatePath = join(__dirname, 'templates', `${name}.html`)
   return readFileSync(templatePath, 'utf8')
 }
 
