@@ -56,7 +56,7 @@ ${l}`,d=wd(e.id,n,r,i);d?await hd(u,d,`afterend`):await hd(u,r??a,r?`afterend`:`
 `)):e[0]?.includes(`assert`)&&(e.splice(0,1),n.stack=e.join(`
 `))}catch{}throw n}function tp(e){let t=new Set;if(!e)return t;ep(e.type===`array`,`ScalarIntersection expects an array, got:`,e.type);for(let n of e.value)n&&(ep(n.type===`string`,`ScalarIntersection expects an array of strings, got an array with:`,n.type),t.add(n.value));return t}function np(e){return e.collection?`"${e.collection}"."${e.name}"`:`"${e.name}"`}function rp(e){return typeof e.value==`string`?`'${e.value}'`:e.value}function ip(e){return`${e.functionName}(${e.arguments.map(e=>lp(e)).join(`, `)})`}function ap(e){let t=`CASE`;e.value&&(t+=` ${lp(e.value)}`);for(let n of e.conditions)t+=` WHEN ${lp(n.when)} THEN ${lp(n.then)}`;return e.else&&(t+=` ELSE ${lp(e.else)}`),t+=` END`,t}function op(e){let t=lp(e.value);return`${e.operator.toUpperCase()} ${t}`}function sp(e){let t=lp(e.left),n=lp(e.right);return`${t} ${e.operator.toUpperCase()} ${n}`}function cp(e){return`CAST(${lp(e.value)} as ${e.dataType})`}function lp(e){switch(e.type){case`Identifier`:return np(e);case`LiteralValue`:return rp(e);case`FunctionCall`:return ip(e);case`Case`:return ap(e);case`UnaryOperation`:return op(e);case`BinaryOperation`:return sp(e);case`TypeCast`:return cp(e);case`Select`:return`${mp(e)}`;default:W(e)}}function up(e){return tf(e.data)?`Collection`:e.alias?`"${e.data.displayName}" AS "${e.alias}"`:`"${e.data.displayName}"`}function dp(e){let t=`${fp(e.left)} LEFT JOIN ${fp(e.right)}`;return e.constraint&&(t+=` ON ${lp(e.constraint)}`),t}function fp(e){switch(e.type){case`Collection`:return up(e);case`LeftJoin`:return dp(e);default:W(e)}}function pp(e){let t=``;return e.split(/\s+/u).forEach(e=>{e!==``&&([`SELECT`,`FROM`,`WHERE`,`ORDER`,`LIMIT`,`OFFSET`].includes(e)?t+=`
 ${e}`:[`AND`,`OR`].includes(e)?t+=`
-	${e}`:t+=` ${e}`)}),t.trim()}function mp(e){let t=``;return t+=`SELECT ${e.select.map(e=>{let t=lp(e);return e.alias?`${t} AS "${e.alias}"`:t}).join(`, `)}`,t+=` FROM ${fp(e.from)}`,e.where&&(t+=` WHERE ${lp(e.where)}`),e.orderBy&&(t+=` ORDER BY ${e.orderBy.map(e=>`${lp(e)} ${e.direction??`asc`}`).join(`, `)}`),e.limit&&(t+=` LIMIT ${lp(e.limit)}`),e.offset&&(t+=` OFFSET ${lp(e.offset)}`),pp(t)}function hp(e){return H(e)&&e.type===`Collection`}function gp(e,t){return hp(t)&&Zd(t.data)?Rf(t.data):t}function _p(e,t){let n=t?.id??`default`;return JSON.stringify(e,gp)+n}function vp(e){let{activeLocale:t}=Nr();return ME.get(e,t).use()}function yp(e,t){let n=Object.entries(e??{}).filter(([,e])=>!(ut(e)||H(e))).map(([e,n])=>({type:`BinaryOperation`,operator:`==`,left:{type:`TypeCast`,value:{type:`Identifier`,name:e,collection:t},dataType:`STRING`},right:{type:`LiteralValue`,value:String(n)}}));return n.length===0?{type:`LiteralValue`,value:!1}:n.reduce((e,t)=>({type:`BinaryOperation`,operator:`and`,left:e,right:t}))}function bp(e){let t=u(e);return i(()=>{t.current=e},[e]),Mr((...e)=>{let n=t.current;return n(...e)},[])}function xp(e,t){e.forEach(e=>clearTimeout(e)),e.clear(),t.forEach(e=>e?.(`Callback cancelled by variant change`)),t.clear()}function Sp(){return new Set}function Cp(e){let t=sa(Sp),n=sa(Sp);return Is(()=>()=>xp(n,t)),p(()=>()=>xp(n,t),[]),p(()=>{xp(n,t)},[e]),u({activeVariantCallback:e=>async(...n)=>new Promise((r,i)=>{t.add(i),e(...n).then(r)}).catch(()=>{}),delay:async(e,t)=>{await new Promise(e=>{n.add(globalThis.setTimeout(()=>e(!0),t))}),e()}}).current}function wp(e,t,n){return M.useCallback(r=>!n||!e?{}:t?Object.assign({},n[e]?.[r],n[t]?.[r]):n[e]?.[r]||{},[e,t,n])}function Tp(e){for(let[t,n]of Object.entries(e))if(J.matchMedia(n).matches)return t}function Ep(e){let t=[];for(let{hash:n,mediaQuery:r}of e)r&&J.matchMedia(r).matches&&t.push(n);if(t.length>0)return t;let n=e[0]?.hash;if(n)return[n]}function Dp(e,t,n=!0){let r=a(yS),i=ho(),o=ra(),s=Wa()&&(!i||o),l=u(s?Tp(t)??e:e),d=u(n&&r?e:l.current),f=Uo(),m=ue(),h=c(e=>{if(e!==l.current||e!==d.current){let t=function(){l.current=d.current=e,te(()=>{f()})};i?t():m(()=>{t()})}},[m,f,i]);return Tx(()=>{if(i){if(o){h(Tp(t)??e);return}h(e)}},[e,o,i,t,h]),Tx(()=>{!n||r!==!0||h(l.current)},[]),p(()=>{if(!s||o)return;let e=[];for(let[n,r]of Object.entries(t)){let t=J.matchMedia(r),i=e=>{e.matches&&h(n)};Op(t,i),e.push([t,i])}return()=>e.forEach(([e,t])=>kp(e,t))},[o,t,h,s]),[l.current,d.current]}function Op(e,t){e.addEventListener?e.addEventListener(`change`,t):e.addListener(t)}function kp(e,t){e.removeEventListener?e.removeEventListener(`change`,t):e.removeListener(t)}function Ap(e){setTimeout(e,1)}function jp(e){let t=new Set,n=Ep(e);if(n)for(let e of n)for(let n of document.querySelectorAll(`.hidden-`+e))Mp(n.previousSibling)&&t.add(n.previousSibling),n.parentNode?.removeChild(n);(qg?J.requestIdleCallback:Ap)(()=>{document.querySelector(NE)?.remove()});for(let e of document.querySelectorAll(`.ssr-variant:empty`))Mp(e.previousSibling)&&t.add(e.previousSibling),e.parentNode?.removeChild(e);for(let e of t)Np(e.nextSibling)&&(e.parentNode?.removeChild(e.nextSibling),e.parentNode?.removeChild(e))}function Mp(e){return e?.nodeType===Node.COMMENT_NODE&&e.textContent===`$`}function Np(e){return e?.nodeType===Node.COMMENT_NODE&&e.textContent===`/$`}function Pp(){let e=sa(()=>new Map);return M.useCallback(t=>{let n=e.get(t);if(n)return n;let r=C();return e.set(t,r),r},[])}function Fp(e,t){if(e[t])return e[t];if(!(t in e))return e.default}function Ip(e,t){if(mo())return;let n=M.useRef(!0),r=M.useRef(t);Is((t,i)=>{let a=t&&!i;if(!n.current&&a){let t=Fp(r.current,e);t&&t()}n.current=a},[]),M.useEffect(()=>{if(n.current){let t=Fp(r.current,e);t&&t()}},[e])}function Lp(e,t){e!==!1&&L.render(()=>{let e=document.documentElement.style;t?e.setProperty(`overflow`,`hidden`):e.removeProperty(`overflow`)})}function Rp({blockDocumentScrolling:e=!0,dismissWithEsc:t=!1}={}){let[n,r]=M.useState(!1),i=M.useCallback(async t=>{await Pn({priority:`user-blocking`,continueAfter:`paint`}),te(()=>r(t)),Lp(e,t)},[e]);return M.useEffect(()=>()=>{Pn({priority:`user-blocking`,continueAfter:`paint`}).then(()=>{Lp(e,!1)})},[e]),M.useEffect(()=>{if(!t)return;let e=e=>{e.key===`Escape`&&(e.preventDefault(),e.stopPropagation(),i(!1))};return J.addEventListener(`keydown`,e),()=>J.removeEventListener(`keydown`,e)},[t,i]),[n,i]}function zp(e){return H(e)&&PE in e&&e.page!==void 0}function Bp(e,t){return`${e}-${t}`}function Vp(e,t){let n=e.indexOf(t)+1;n>=e.length&&(n=0);let r=e[n];return U(r!==void 0,`nextVariant should be defined`),r}function Hp(e,t){if(e){if(t){let n=e[t];if(n)return n}return e.default}}function Up(e,t,n,r,i){let{hover:a,pressed:o,loading:s,error:c}=e||{};if(c&&i)return`error`;if(s&&r)return`loading`;if(o&&n)return`pressed`;if(a&&t)return`hover`}function Wp(e,t){return t[e]||`framer-v-${e}`}function Gp(e,t,n){return e&&n.has(e)?e:t}function Kp(){let e=u(),t=u(),n=c(()=>{e.current&&(document.removeEventListener(`visibilitychange`,e.current),e.current=void 0,t.current=void 0)},[]);return p(()=>()=>{n()},[n]),c(r=>{if(!document.hidden){r(),n();return}if(t.current=r,e.current)return;let i=()=>{document.hidden||(t.current?.(),n())};e.current=i,document.addEventListener(`visibilitychange`,i)},[n])}function qp(){let e=u(),t=u(!1),n=u(),r=a(nS);return p(()=>()=>{e.current?.(),n.current=void 0,e.current=void 0},[]),c((i,a)=>{if(!a?.current||t.current){i();return}if(n.current=i,e.current)return;let o=!1;e.current=Os(r,`undefined`,a.current,null,e=>{t.current=e.isIntersecting,!o&&(o=!0,queueMicrotask(()=>{o=!1,t.current&&n.current?.()}))})},[r])}function Jp(e){let t=Kp(),n=qp();return c((r,i=!1)=>{if(Kg){r();return}t(i&&e?()=>n(r,e):r)},[t,n,e])}async function Yp(){return new Promise(e=>{let t=e;setTimeout(()=>{t&&(performance.mark(`wait-for-click-fallback`),t())},150),LE=()=>{e(),t=void 0}})}function Xp(e){e.button===0&&(performance.mark(`pointerdown-listener`),IE=Yp())}function Zp(){performance.mark(`click-received-listener`),IE=void 0,LE?.(),LE=void 0}function Qp(e=!1){p(()=>{e&&(document.addEventListener(`pointerup`,Xp,!0),document.__proto__.addEventListener.call(document,`click`,Zp,!0))},[e])}function $p({variant:e,defaultVariant:t,transitions:n,enabledGestures:r,cycleOrder:i=[],variantProps:a={},variantClassNames:o={},ref:l}){let d=Uo(),f=Jl(),p=sa(()=>new Set(i)),{yieldOnTap:m}=c_();Qp(m);let h=Jp(l),g=u({isHovered:!1,isHoveredHasUpdated:!1,isPressed:!1,isPressedHasUpdated:!1,isError:!1,hasPressedVariants:!0,baseVariant:Gp(e,t,p),lastVariant:e,gestureVariant:void 0,loadedBaseVariant:{},defaultVariant:t,enabledGestures:r,cycleOrder:i,transitions:n}),_=c(e=>{let{isHovered:t,isPressed:n,isError:r,enabledGestures:i,defaultVariant:a}=g.current,o=Gp(e,a,p),s=Up(i?.[o],t,n,!1,r);return[o,s?Bp(o,s):void 0]},[]),v=c(async(e,t,n,r,i=!1,a=!1)=>{let[o,s]=_(r);if(o===e&&s===t)return;a&&(g.current.isError=!1),g.current.baseVariant=o||n,g.current.gestureVariant=s;let c=m&&g.current.isPressedHasUpdated;c&&IE&&(performance.mark(`wait-for-tap-start`),await IE,performance.measure(`wait-for-tap`,`wait-for-tap-start`)),c&&(performance.mark(`yield-on-tap-start`),await Pn({priority:`user-blocking`,continueAfter:`paint`}),performance.measure(`yield-on-tap`,`yield-on-tap-start`));let{isHovered:l,isPressed:u,isHoveredHasUpdated:f,isPressedHasUpdated:p}=g.current;if(l||f||u||p){te(d);return}h(()=>te(d),i)},[_,d,h,m]),y=c(({isHovered:e,isPressed:t,isError:n})=>{let r=t!==g.current.isPressed,i=e!==g.current.isHovered;e!==void 0&&(g.current.isHovered=e),t!==void 0&&(g.current.isPressed=t),n!==void 0&&(g.current.isError=n);let{baseVariant:a,gestureVariant:o,defaultVariant:s}=g.current;g.current.isPressedHasUpdated=r,g.current.isHoveredHasUpdated=i,v(a,o,s,a,!1)},[v]),b=c((e,t=!1)=>{let{defaultVariant:n,cycleOrder:r,baseVariant:i,gestureVariant:a}=g.current;v(i,a,n,e===FE?Vp(r||[],i||n):e,t,!0)},[v]),x=c(()=>{let{baseVariant:e}=g.current;g.current.loadedBaseVariant[e]=!0,h(()=>te(d),!0)},[d,h]);if(e!==g.current.lastVariant){let[t,n]=_(e);g.current.lastVariant=t,(t!==g.current.baseVariant||n!==g.current.gestureVariant)&&(g.current.baseVariant=t,g.current.gestureVariant=n)}let{baseVariant:S,gestureVariant:C,defaultVariant:w,enabledGestures:T,isHovered:E,isPressed:D,isError:O,loadedBaseVariant:k}=g.current,A=wp(g.current.baseVariant,g.current.gestureVariant,a);return s(()=>{let e=[];S!==w&&e.push(S);let t=T?.[S]?.loading,n=!O&&!f&&!!t&&!k[S],r=n?Bp(S,`loading`):C;r&&e.push(r);let i=T?.[S],a={onMouseEnter:()=>y({isHovered:!0}),onMouseLeave:()=>y({isHovered:!1})};return i?.pressed&&Object.assign(a,{onTapStart:()=>y({isPressed:!0}),onTapCancel:()=>y({isPressed:!1}),onTap:()=>y({isPressed:!1})}),{variants:e,baseVariant:S,gestureVariant:r,isLoading:n,transition:Hp(g.current.transitions,S),setVariant:b,setGestureState:y,clearLoadingGesture:x,addVariantProps:A,gestureHandlers:a,classNames:kc(Wp(S,o),Up(i,E,D,n,O))}},[S,C,E,D,k,A,b,w,T,y,x,o])}function em(e,{scopeId:t,nodeId:n,override:r,inComponentSlot:i}){if(!El())return r(e);let a=tm(e,r),o=!1;function s(r,s){let{disableCustomCode:c}=c_(),l=kl();if(c)return E(e,{...r,ref:s});if(Ll(t,l?.scopeId,l?.level,i??!1))return a.status===`success`?E(hv.Provider,{value:n,children:E(Dl,{getErrorMessage:Pl.bind(null,t,n),fallback:E(e,{...r,ref:s}),children:E(a.Component,{...r,ref:s})})}):(o||=(Tl(a.error),Tl(Pl(t,n)),wl(a.error),!0),E(e,{...r,ref:s}));if(a.status===`success`)return E(hv.Provider,{value:n,children:E(a.Component,{...r,ref:s})});throw a.error}return M.forwardRef(s)}function tm(e,t){try{return{status:`success`,Component:t(e)}}catch(e){return{status:`error`,error:e}}}function nm(e,t){return t?$e(0,2,e):e}function rm(){return new Promise(e=>{L.postRender(()=>e())})}function im(e){let t=[];return d.forEach(e,e=>{O(e)&&e.type===ne?t.push(...im(e.props.children)):e&&t.push(e)}),t}function am(e,t,n){let r=Math.floor(e/n),i=r*n,a=0;for(let n=0;n<t.length;n++){let{end:r}=t[n];if(a=n,r+i>e)break}return a+r*t.length}function om(e,t,n,r){if(t.length===0)return 0;let i=t[t.length-1].end+n,a=r??e+(t[0]?.end??0),o=am(e,t,i)+1,s=0,c=!1;for(;!c;){let{start:e,end:n}=t[$e(0,t.length,o)],r=Math.floor(o/t.length)*i;s=e+r,n+r>a?c=!0:o++}return s}function sm(e,t,n,r,i){if(t.length===0)return 0;let a=t[t.length-1].end+n,o=r??e-(i??0),s=am(e,t,a),c=e,l=!1;for(;!l;){let{start:r,end:u}=t[$e(0,t.length,s)],d=u-r,f=r+Math.floor(s/t.length)*a;o<=f+n||f>=e?(c=f,s--):o<=f?(c=f,l=!0):((i&&d>i||c===e&&o>=f)&&(c=f),l=!0)}return c}function cm(){let e=a(zE);return Sm(!!e,`useTicker must be used within a Ticker component`),e}function lm(){let e=a(BE);return Sm(!!e,`useTickerItem must be used within a TickerItem`),e}function um(e,t){return(t?.offsetWidth??o.innerWidth)-(e.offsetLeft+e.offsetWidth)}function dm(e,t){return e===`y`?UE:t===`ltr`?HE:WE}function fm({children:e,offset:t,axis:n,listSize:r=0,numItems:i=0,itemIndex:a,cloneIndex:o,bounds:s,alignItems:c,reproject:l=!0,size:u=`auto`,safeMargin:d}){let{start:f,end:p}=s,{visibleLength:m,direction:h,inset:g}=cm(),{sign:_}=dm(n,h),v=N(()=>{if(!l)return 0;let e=t.get();if(!f&&!p||!r)return 0;if(e*_+s.end<=-g-d)return r*_;if(d>0){let t=m-d-g;if(e*_+s.start>=t)return-r*_}return 0}),y=N(()=>{let e=t.get(),n=v.get();return!f&&!p||!r?0:e*_+f+n*_}),b=o===void 0?{"aria-hidden":!1,"aria-posinset":a+1,"aria-setsize":i}:{"aria-hidden":!0},x=u===`fill`,S=c===`stretch`?`100%`:`fit-content`,C={className:o===void 0?`ticker-item`:`clone-item`,style:{flexGrow:0,flexShrink:0,position:`relative`,flexBasis:u===`fill`?`100%`:void 0,display:x?`grid`:void 0,gridTemplateColumns:x?`1fr`:void 0,gridTemplateRows:x?`1fr`:void 0,minWidth:x?0:void 0,minHeight:x?0:void 0,height:n===`x`?S:void 0,width:n===`y`?S:void 0,x:n===`x`?v:0,y:n===`y`?v:0},...b};return E(BE.Provider,{value:{start:f,end:p,offset:y,projection:v,itemIndex:a,cloneIndex:o,props:C},children:u===`manual`?e:E(pm,{children:e})})}function pm({children:e}){let{props:t}=lm();return E(nt.li,{...t,children:e})}function mm(e,t,n,r,i){let a=u(!1);p(()=>{let s=e.current;if(!s)return;let c=!1,l=new AbortController,u={signal:l.signal},d={...u,capture:!0},f=t===`x`?`scrollLeft`:`scrollTop`,p=t===`x`?`offsetLeft`:`offsetTop`,m=t===`x`?`ArrowLeft`:`ArrowUp`,h=t===`x`?`ArrowRight`:`ArrowDown`,g=[],_=0,v=()=>{let e=g[_];e&&(e.focus({preventScroll:!0}),n.set(-e[p]),s[f]=0,L.render(()=>{s[f]=0}))},y=e=>{if(e.key===`Tab`){e.preventDefault(),S();let t=Array.from(document.querySelectorAll(`a, button, input, textarea, select, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]`)).filter(gm);t.sort(hm);let n=t[e.shiftKey?0:t.length-1],r=e.shiftKey?t.length-1:0;if(s.contains(n)){t[r].focus();return}else{let n=t.indexOf(g[_]),r=e.shiftKey?-1:1;for(let e=n;e<t.length&&e>=0;e+=r){let n=t[e];if(!s.contains(n)){n.focus();return}}}return}else e.key===m?_--:e.key===h&&_++;_=$e(0,g.length,_),v()},b=()=>{a.current||(g=Array.from(s.querySelectorAll(`.ticker-item a, .ticker-item button, .ticker-item input, .ticker-item textarea, .ticker-item select, .ticker-item [tabindex]:not([tabindex="-1"]), .ticker-item [contenteditable="true"]`)).filter(gm),_=0,g.length&&(i(!0),a.current=!0,v(),o.addEventListener(`focus`,x,d),o.addEventListener(`blur`,x,d),s.addEventListener(`keydown`,y,u)))},x=e=>{(!e.target||!(e.target instanceof HTMLElement)||!s.contains(e.target))&&S()},S=()=>{a.current&&(a.current=!1,i(!1),r.set(n.get()),o.removeEventListener(`focus`,x),o.removeEventListener(`blur`,x),s.removeEventListener(`keydown`,y))},C=e=>{let{target:t}=e;gm(t)&&(a.current||b())},w=()=>{c||(c=!0,s.addEventListener(`focus`,C,d),o.addEventListener(`pointermove`,T,u))},T=()=>{c&&(c=!1,s.removeEventListener(`focus`,C,!0),o.removeEventListener(`pointermove`,T,u))};return o.addEventListener(`keydown`,w,u),s.addEventListener(`pointerdown`,e=>{let t=e.target.closest(`[aria-hidden="true"]`);t&&t.removeAttribute(`aria-hidden`)},u),s.addEventListener(`scroll`,()=>{s.scrollLeft=0,s.scrollTop=0},u),()=>{l.abort(),S()}},[])}function hm(e,t){return e.tabIndex>=1&&t.tabIndex>=1?e.tabIndex-t.tabIndex:e.tabIndex>=1&&t.tabIndex<=0?-1:t.tabIndex>=1&&e.tabIndex<=0?1:0}function gm(e){return e instanceof HTMLElement}function _m(e){return e.end-e.start}function vm(e){return e[e.length-1].end-e[0].start}function ym(e,t,n){let r=vm(t),i=Math.max(...t.map(_m)),a=0,o=0;for(;o<e;)o=(r+n)*(a+1)-i,a++;return Math.max(a-1,0)}function bm({items:e,velocity:n=50,hoverFactor:r=1,gap:i=10,axis:a=`x`,align:l=`center`,offset:d,isStatic:f=!1,itemSize:p=`auto`,overflow:m=!1,loop:h=!0,children:g,as:_=`div`,snap:v,safeMargin:y=0,fade:b=0,fadeTransition:x,pageTransition:S,...C},w){let T=u(null),D=at(w,T),O=u(null),[k,A]=t({direction:`ltr`,visibleLength:0,inset:0,totalItemLength:0,containerLength:0,itemPositions:[],isMeasured:!1,maxInset:null}),j=GE[l]||l,{sign:M}=dm(a,k.direction);if(f){let t=xe(0);return E(zE.Provider,{value:{...k,gap:i,clampOffset:se,offset:t,renderedOffset:t},children:E(xm,{containerProps:C,containerRef:D,children:g,gap:i,axis:a,alignItems:j,offset:t,renderedOffset:t,items:e,itemSize:p,state:k,overflow:m,safeMargin:y,isStatic:!0,as:_,fade:b,sign:M})})}let[ee,te]=t(!1),ne=xe(1),re=xe(0);d??=re;let ae=N(()=>k.direction===`rtl`&&a===`x`?$e(k.totalItemLength+i+k.inset,k.inset,d.get()):$e(-k.totalItemLength-i-k.inset,-k.inset,d.get())),oe=xe(0),ce=ee?oe:h?ae:d,le=ie(T,{margin:`100px`}),ue=fe(),pe=le&&ue,me=de(),he=()=>{if(!T.current||!O.current)return;let e=o.getComputedStyle(T.current).direction,{measureItem:t,lengthProp:n,viewportLengthProp:r,getCumulativeInset:i}=dm(a,e),s=a===`x`?`paddingLeft`:`paddingTop`,c=a===`x`?`paddingRight`:`paddingBottom`,l=T.current,u=O.current.querySelectorAll(`.ticker-item`);if(!u.length)return;let d=!1,f=[];for(let e=0;e<u.length;e++){let n=t(u[e],l);f.push(n);let r=k.itemPositions[e];(!r||n.start!==r.start||n.end!==r.end)&&(d=!0)}let p=Math.min(l[n],o[r]),g=m?o[r]:p;y>0&&(g+=y*2);let _=vm(f),v=o.getComputedStyle(l),b=parseInt(v[s]??0),x=parseInt(v[c]??0),S=m?i(u[0]):b,C=h===!1?Math.max(0,_-p+b+x):null;(g!==k.visibleLength||_!==k.totalItemLength||S!==k.inset||k.itemPositions.length!==f.length||d)&&A({direction:e,visibleLength:g,itemPositions:f,totalItemLength:_,inset:S,containerLength:p,maxInset:C,isMeasured:!0})};be(()=>{if(!pe||!T.current)return;he();let e=m?P(he):void 0,t=P(T.current,he);return()=>{e?.(),t()}},[e,pe,m]);let ge=k.totalItemLength>0;ve(ge&&pe&&d===re&&!me?(e,t)=>{let r=t/1e3*(n*M*ne.get());d.set(d.get()-r)}:se);let _e=s(()=>!ge||!k.visibleLength?0:ym(k.visibleLength,k.itemPositions,i),[ge,k]),ye=k.totalItemLength===0?0:(k.totalItemLength+i)*(_e+1),F=[];if(h)for(let t=0;t<_e;t++){let n=[];e.forEach((r,o)=>{let s=k.itemPositions[o],c=(k.totalItemLength+i)*(t+1),l=s?{start:s.start+c,end:s.end+c}:qE;n.push(E(fm,{offset:ce,axis:a,listSize:ye,itemIndex:o,cloneIndex:o,bounds:l,alignItems:j,size:p,safeMargin:y,numItems:e.length,children:r},`clone-${t}-${o}`))});let r=`ticker-group-${t}`;F.push(E(Xe,{id:r,children:n},r))}mm(T,a,oe,d,te);let I=c(e=>k.maxInset===null?e:Fe(-k.maxInset,0,e),[k.maxInset]);return E(zE.Provider,{value:{...k,gap:i,clampOffset:I,offset:d,renderedOffset:ce},children:E(xm,{containerProps:C,children:g,containerRef:D,listRef:O,gap:i,axis:a,alignItems:j,isMeasured:ge,isInView:pe,offset:d,renderedOffset:ce,items:e,itemSize:p,clonedItems:F,clampOffset:I,snap:v,safeMargin:y,onPointerEnter:()=>{Ne(ne,r)},onPointerLeave:()=>{Ne(ne,1)},totalListSize:ye,state:k,overflow:m,loop:h,as:_,fade:b,sign:M,fadeTransition:x,pageTransition:S})})}function xm({children:e,containerProps:t,containerRef:n,listRef:r,gap:i,axis:a,alignItems:o,isMeasured:c,isInView:l,isStatic:d,items:f,offset:p,clonedItems:m,clampOffset:h,renderedOffset:g,onPointerEnter:_,onPointerLeave:v,totalListSize:y,itemSize:x,overflow:S,state:C,safeMargin:w,snap:T,loop:D,as:O,fade:k,sign:j,fadeTransition:M=XE,pageTransition:ee}){let te=s(()=>nt.create(O),[O]),ne={},{maxInset:re}=C;re!==null&&(ne=a===`x`?j>0?{left:re*-1,right:0}:{right:re,left:0}:{top:re*-1,bottom:0});let{drag:ie,_dragX:ae,_dragY:oe,dragMomentum:se=!1,onDragEnd:ce,onPointerDown:ue,...de}=t,fe=a===`x`?ae:oe,pe=u(null),me=()=>{pe.current&&=(pe.current.stop(),null)};!ce&&ie&&fe&&(ue=()=>{fe.jump(p.get()),me()},ce=(e,{velocity:t})=>{let n=p.get();me(),L.postRender(()=>{let e=n+t[a]*(T?.3:.8);if(T)if(t[a]<0)e=-om(-n,C.itemPositions,i,-e);else if(t[a]>0)e=-sm(-n,C.itemPositions,i,-e,C.containerLength);else{let t=-om(-n,C.itemPositions,i,-n),r=-sm(-n,C.itemPositions,i,-n,C.containerLength);e=Math.abs(n-t)<Math.abs(n-r)?t:r}let r=D?{}:j>0?{max:0,min:ne[a===`x`?`left`:`top`]}:{min:0,max:ne.right};pe.current=Ne(fe,h(e*j)*j,T?ee:{type:`inertia`,velocity:t[a],modifyTarget:()=>e,bounceDamping:40,bounceStiffness:400,...r})})});let he=xe(D?0:1),P=xe(0),ge=dm(a,C.direction),_e=typeof k==`number`?`px`:``,ve=N(()=>`linear-gradient(to ${ge.direction}, rgba(0,0,0,${he.get()}) 0px, black ${k}${_e}, black calc(100% - ${k}${_e}), rgba(0,0,0,${P.get()}) 100%)`),ye=k?{maskImage:ve,WebkitMaskImage:ve}:{},F=u({start:!0,end:!1});return le(g,`change`,e=>{if(re===null)return;let t=re*-1;e*=j,e<0?F.current.start&&(Ne(he,0,M),F.current.start=!1):F.current.start||(Ne(he,1,M),F.current.start=!0),e>t?F.current.end&&(Ne(P,0,M),F.current.end=!1):F.current.end||(Ne(P,1,M),F.current.end=!0)}),A(b,{children:[E(te,{...de,ref:n,style:{overflowX:!S&&a===`x`?`clip`:void 0,overflowY:!S&&a===`y`?`clip`:void 0,...JE,...t.style,...ye},onPointerEnter:_,onPointerLeave:v,drag:ie,_dragX:ae,_dragY:oe,dragConstraints:ne,dragMomentum:se,onPointerDown:ue,onDragEnd:ce,children:A(nt.ul,{ref:r,style:{...YE,flexDirection:a===`x`?`row`:`column`,gap:`${i}px`,x:a===`x`?g:0,y:a===`y`?g:0,opacity:c||d?1:0,alignItems:o,willChange:c&&l?`transform`:void 0,width:`100%`,height:`100%`,maxHeight:`100%`,maxWidth:`100%`},children:[f.map((e,t)=>E(fm,{axis:a,offset:g,listSize:y,itemIndex:t,bounds:C.itemPositions[t]??qE,alignItems:o,size:x,reproject:D,safeMargin:w,numItems:f.length,children:e},`original-`+t)),m||null]})}),` `,e]})}function Sm(e,t){if(!e)throw Error(t)}function Cm(e,t){if(G(e))return e;if(!B(e))return;let n=e.split(` `),r=n[0],i=n[1]??n[0];if(t===`x`&&i)return wm(parseInt(i));if(t===`y`&&r)return wm(parseInt(r))}function wm(e){return Number.isNaN(e)?void 0:e}function Tm(e){let t=e.__FramerMetadata__.exports.default.annotations?.framerVariables;if(t)try{return JSON.parse(t)}catch{return}}function Em(e,t){return n=>{let r={},i=Tm(t);for(let e in n)lx(r)[i?.[e]??e]=n[e];return E(e,{...r})}}function Dm(e,t,n){let r=[],i=tl(e,t,e=>r.unshift(e,e));if(n){let e=i[i.length-1];if(!V(e))return iD;i.push(e+1),r.push(-1)}let a=i[0];return V(a)?a<=1?{inputRange:i,outputRange:r}:{inputRange:[0,Math.max(a-1,0),...i],outputRange:[-1,-1,...r]}:iD}function Om(e){return e.weight!==void 0&&e.style!==void 0}function km(e,t){let n=t===`normal`?`Regular`:`Italic`;return e===400?n:t===`normal`?`${pD[e]}`:`${pD[e]} ${n}`}function Am(){return o===void 0?{}:hD||(hD=jm(),hD)}function jm(){let e=o.location,t=o?.bootstrap?.services;if(t)return t;let n;try{if(n=o.top.location.origin,t=o.top?.bootstrap?.services,t)return t}catch{}if(n&&n!==e.origin)throw Error(`Unexpectedly embedded by ${n} (expected ${e.origin})`);if(e.origin.endsWith(`framer.com`)||e.origin.endsWith(`framer.dev`))throw Error(`ServiceMap data was not provided in document`);try{let n=new URLSearchParams(e.search).get(`services`)||new URLSearchParams(e.hash.substring(1)).get(`services`);n&&(t=JSON.parse(n))}catch{}if(t&&typeof t==`object`&&t.api)return t;throw Error(`ServiceMap requested but not available`)}function Mm(e){return e.key+e.extension}function Nm(e){return`${Am().userContent}/assets/${e}`}function Pm(e){return Nm(Mm(e))}function Fm(e,t){return t?`${e} ${gD}`:e}function Im(e,t){switch(t){case`custom`:throw Error(`Custom fonts are not supported`);default:return Fm(e.name,e.isVariable)}}function Lm(e){return!!(e&&Array.isArray(e))}function Rm(e){if(!e||!Array.isArray(e))return;let t=[];for(let n of e)Bm(n)&&t.push({tag:n.tag,name:n.name,minValue:n.minValue,maxValue:n.maxValue,defaultValue:n.defaultValue});return t}function zm(e){return!(typeof e!=`object`||!e||!(`tag`in e)||typeof e.tag!=`string`||`coverage`in e&&e.coverage!==void 0&&!Array.isArray(e.coverage))}function Bm(e){return!(typeof e!=`object`||!e||!(`tag`in e)||typeof e.tag!=`string`||`name`in e&&typeof e.name!=`string`||!(`minValue`in e)||typeof e.minValue!=`number`||!(`maxValue`in e)||typeof e.maxValue!=`number`||!(`defaultValue`in e)||typeof e.defaultValue!=`number`)}function Vm(e){return yD[Um(e)]}function Hm(e,t){let n=e?.find(e=>e.tag===`wght`)?.defaultValue;return n!==void 0&&n>=1&&n<=1e3?n:t??Vm(`variable`)??500}function Um(e){return e.toLowerCase().replace(/\s+/gu,`-`)}function Wm(e){return e=e.toLowerCase(),e.includes(`italic`)||e.includes(`oblique`)||e.includes(`slanted`)?`italic`:`normal`}function Gm(e,t){return{...Km(e,t),...qm(e,t)}}function Km(e,t){if(t.length===0)return{variantBold:void 0,variantBoldItalic:void 0,variantItalic:void 0};let{weight:n,style:r}=e,i=new Map,a=new Map;for(let r of t)r.isVariable===e.isVariable&&(i.set(`${r.weight}-${r.style}`,r),!(r.weight<=n)&&(a.has(r.style)||a.set(r.style,r)));let o=a.get(r),s=a.get(`italic`),c=e.weight;c<=300?(o=i.get(`400-${r}`)??o,s=i.get(`400-italic`)??s):c<=500?(o=i.get(`700-${r}`)??o,s=i.get(`700-italic`)??s):(o=i.get(`900-${r}`)??o,s=i.get(`900-italic`)??s);let l=i.get(`${n}-italic`);return{variantBold:o,variantItalic:l,variantBoldItalic:s}}function qm(e,t){if(t.length===0)return{variantVariable:void 0,variantVariableItalic:void 0};let n,r,i,a;for(let o of t){if(!o.isVariable)continue;let t=o.weight===e.weight,s=o.weight===400;o.style===`normal`?t?n=o:s?i=o:i||=o:o.style===`italic`&&(t?r=o:s?a=o:a||=o)}return{variantVariable:n??i,variantVariableItalic:r??a}}function Jm(e){return!!e.variationAxes}function Ym(e){return Xm(e)||Zm(e)}function Xm(e){return e.startsWith(SD)}function Zm(e){return e.startsWith(xD)}function Qm(e,t){for(let n=0;n<e.length;n++){let r=e[n];if(r){if(r.owner!==t.owner&&r.file===t.file)return{existingFont:r,index:n,projectDuplicate:!0};if(r&&r.selector===t.selector)return{existingFont:r,index:n,projectDuplicate:!1}}}}function $m(e){let{font:t}=e,n=t.fontFamily,r=Array.isArray(t.variationAxes);if(r&&n.toLowerCase().includes(`variable`))return n;let i=r?gD:t.fontSubFamily.trim();return i===``?n:`${n} ${i}`}function eh({fontFamily:e,fontSubFamily:t,variationAxes:n,faceDescriptors:r}){let i=t.trim()||`Regular`,a=i.toLocaleLowerCase().includes(`variable`),o=Rm(n)&&!a?`Variable ${i}`:i,s=`normal`,c=400;return r&&(c=r.weight,s=r.italic||r.oblique?`italic`:`normal`),{family:e,variant:o,weight:c,style:s}}function th(e){if(!(!e.weight||!e.style))return{weight:e.weight,style:e.style,isVariable:Jm(e),selector:e.selector}}function nh(e){let t=e.fonts.map(e=>th(e)).filter(e=>e!==void 0);for(let n of e.fonts){let e=th(n);if(!e)continue;let r=Gm(e,t);n.selectorVariable=r.variantVariable?.selector,n.selectorVariableItalic=r.variantVariableItalic?.selector,n.selectorBold=r.variantBold?.selector,n.selectorBoldItalic=r.variantBoldItalic?.selector,n.selectorItalic=r.variantItalic?.selector}}function rh(e){return e.ownerTypes.includes(`team`)?`team`:`project`}async function ih(e){switch(e){case`google`:return(await import(`./google-3SZHWBC6.C2mhnJN1.mjs`)).default;case`fontshare`:return(await import(`./fontshare-B2QLD7YB.C-nE2VwH.mjs`)).default;default:throw Error(`Unknown font source: ${e}`)}}async function ah(e){switch(e){case`google`:return(await import(`./google-3FCAKCAC.CLFlKKO5.mjs`)).default;case`fontshare`:return(await import(`./fontshare-4THNDPMZ.DVFtyCK6.mjs`)).default;case`framer`:return(await import(`./framer-font-45AI7UCZ._ReXWk3e.mjs`)).default;default:throw Error(`Unknown font source: ${e}`)}}function oh(e){return e.split(`,`).map(e=>e.trim().toLowerCase()).filter(sh)}function sh(e){return wD.includes(e)}function ch(e){let t={serif:`serif`,sans:`sans-serif`,slab:`slab`,display:`display`,handwritten:`handwriting`,script:`handwriting`},n=oh(e)[0];return n&&t[n]}function lh(e){let t={serif:`serif`,"sans-serif":`sans-serif`,display:`display`,handwriting:`handwriting`,monospace:`monospace`};if(e)return t[e]}function uh(e,t){return e.reduce((e,n)=>(e[t(n)]=n,e),{})}async function dh(e,t,n=0){let{family:r,url:i,stretch:a,unicodeRange:o}=e,s=e.weight,c=e.style||`normal`,l=`${r}-${c}-${s}-${i}`;if(!BD.has(l)||n>0){let u=new FontFace(r,`url(${i})`,{weight:B(s)?s:s?.toString(),style:c,stretch:a,unicodeRange:o}),d=u.load().then(()=>(t.fonts.add(u),fh(r,c,s))).catch(l=>{if(l.name!==`NetworkError`)throw l;if(n<RD)return dh(e,t,n+1);throw new zD(`Font loading failed after ${n} retries due to network error: ${JSON.stringify({family:r,style:c,weight:s,url:i,stretch:a,unicodeRange:o})}`)});BD.set(l,d)}await BD.get(l)}async function fh(e,t,n){let r=`${e}-${t}-${n}`;if(!VD.has(r)){let i=new ID.default(e,{style:t,weight:n}).load(null,LD);VD.set(r,i)}try{await VD.get(r)}catch{throw new zD(`Failed to check if font is ready (${LD}ms timeout exceeded): ${JSON.stringify({family:e,style:t,weight:n})}`)}}function ph(e){try{if(e===`framer`)return mh(UD)?UD:void 0;{let t=(async()=>{switch(e){case`google`:return(await import(`./google-GXDJLGJB.CRCRyUIN.mjs`)).default;case`fontshare`:return(await import(`./fontshare-O22OBJ3D.CeL3uey8.mjs`)).default;default:W(e)}})();return mh(t)?t:void 0}}catch(e){console.error(e);return}}function mh(e){return H(e)&&Object.values(e).every(gh)}function hh(e){return H(e)&&B(e.tag)}function gh(e){return Array.isArray(e)&&e.every(hh)}function _h(e,t){p(()=>{function n(n){n.key===`Escape`&&e&&(n.preventDefault(),n.stopPropagation(),t())}return o.addEventListener(`keyup`,n),()=>o.removeEventListener(`keyup`,n)},[e,t])}function vh(e,t,n,r){let i=o.innerHeight-r,a=Math.min(o.innerWidth-n,t),s=i/e;return Math.min(a,s)}function yh(e,{width:t,height:n}){if(!e.src||!e.srcSet)return;let r=new o.Image;return r.src=e.src,r.srcset=e.srcSet,r.sizes=e.sizes||``,r.width=t,r.height=n,r.decode()}function bh(){return document.getElementById(sw)??document.getElementById(ow)??document.body}function xh(e,t){return V(e)?e:t??0}function Sh(e){return xh(e?.paddingTop,e?.padding)+xh(e?.paddingBottom,e?.padding)}function Ch(e){return xh(e?.paddingLeft,e?.padding)+xh(e?.paddingRight,e?.padding)}function wh(e,t){if(!e||!t||!t.src)return t;let n=new URL(t.src);return n.searchParams.delete(`scale-down-to`),n.searchParams.delete(`lossless`),{...t,sizes:`min(100vw, ${e.maxWidth-Ch(e)}px)`,srcSet:xo(t.nodeFixedSize,t,t.src).srcSet}}function Th(e){if(!e)return!1;for(let t in e){if(!(t in KD))continue;let n=KD[t],r=e[t];if(!(!V(n)||!V(r))&&n!==r)return!0}return!1}function Eh(e){let t=Me.get(e.current);if(!t)return!1;if(Th(t.projection?.latestValues))return!0;let n=t.projection?.path;if(!n||n.length===0)return!1;for(let e of n)if(Th(e.latestValues))return!0;return!1}function Dh(e){return j(function({lightbox:n,lightboxClassName:r,onClick:i,...o},l){let d=a(Te),f=a($E),m=!!f,h=u(null),g=l??h,_=u(),v=s(()=>wh(n,o.background),[n,o.background]),[y,x]=t(!1),[S,C]=t(),w=c(()=>{if(n){if(y){te(()=>{x(!0)});return}L.read(()=>{if(!g.current)return;let e=getComputedStyle(g.current),t=g.current.getAttribute(`data-border`)===`true`?getComputedStyle(g.current,`::after`):void 0,r=g.current.offsetWidth??1,i=g.current.offsetHeight??1,a=Eh(g)||m?{duration:0}:n.transition;te(()=>{C({borderRadius:e.borderRadius,aspectRatio:r/(i||1),borderTop:t?.borderTopWidth,borderRight:t?.borderRightWidth,borderBottom:t?.borderBottomWidth,borderLeft:t?.borderLeftWidth,borderStyle:t?.borderStyle,borderColor:t?.borderColor,transition:a,imageRendering:e.imageRendering,filter:e.filter}),x(!0),f?.stop()})})}},[n,y,g,f?.stop,m]),D=S?.aspectRatio??1,O=bp(()=>{if(!n||!v||!v.src)return;let e=_.current?.[v.src];if(e)return e;let t=vh(D,n.maxWidth,Ch(n),Sh(n)),r=yh(v,{width:t,height:t*D});return _.current={[v.src]:r},r}),k=c(async e=>{i?.(e),!(y||!n||!v)&&(await O(),w())},[i,w,y,v,n,O]),j=c(e=>{e?.stopPropagation(),te(()=>{x(!1)})},[]);_h(y,j),p(()=>{if(!n)return;let e;function t(){e=setTimeout(()=>{O()},50)}function r(){clearTimeout(e)}let i=g.current;return i?.addEventListener(`mouseenter`,t),i?.addEventListener(`mouseleave`,r),i?.addEventListener(`pointerdown`,O),()=>{r(),i?.removeEventListener(`mouseenter`,t),i?.removeEventListener(`mouseleave`,r),i?.removeEventListener(`pointerdown`,O)}},[O,g,n]);let M=ee(),N=S?.transition??o.transition??d.transition,re=S?.borderRadius,ie=S?.imageRendering,ae=S?.filter,oe=S?.borderTop,se=S?.borderRight,ce=S?.borderBottom,le=S?.borderLeft,ue=S?.borderStyle,de=S?.borderColor,fe=!!(oe||se||ce||le||ue||de),pe=fe?{"--border-top-width":oe,"--border-right-width":se,"--border-bottom-width":ce,"--border-left-width":le,"--border-style":ue,"--border-color":de}:void 0,me={[HC]:o.id},he=xh(n?.paddingTop,n?.padding),P=xh(n?.paddingBottom,n?.padding),ge=xh(n?.paddingLeft,n?.padding),_e=xh(n?.paddingRight,n?.padding),ve=S?.borderRadius?{...o.style,borderRadius:S.borderRadius}:o.style,ye=y?o.layoutDependency?`${o.layoutDependency}-open`:`open`:o.layoutDependency,F=m&&y?void 0:o.layoutId??(n?M:void 0);return A(b,{children:[E(e,{...o,style:ve,onClick:k,layoutId:F,ref:g,layoutDependency:ye,transition:N}),E(Ue,{onExitComplete:()=>{te(()=>{C(void 0),f?.start()})},children:y&&n&&v&&E(ne,{children:T(A(b,{children:[E(nt.div,{...me,className:r,onClick:j,style:{position:`fixed`,inset:0,zIndex:n.zIndex,backgroundColor:n.backdrop??`transparent`},transition:N,initial:qD,animate:JD,exit:qD}),E(nt.div,{...me,className:r,style:{alignItems:`center`,display:`flex`,inset:`${he}px ${_e}px ${P}px ${ge}px`,justifyContent:`center`,pointerEvents:`none`,position:`fixed`,zIndex:n.zIndex},children:E(`div`,{style:{alignItems:`center`,aspectRatio:D,display:`flex`,justifyContent:`center`,maxHeight:`100%`,position:`relative`,width:`100%`,maxWidth:n.maxWidth},children:E(nt.div,{layoutId:F,transition:N,onClick:w,className:`framer-lightbox-container`,"data-border":fe,style:{aspectRatio:D,borderRadius:re,bottom:0,position:`absolute`,top:0,userSelect:`none`,imageRendering:ie,filter:ae,...pe},children:E(Ao,{image:v,alt:v.alt,draggable:o.draggable})})})})]}),bh())},`backdrop`)})]})})}function Oh(e,t){return ZD&&!t?Document.parseHTMLUnsafe(e):(XD??=new DOMParser,XD.parseFromString(e,t??`text/html`))}function kh(e){return e.replaceAll(`&`,`&amp;`).replaceAll(`<`,`&lt;`).replaceAll(`>`,`&gt;`).replaceAll(`"`,`&quot;`).replaceAll(`'`,`&#39;`)}function Ah(e,t,n,r){return e.replace(QD,(e,i,a,o,s,c,l)=>{if(a.toLowerCase()!==`a`)return e;let u=s||c,d=$l(u.replace(/&amp;/gu,`&`));if(!d||!d.target)return e;let f=t(d.target);if(!zp(f)||!zp(n))return e;let p=f.path,m=n.path;if(!p||!m)return e;let h=` data-framer-page-link-target="${d.target}"`,g=Wt(f,d.element??void 0);g&&(h+=` data-framer-page-link-element="${d.element}"`);let _=tu(u);if(!_||B(_))return e;Uu(n,_,r)&&(h+=` data-framer-page-link-current`);let v=p,y=Object.assign({},r,d.collectionItem?.pathVariables);if(Object.keys(y).length>0&&(v=v.replace(uw,(e,t)=>``+y[t])),d.collectionItem?.pathVariables){let e=new URLSearchParams(d.collectionItem.pathVariables);h+=` data-framer-page-link-path-variables="${e}"`}return v=zn(m,v),i+o+`"${kh(v+(g?`#${g}`:``))}"`+h+l})}function jh(e,t){return e.length===t.length&&e.every((e,n)=>e===t[n])}function Mh(e){switch(e){case`top`:return`flex-start`;case`center`:return`center`;case`bottom`:return`flex-end`}}function Nh(e,t,n){let r=u([]);jh(r.current,e)||(r.current=e,GD.loadFonts(e).then(({newlyLoadedFontCount:e})=>{!t||!n.current||X.current()!==X.canvas||e>0&&Yo(n.current)}))}function Ph(){return{current:null}}async function Fh(e,t){let n=e.current;if(n)return n;let r,i=new Promise((e,n)=>{r=e,t.signal.addEventListener(`abort`,()=>n())});return Object.defineProperty(e,`current`,{get(){return n},set(e){if(n=e,e===null){t.abort();return}r(e)},configurable:!0}),i}function Ih(e){return e in nO}function Lh(e,t){let n={};for(let r in e){if(!Ih(r))continue;let i=e[r],a=nO[r];ut(i)||ut(a)||t&&r!==`opacity`||(n[r]=[i,a])}return n}function Rh(e,t=`character`,n,r,i){if(r){let t=Ph();return n.add(t),E(`span`,{ref:t,style:i,children:e})}switch(t){case`character`:case`line`:{let t=e.split(` `),r=t.length-1;return t.map((e,t)=>{let a=t===r;return A(ne,{children:[E(`span`,{style:{whiteSpace:e.length<=12?`nowrap`:`unset`},children:e.match(rO)?.map((e,t)=>{let r=Ph();return n.add(r),E(`span`,{ref:r,style:i,children:e},e+t)})}),a?null:` `]},e+t+a)})}case`word`:{let t=e.split(` `),r=t.length-1;return t.map((e,t)=>{let a=t===r,o=Ph();return n.add(o),A(ne,{children:[E(`span`,{ref:o,style:i,children:e}),a?null:` `]},e+t+a)})}case`element`:default:return e}}function zh(e){let t=e.type;switch(t){case`appear`:return e.tokenization??`character`;default:W(t)}}function Bh(e){let t=[];return V(e.x)&&t.push(`translateX(${e.x}px)`),V(e.y)&&t.push(`translateY(${e.y}px)`),V(e.scale)&&t.push(`scale(${e.scale})`),V(e.rotate)&&t.push(`rotate(${e.rotate}deg)`),V(e.rotateX)&&t.push(`rotateX(${e.rotateX}deg)`),V(e.rotateY)&&t.push(`rotateY(${e.rotateY}deg)`),V(e.skewX)&&t.push(`skewX(${e.skewX}deg)`),V(e.skewY)&&t.push(`skewY(${e.skewY}deg)`),t.join(` `)}function Vh(e,t,n,r){if(!n||!n.effect)return;let i=n.type;switch(i){case`appear`:switch(n.tokenization){case`element`:return!e||!t?void 0:{opacity:n.effect.opacity,filter:r?void 0:n.effect.filter,transform:r?void 0:Bh(n.effect)};case`line`:case`word`:case`character`:default:return!e||!t?{display:`inline-block`}:{display:`inline-block`,opacity:n.effect.opacity,filter:r?void 0:n.effect.filter,transform:r?void 0:Bh(n.effect)}}default:W(i)}}function Hh(e,t,n){let r=sa(()=>new Set),i=mo(),a=n||!i,o=Ce(),c=u({hasMounted:!1,hasAnimatedOnce:!1,isAnimating:!1,effect:e});c.current.effect=e;let l=e?.trigger??`onMount`,d=e?.target,f=e?.threshold;p(()=>{if(!a||n)return;c.current.hasMounted=!0;function e(){let{effect:e}=c.current;if(!a||!e||e?.repeat!==!0&&c.current.hasAnimatedOnce||e?.type===`appear`&&c.current.isAnimating)return;Object.assign(c.current,{hasAnimatedOnce:!0,isAnimating:!0});let t=e.type;switch(t){case`appear`:{let{transition:t,startDelay:n,repeat:i,tokenization:a}=e,s={current:void 0};return Wh(a,e.effect,r,t,n,i,o,()=>{Object.assign(c.current,{isAnimating:!1})},s),()=>s.current?.()}default:W(t)}}switch(l){case`onMount`:e();return;case`onInView`:{let n=t?.current;return n?tt(n,e,{amount:f??0}):void 0}case`onScrollTarget`:{let t=d?.ref?.current;return t?tt(t,e,{amount:f??0,root:document,margin:d?.offset?`${d.offset}px 0px 0px 0px`:void 0}):void 0}default:W(l)}},[a,r,n,t,d,f,l]);let m=!!e,h=e?zh(e):void 0;return s(()=>({getTokenizer:()=>{if(r.clear(),!m)return;let{hasMounted:e,hasAnimatedOnce:t,effect:i}=c.current,s=Vh(a,n||Uh(e,t,i),c.current.effect,o);return{text:e=>Rh(e,h,r,o,s),props:e=>{if(i?.tokenization!==`element`)return;let t=Ph();return r.add(t),{ref:t,style:{...e,...s}}}}},play:()=>{let{effect:e}=c.current;if(!e)return;let t=e.type;switch(t){case`appear`:{let{transition:t,startDelay:n}=e;Wh(h,e.effect,r,t,n,!1,o);break}default:W(t)}}}),[a,m,r,n,h])}function Uh(e,t,n){return!(e&&n?.trigger===`onMount`||t&&!n?.repeat&&(n?.trigger===`onInView`||n?.trigger===`onScrollTarget`))}async function Wh(e=`character`,t,n,r,i=0,a=!1,o,s,c){let l=Lh(t,o),u=new AbortController;switch(c&&(c.current=()=>u.abort()),e){case`character`:case`element`:case`word`:{let e=await Gh(n,u);if(e===null||(Ne(e,l,{...r,restDelta:.001,delay:me(r?.delay??0,{startDelay:i})}).then(()=>s?.()),!a||!c))return;c.current=()=>{Ne(e,o?{opacity:t.opacity}:t,{...r,restDelta:.001,delay:me(r?.delay??0,{startDelay:i})})};return}case`line`:{try{for(let e of n)await Fh(e,u)}catch{return}let e;if(L.read(()=>{e=Kh(n),e.length!==0&&L.update(()=>{let t=e.map((e,t)=>Ne(e,l,{...r,restDelta:.001,delay:i+t*(r?.delay??0)}));Promise.all(t).then(()=>s?.())})}),!a||!c)return;c.current=()=>{if(e.length===0)return;let n=o?{opacity:t.opacity}:t;e.forEach((e,t)=>{Ne(e,n,{...r,restDelta:.001,delay:i+t*(r?.delay??0)})})};return}default:W(e)}}async function Gh(e,t){if(e.size===0)return null;let n=[];for(let r of e)try{let e=await Fh(r,t);e&&n.push(e)}catch{return null}return n}function Kh(e){let t=[],n=[],r=null;for(let i of e){if(!i.current)continue;let e=i.current.offsetTop,a=i.current.offsetHeight;!a||r===null||e===r?n.push(i.current):(t.push(n),n=[i.current]),a&&(r=e)}return t.push(n),t}function qh(e){let t={};for(let n in e)(ae(n)||dx(n))&&(t[n]=e[n]);return t}function Jh(e){return e.type===ne}function Yh(e){return e.type===`br`}function Xh(e,t,n,r,i={},a,o=Jh(e)?-1:0){let s=d.toArray(e.props.children);ut(n)||(s=s.slice(0,1));let c=!0;s=s.map(e=>{if((!O(e)||!Yh(e))&&(c=!1),O(e))return Xh(e,t,n,r,i,a,o+1);let s=ut(n)?e:n;return B(s)&&a?a.text(s):s});let{"data-preset-tag":l,...u}=e.props;if(B(e.type)||rt(e.type)){let n=ce(e.type)||e.type,d=l||n,f=B(d)?t?.[d]:void 0;u.className=kc(`geo-text`,u.className,f),a&&o===0&&!c&&Object.assign(u,a.props(u.style));let p=n===`h1`||n===`h2`||n===`h3`||n===`h4`||n===`h5`||n===`h6`,m=t?.anchor;if(p&&m){let e=Zh(s,i);u.id=e;let t=kc(`geo-text`,m),n=E(`a`,{href:`#${e}`,className:t,children:s});u.style={...u.style??{},scrollMarginTop:r},s=[n]}}return f(e,u,...s)}function Zh(e,t){let n=Or(e.map(Qh).join(``)),r=t[n]??0;return r>0&&(n+=`-${r}`),t[n]=r+1,n}function Qh(e){return B(e)||V(e)?e.toString():O(e)?Qh(e.props.children):Array.isArray(e)?e.map(Qh).join(``):``}function $h(e){let t=e*Math.PI/180,n={x:-Math.sin(t)*100,y:Math.cos(t)*100},r=yi(n.x,n.y),i=My(yi(.5,.5),r),a=Z.points({x:0,y:0,width:1,height:1}),o=a.map(e=>({point:e,distance:yi.distance(r,e)})).sort((e,t)=>e.distance-t.distance),s=o[0]?.point,c=o[1]?.point;U(s&&c,`linearGradientLine: Must have 2 closest points.`);let[l,u]=a.filter(e=>!yi.isEqual(e,s)&&!yi.isEqual(e,c));U(l&&u,`linearGradientLine: Must have 2 opposing points.`);let d=My.intersection(i,My(s,c)),f=My.intersection(i,My(l,u));return U(d&&f,`linearGradientLine: Must have a start and end point.`),My(d,f)}function eg(e,t){let n=$h(e.angle),r=is(e),i=r[0]?.position??0,a=r[r.length-1]?.position??1,o=My.pointAtPercentDistance(n,i),s=My.pointAtPercentDistance(n,a),c=De([i,a],[0,1]);return{id:`id${t}g${Vx.hash(e)}`,x1:o.x,y1:o.y,x2:s.x,y2:s.y,stops:r.map(t=>({color:t.value,alpha:Fx.getAlpha(t.value)*e.alpha,position:c(t.position)}))}}function tg(e,t){return{id:`id${t}g${Ux.hash(e)}`,widthFactor:e.widthFactor,heightFactor:e.heightFactor,centerAnchorX:e.centerAnchorX,centerAnchorY:e.centerAnchorY,stops:is(e).map(t=>({color:t.value,alpha:Fx.getAlpha(t.value)*e.alpha,position:t.position}))}}function ng(e){if(!B(e)||e.charAt(e.length-1)!==`%`)return!1;let t=e.slice(0,-1);return V(parseFloat(t))}function rg(e){let t=e.slice(0,-1),n=parseFloat(t);return V(n)?n:50}function ig(e){return ng(e)?rg(e)/100:e===`left`?0:e===`right`?1:.5}function ag(e){return ng(e)?rg(e)/100:e===`top`?0:e===`bottom`?1:.5}function og(e,t,n,r){if(e=ty.get(e,`#09F`),!Cx.isImageObject(e)||!e.pixelWidth||!e.pixelHeight)return;let i=e.pixelWidth,a=e.pixelHeight,o,{fit:s}=e,c=1,l=1,u=0,d=0;if(s===`fill`||s===`fit`||s===`tile`||!s){let n=1,f=1,p=i/a,m=t.height*p,h=t.width/p,g=m/t.width,_=h/t.height;if(s===`tile`){e.backgroundSize??=1,c=Math.round(e.backgroundSize*(i/2)),l=Math.round(e.backgroundSize*(a/2));let n=t.x??0,s=t.y??0,f=0,p=0;r&&(f=n,p=s),u=(t.width-c)*ig(e.positionX)+f,d=(t.height-l)*ag(e.positionY)+p,o=`translate(${u+n}, ${d+s})`}else (s===`fill`||!s?_>g:_<g)?(f=_,d=(1-_)*ag(e.positionY)):(n=g,u=(1-g)*ig(e.positionX)),o=`translate(${u}, ${d}) scale(${n}, ${f})`}return{id:`id${n}g-fillImage`,path:e.src??``,transform:o,width:c,height:l,offsetX:u,offsetY:d}}function sg(e){return e.startsWith(`data:${dO}`)}function cg(e,t){if(/^\w+:/u.test(e)&&!sg(e))return e;t=typeof t==`number`?t<=512?512:t<=1024?1024:t<=2048?2048:4096:void 0;let n=X.current()===X.export;return gx.assetResolver(e,{pixelSize:t,isExport:n})??``}function lg(e,t){return p(()=>_O.subscribeToTemplate(e),[e]),_O.template(e,t)}function ug(e){try{let t=Oh(e).getElementsByTagName(`svg`)[0];if(!t)throw Error(`no svg element found`);return t}catch{return}}function dg(e,t){pg(e,fg(t))}function fg(e){return e.replace(/[^\w\-:.]|^[^a-z]+/gi,``)}function pg(e,t){mg(e,t),Array.from(e.children).forEach(e=>{pg(e,t)})}function mg(e,t){e.getAttributeNames().forEach(n=>{let r=e.getAttribute(n);if(!r)return;if(n===`id`&&e.setAttribute(n,`${t}_${r}`),n===`href`||n===`xlink:href`){let[i,a]=r.split(`#`);if(i)return;e.setAttribute(n,`#${t}_${a}`);return}let i=`url(#`;if(r.includes(i)){let a=r.replace(i,`${i}${t}_`);e.setAttribute(n,a)}})}function hg(e){if(!e)return;let t=/(-?[\d.]+)([a-z%]*)/u.exec(e);if(!(t?.[1]===void 0||t?.[2]===void 0)&&!t[2]?.startsWith(`%`))return Math.round(parseFloat(t[1])*(vO[t[2]]||1))}function gg(e){let t=hg(e.getAttribute(`width`)),n=hg(e.getAttribute(`height`));if(!(typeof t!=`number`||typeof n!=`number`)&&!(t<=0||n<=0))return{width:t,height:n}}function _g(e){return e.indexOf(`image`)>=0}function vg(e){return e.indexOf(`var(--`)>=0}function yg(e){return!!(e.borderRadius||e.borderBottomLeftRadius||e.borderBottomRightRadius||e.borderTopLeftRadius||e.borderTopRightRadius)}function bg(e,t){let n=e.current;if(!n)return;let r=t.providedWindow??J,i=n.firstElementChild;if(!i||!(i instanceof r.SVGSVGElement))return;if(!i.getAttribute(`viewBox`)){let e=_O.getViewBox(t.svg);e&&i.setAttribute(`viewBox`,e)}let{withExternalLayout:a,parentSize:o}=t;if(!a&&Ca(t)&&o!==1&&o!==2)return;let{intrinsicWidth:s,intrinsicHeight:c,_constraints:l}=t;i.viewBox?.baseVal?.width===0&&i.viewBox?.baseVal?.height===0&&G(s)&&G(c)&&i.setAttribute(`viewBox`,`0 0 ${s} ${c}`),l&&l.aspectRatio?i.setAttribute(`preserveAspectRatio`,``):i.setAttribute(`preserveAspectRatio`,`none`),i.setAttribute(`width`,`100%`),i.setAttribute(`height`,`100%`)}function xg({height:e,width:t,children:n}){let r=Sg();if(!r||!n)return n;let{props:i}=r;return E(nt.li,{...i,style:{...i.style,width:t??`fit-content`,height:e??`fit-content`},children:n})}function Sg(){try{return lm()}catch{return}}function Cg(e){return e>CO?`lazy`:void 0}function wg(e,t,n){let r=Og(t);!n?.supportsExplicitInterCodegen&&!r.some(e=>e.explicitInter===!1)&&r.push({explicitInter:!1,fonts:[]}),Object.assign(e,{fonts:r})}function Tg(e){return e?e.fonts??Qr():Qr()}function Eg(e){return e.length===0?[{explicitInter:!1,fonts:[]}]:Og(e)}function Dg(e){return e.length===0?[{explicitInter:!1,fonts:[]}]:Og(e)}function Og(e){let t={explicitInter:!1,fonts:[]},n=[];for(let r of e)kg(r)?n.push({explicitInter:r.explicitInter,fonts:r.fonts.map(Ag)}):t.fonts.push(Ag(r));return t.fonts.length>0&&n.push(t),n}function kg(e){return wO in e}function Ag(e){let t=jg(e)||Mg(e)?e:Ng(e);return Mg(t)?t:Pg(t)}function jg(e){return`source`in e}function Mg(e){return`cssFamilyName`in e}function Ng(e){let t;return t=e.url.startsWith(`https://fonts.gstatic.com/s/`)?`google`:e.url.startsWith(`https://framerusercontent.com/third-party-assets/fontshare/`)?`fontshare`:`custom`,{...e,source:t}}function Pg(e){let{family:t,...n}=e,r=e.variationAxes&&e.source!==`custom`?`${t} ${gD}`:t;return{...n,uiFamilyName:t,cssFamilyName:r}}function Fg(e,t){let n=`${e}-start`;performance.mark(n),t();let r=`${e}-end`;performance.mark(r),performance.measure(e,n,r)}function Ig(e){return e.loader}function Lg(e,t,n){let r=Ig(e);return r?r.load(t,n):Promise.resolve(void 0)}var Rg,zg,Bg,Vg,Hg,Ug,Wg,Gg,Kg,qg,Jg,Yg,Xg,Zg,Qg,$g,e_,t_,n_,r_,i_,a_,o_,s_,c_,l_,u_,d_,f_,p_,m_,h_,g_,__,v_,y_,b_,x_,S_,C_,w_,T_,E_,D_,J,O_,k_,A_,j_,M_,N_,P_,F_,I_,L_,R_,z_,B_,V_,H_,U_,W_,G_,K_,q_,J_,Y_,X_,Z_,Q_,$_,ev,tv,nv,rv,iv,av,ov,sv,cv,lv,uv,dv,fv,pv,mv,hv,gv,_v,vv,yv,bv,xv,Sv,Cv,wv,Tv,Ev,Dv,Ov,kv,Av,jv,Mv,Nv,Pv,Fv,Iv,Lv,Rv,zv,Bv,Vv,Hv,Uv,Wv,Gv,Kv,qv,Jv,Yv,Xv,Zv,Qv,$v,ey,ty,ny,ry,iy,ay,oy,sy,cy,ly,uy,dy,fy,py,my,Y,hy,gy,_y,vy,yy,by,xy,Sy,Cy,wy,X,Ty,Ey,Dy,Oy,ky,Ay,jy,My,Z,Ny,Py,Fy,Iy,Ly,Ry,zy,By,Vy,Hy,Uy,Wy,Gy,Ky,qy,Jy,Yy,Xy,Zy,Qy,$y,eb,tb,nb,rb,ib,ab,ob,sb,cb,lb,ub,db,fb,pb,mb,hb,gb,_b,vb,yb,bb,xb,Sb,Cb,wb,Tb,Eb,Db,Ob,kb,Ab,jb,Mb,Nb,Pb,Fb,Ib,Lb,Rb,zb,Bb,Vb,Hb,Ub,Wb,Gb,Kb,qb,Jb,Yb,Xb,Zb,Qb,$b,ex,tx,nx,rx,ix,ax,ox,sx,cx,lx,ux,dx,fx,px,mx,hx,gx,_x,vx,yx,bx,xx,Sx,Cx,wx,Tx,Ex,Dx,Ox,kx,Ax,jx,Mx,Nx,Px,Fx,Ix,Lx,Rx,zx,Bx,Vx,Hx,Ux,Wx,Gx,Kx,qx,Jx,Yx,Xx,Zx,Qx,$x,eS,tS,nS,rS,iS,aS,oS,sS,cS,lS,uS,dS,fS,pS,mS,hS,gS,_S,vS,yS,bS,xS,SS,CS,wS,TS,ES,DS,OS,kS,AS,jS,MS,NS,PS,FS,IS,LS,RS,zS,BS,VS,HS,US,WS,GS,KS,qS,JS,YS,XS,ZS,QS,$S,eC,tC,nC,rC,iC,aC,oC,sC,cC,lC,uC,dC,fC,pC,mC,hC,gC,_C,vC,yC,bC,xC,SC,CC,wC,TC,EC,DC,OC,kC,AC,jC,MC,NC,PC,FC,IC,LC,RC,zC,BC,VC,HC,UC,WC,GC,KC,qC,JC,YC,XC,ZC,QC,$C,ew,tw,nw,rw,iw,aw,ow,sw,cw,lw,uw,dw,fw,pw,mw,hw,gw,_w,vw,yw,bw,xw,Sw,Cw,ww,Tw,Ew,Dw,Ow,kw,Aw,jw,Mw,Nw,Pw,Fw,Iw,Lw,Rw,zw,Bw,Vw,Hw,Uw,Ww,Gw,Kw,qw,Jw,Yw,Xw,Zw,Qw,$w,eT,tT,nT,rT,iT,aT,oT,sT,cT,lT,uT,Q,dT,fT,pT,mT,hT,gT,_T,vT,yT,bT,xT,$,ST,CT,wT,TT,ET,DT,OT,kT,AT,jT,MT,NT,PT,FT,IT,LT,RT,zT,BT,VT,HT,UT,WT,GT,KT,qT,JT,YT,XT,ZT,QT,$T,eE,tE,nE,rE,iE,aE,oE,sE,cE,lE,uE,dE,fE,pE,mE,hE,gE,_E,vE,yE,bE,xE,SE,CE,wE,TE,EE,DE,OE,kE,AE,jE,ME,NE,PE,FE,IE,LE,RE,zE,BE,VE,HE,UE,WE,GE,KE,qE,JE,YE,XE,ZE,QE,$E,eD,tD,nD,rD,iD,aD,oD,sD,cD,lD,uD,dD,fD,pD,mD,hD,gD,_D,vD,yD,bD,xD,SD,CD,wD,TD,ED,DD,OD,kD,AD,jD,MD,ND,PD,FD,ID,LD,RD,zD,BD,VD,HD,UD,WD,GD,KD,qD,JD,YD,XD,ZD,QD,$D,eO,tO,nO,rO,iO,aO,oO,sO,cO,lO,uO,dO,fO,pO,mO,hO,gO,_O,vO,yO,bO,xO,SO,CO,wO,TO=e((()=>{h(
+	${e}`:t+=` ${e}`)}),t.trim()}function mp(e){let t=``;return t+=`SELECT ${e.select.map(e=>{let t=lp(e);return e.alias?`${t} AS "${e.alias}"`:t}).join(`, `)}`,t+=` FROM ${fp(e.from)}`,e.where&&(t+=` WHERE ${lp(e.where)}`),e.orderBy&&(t+=` ORDER BY ${e.orderBy.map(e=>`${lp(e)} ${e.direction??`asc`}`).join(`, `)}`),e.limit&&(t+=` LIMIT ${lp(e.limit)}`),e.offset&&(t+=` OFFSET ${lp(e.offset)}`),pp(t)}function hp(e){return H(e)&&e.type===`Collection`}function gp(e,t){return hp(t)&&Zd(t.data)?Rf(t.data):t}function _p(e,t){let n=t?.id??`default`;return JSON.stringify(e,gp)+n}function vp(e){let{activeLocale:t}=Nr();return ME.get(e,t).use()}function yp(e,t){let n=Object.entries(e??{}).filter(([,e])=>!(ut(e)||H(e))).map(([e,n])=>({type:`BinaryOperation`,operator:`==`,left:{type:`TypeCast`,value:{type:`Identifier`,name:e,collection:t},dataType:`STRING`},right:{type:`LiteralValue`,value:String(n)}}));return n.length===0?{type:`LiteralValue`,value:!1}:n.reduce((e,t)=>({type:`BinaryOperation`,operator:`and`,left:e,right:t}))}function bp(e){let t=u(e);return i(()=>{t.current=e},[e]),Mr((...e)=>{let n=t.current;return n(...e)},[])}function xp(e,t){e.forEach(e=>clearTimeout(e)),e.clear(),t.forEach(e=>e?.(`Callback cancelled by variant change`)),t.clear()}function Sp(){return new Set}function Cp(e){let t=sa(Sp),n=sa(Sp);return Is(()=>()=>xp(n,t)),p(()=>()=>xp(n,t),[]),p(()=>{xp(n,t)},[e]),u({activeVariantCallback:e=>async(...n)=>new Promise((r,i)=>{t.add(i),e(...n).then(r)}).catch(()=>{}),delay:async(e,t)=>{await new Promise(e=>{n.add(globalThis.setTimeout(()=>e(!0),t))}),e()}}).current}function wp(e,t,n){return M.useCallback(r=>!n||!e?{}:t?Object.assign({},n[e]?.[r],n[t]?.[r]):n[e]?.[r]||{},[e,t,n])}function Tp(e){for(let[t,n]of Object.entries(e))if(J.matchMedia(n).matches)return t}function Ep(e){let t=[];for(let{hash:n,mediaQuery:r}of e)r&&J.matchMedia(r).matches&&t.push(n);if(t.length>0)return t;let n=e[0]?.hash;if(n)return[n]}function Dp(e,t,n=!0){let r=a(yS),i=ho(),o=ra(),s=Wa()&&(!i||o),l=u(s?Tp(t)??e:e),d=u(n&&r?e:l.current),f=Uo(),m=ue(),h=c(e=>{if(e!==l.current||e!==d.current){let t=function(){l.current=d.current=e,te(()=>{f()})};i?t():m(()=>{t()})}},[m,f,i]);return Tx(()=>{if(i){if(o){h(Tp(t)??e);return}h(e)}},[e,o,i,t,h]),Tx(()=>{!n||r!==!0||h(l.current)},[]),p(()=>{if(!s||o)return;let e=[];for(let[n,r]of Object.entries(t)){let t=J.matchMedia(r),i=e=>{e.matches&&h(n)};Op(t,i),e.push([t,i])}return()=>e.forEach(([e,t])=>kp(e,t))},[o,t,h,s]),[l.current,d.current]}function Op(e,t){e.addEventListener?e.addEventListener(`change`,t):e.addListener(t)}function kp(e,t){e.removeEventListener?e.removeEventListener(`change`,t):e.removeListener(t)}function Ap(e){setTimeout(e,1)}function jp(e){let t=new Set,n=Ep(e);if(n)for(let e of n)for(let n of document.querySelectorAll(`.hidden-`+e))Mp(n.previousSibling)&&t.add(n.previousSibling),n.parentNode?.removeChild(n);(qg?J.requestIdleCallback:Ap)(()=>{document.querySelector(NE)?.remove()});for(let e of document.querySelectorAll(`.ssr-variant:empty`))Mp(e.previousSibling)&&t.add(e.previousSibling),e.parentNode?.removeChild(e);for(let e of t)Np(e.nextSibling)&&(e.parentNode?.removeChild(e.nextSibling),e.parentNode?.removeChild(e))}function Mp(e){return e?.nodeType===Node.COMMENT_NODE&&e.textContent===`$`}function Np(e){return e?.nodeType===Node.COMMENT_NODE&&e.textContent===`/$`}function Pp(){let e=sa(()=>new Map);return M.useCallback(t=>{let n=e.get(t);if(n)return n;let r=C();return e.set(t,r),r},[])}function Fp(e,t){if(e[t])return e[t];if(!(t in e))return e.default}function Ip(e,t){if(mo())return;let n=M.useRef(!0),r=M.useRef(t);Is((t,i)=>{let a=t&&!i;if(!n.current&&a){let t=Fp(r.current,e);t&&t()}n.current=a},[]),M.useEffect(()=>{if(n.current){let t=Fp(r.current,e);t&&t()}},[e])}function Lp(e,t){e!==!1&&L.render(()=>{let e=document.documentElement.style;t?e.setProperty(`overflow`,`hidden`):e.removeProperty(`overflow`)})}function Rp({blockDocumentScrolling:e=!0,dismissWithEsc:t=!1}={}){let[n,r]=M.useState(!1),i=M.useCallback(async t=>{await Pn({priority:`user-blocking`,continueAfter:`paint`}),te(()=>r(t)),Lp(e,t)},[e]);return M.useEffect(()=>()=>{Pn({priority:`user-blocking`,continueAfter:`paint`}).then(()=>{Lp(e,!1)})},[e]),M.useEffect(()=>{if(!t)return;let e=e=>{e.key===`Escape`&&(e.preventDefault(),e.stopPropagation(),i(!1))};return J.addEventListener(`keydown`,e),()=>J.removeEventListener(`keydown`,e)},[t,i]),[n,i]}function zp(e){return H(e)&&PE in e&&e.page!==void 0}function Bp(e,t){return`${e}-${t}`}function Vp(e,t){let n=e.indexOf(t)+1;n>=e.length&&(n=0);let r=e[n];return U(r!==void 0,`nextVariant should be defined`),r}function Hp(e,t){if(e){if(t){let n=e[t];if(n)return n}return e.default}}function Up(e,t,n,r,i){let{hover:a,pressed:o,loading:s,error:c}=e||{};if(c&&i)return`error`;if(s&&r)return`loading`;if(o&&n)return`pressed`;if(a&&t)return`hover`}function Wp(e,t){return t[e]||`framer-v-${e}`}function Gp(e,t,n){return e&&n.has(e)?e:t}function Kp(){let e=u(),t=u(),n=c(()=>{e.current&&(document.removeEventListener(`visibilitychange`,e.current),e.current=void 0,t.current=void 0)},[]);return p(()=>()=>{n()},[n]),c(r=>{if(!document.hidden){r(),n();return}if(t.current=r,e.current)return;let i=()=>{document.hidden||(t.current?.(),n())};e.current=i,document.addEventListener(`visibilitychange`,i)},[n])}function qp(){let e=u(),t=u(!1),n=u(),r=a(nS);return p(()=>()=>{e.current?.(),n.current=void 0,e.current=void 0},[]),c((i,a)=>{if(!a?.current||t.current){i();return}if(n.current=i,e.current)return;let o=!1;e.current=Os(r,`undefined`,a.current,null,e=>{t.current=e.isIntersecting,!o&&(o=!0,queueMicrotask(()=>{o=!1,t.current&&n.current?.()}))})},[r])}function Jp(e){let t=Kp(),n=qp();return c((r,i=!1)=>{if(Kg){r();return}t(i&&e?()=>n(r,e):r)},[t,n,e])}async function Yp(){return new Promise(e=>{let t=e;setTimeout(()=>{t&&(performance.mark(`wait-for-click-fallback`),t())},150),LE=()=>{e(),t=void 0}})}function Xp(e){e.button===0&&(performance.mark(`pointerdown-listener`),IE=Yp())}function Zp(){performance.mark(`click-received-listener`),IE=void 0,LE?.(),LE=void 0}function Qp(e=!1){p(()=>{e&&(document.addEventListener(`pointerup`,Xp,!0),document.__proto__.addEventListener.call(document,`click`,Zp,!0))},[e])}function $p({variant:e,defaultVariant:t,transitions:n,enabledGestures:r,cycleOrder:i=[],variantProps:a={},variantClassNames:o={},ref:l}){let d=Uo(),f=Jl(),p=sa(()=>new Set(i)),{yieldOnTap:m}=c_();Qp(m);let h=Jp(l),g=u({isHovered:!1,isHoveredHasUpdated:!1,isPressed:!1,isPressedHasUpdated:!1,isError:!1,hasPressedVariants:!0,baseVariant:Gp(e,t,p),lastVariant:e,gestureVariant:void 0,loadedBaseVariant:{},defaultVariant:t,enabledGestures:r,cycleOrder:i,transitions:n}),_=c(e=>{let{isHovered:t,isPressed:n,isError:r,enabledGestures:i,defaultVariant:a}=g.current,o=Gp(e,a,p),s=Up(i?.[o],t,n,!1,r);return[o,s?Bp(o,s):void 0]},[]),v=c(async(e,t,n,r,i=!1,a=!1)=>{let[o,s]=_(r);if(o===e&&s===t)return;a&&(g.current.isError=!1),g.current.baseVariant=o||n,g.current.gestureVariant=s;let c=m&&g.current.isPressedHasUpdated;c&&IE&&(performance.mark(`wait-for-tap-start`),await IE,performance.measure(`wait-for-tap`,`wait-for-tap-start`)),c&&(performance.mark(`yield-on-tap-start`),await Pn({priority:`user-blocking`,continueAfter:`paint`}),performance.measure(`yield-on-tap`,`yield-on-tap-start`));let{isHovered:l,isPressed:u,isHoveredHasUpdated:f,isPressedHasUpdated:p}=g.current;if(l||f||u||p){te(d);return}h(()=>te(d),i)},[_,d,h,m]),y=c(({isHovered:e,isPressed:t,isError:n})=>{let r=t!==g.current.isPressed,i=e!==g.current.isHovered;e!==void 0&&(g.current.isHovered=e),t!==void 0&&(g.current.isPressed=t),n!==void 0&&(g.current.isError=n);let{baseVariant:a,gestureVariant:o,defaultVariant:s}=g.current;g.current.isPressedHasUpdated=r,g.current.isHoveredHasUpdated=i,v(a,o,s,a,!1)},[v]),b=c((e,t=!1)=>{let{defaultVariant:n,cycleOrder:r,baseVariant:i,gestureVariant:a}=g.current;v(i,a,n,e===FE?Vp(r||[],i||n):e,t,!0)},[v]),x=c(()=>{let{baseVariant:e}=g.current;g.current.loadedBaseVariant[e]=!0,h(()=>te(d),!0)},[d,h]);if(e!==g.current.lastVariant){let[t,n]=_(e);g.current.lastVariant=t,(t!==g.current.baseVariant||n!==g.current.gestureVariant)&&(g.current.baseVariant=t,g.current.gestureVariant=n)}let{baseVariant:S,gestureVariant:C,defaultVariant:w,enabledGestures:T,isHovered:E,isPressed:D,isError:O,loadedBaseVariant:k}=g.current,A=wp(g.current.baseVariant,g.current.gestureVariant,a);return s(()=>{let e=[];S!==w&&e.push(S);let t=T?.[S]?.loading,n=!O&&!f&&!!t&&!k[S],r=n?Bp(S,`loading`):C;r&&e.push(r);let i=T?.[S],a={onMouseEnter:()=>y({isHovered:!0}),onMouseLeave:()=>y({isHovered:!1})};return i?.pressed&&Object.assign(a,{onTapStart:()=>y({isPressed:!0}),onTapCancel:()=>y({isPressed:!1}),onTap:()=>y({isPressed:!1})}),{variants:e,baseVariant:S,gestureVariant:r,isLoading:n,transition:Hp(g.current.transitions,S),setVariant:b,setGestureState:y,clearLoadingGesture:x,addVariantProps:A,gestureHandlers:a,classNames:kc(Wp(S,o),Up(i,E,D,n,O))}},[S,C,E,D,k,A,b,w,T,y,x,o])}function em(e,{scopeId:t,nodeId:n,override:r,inComponentSlot:i}){if(!El())return r(e);let a=tm(e,r),o=!1;function s(r,s){let{disableCustomCode:c}=c_(),l=kl();if(c)return E(e,{...r,ref:s});if(Ll(t,l?.scopeId,l?.level,i??!1))return a.status===`success`?E(hv.Provider,{value:n,children:E(Dl,{getErrorMessage:Pl.bind(null,t,n),fallback:E(e,{...r,ref:s}),children:E(a.Component,{...r,ref:s})})}):(o||=(Tl(a.error),Tl(Pl(t,n)),wl(a.error),!0),E(e,{...r,ref:s}));if(a.status===`success`)return E(hv.Provider,{value:n,children:E(a.Component,{...r,ref:s})});throw a.error}return M.forwardRef(s)}function tm(e,t){try{return{status:`success`,Component:t(e)}}catch(e){return{status:`error`,error:e}}}function nm(e,t){return t?$e(0,2,e):e}function rm(){return new Promise(e=>{L.postRender(()=>e())})}function im(e){let t=[];return d.forEach(e,e=>{O(e)&&e.type===ne?t.push(...im(e.props.children)):e&&t.push(e)}),t}function am(e,t,n){let r=Math.floor(e/n),i=r*n,a=0;for(let n=0;n<t.length;n++){let{end:r}=t[n];if(a=n,r+i>e)break}return a+r*t.length}function om(e,t,n,r){if(t.length===0)return 0;let i=t[t.length-1].end+n,a=r??e+(t[0]?.end??0),o=am(e,t,i)+1,s=0,c=!1;for(;!c;){let{start:e,end:n}=t[$e(0,t.length,o)],r=Math.floor(o/t.length)*i;s=e+r,n+r>a?c=!0:o++}return s}function sm(e,t,n,r,i){if(t.length===0)return 0;let a=t[t.length-1].end+n,o=r??e-(i??0),s=am(e,t,a),c=e,l=!1;for(;!l;){let{start:r,end:u}=t[$e(0,t.length,s)],d=u-r,f=r+Math.floor(s/t.length)*a;o<=f+n||f>=e?(c=f,s--):o<=f?(c=f,l=!0):((i&&d>i||c===e&&o>=f)&&(c=f),l=!0)}return c}function cm(){let e=a(zE);return Sm(!!e,`useTicker must be used within a Ticker component`),e}function lm(){let e=a(BE);return Sm(!!e,`useTickerItem must be used within a TickerItem`),e}function um(e,t){return(t?.offsetWidth??o.innerWidth)-(e.offsetLeft+e.offsetWidth)}function dm(e,t){return e===`y`?UE:t===`ltr`?HE:WE}function fm({children:e,offset:t,axis:n,listSize:r=0,numItems:i=0,itemIndex:a,cloneIndex:o,bounds:s,alignItems:c,reproject:l=!0,size:u=`auto`,safeMargin:d}){let{start:f,end:p}=s,{visibleLength:m,direction:h,inset:g}=cm(),{sign:_}=dm(n,h),v=N(()=>{if(!l)return 0;let e=t.get();if(!f&&!p||!r)return 0;if(e*_+s.end<=-g-d)return r*_;if(d>0){let t=m-d-g;if(e*_+s.start>=t)return-r*_}return 0}),y=N(()=>{let e=t.get(),n=v.get();return!f&&!p||!r?0:e*_+f+n*_}),b=o===void 0?{"aria-hidden":!1,"aria-posinset":a+1,"aria-setsize":i}:{"aria-hidden":!0},x=u===`fill`,S=c===`stretch`?`100%`:`fit-content`,C={className:o===void 0?`ticker-item`:`clone-item`,style:{flexGrow:0,flexShrink:0,position:`relative`,flexBasis:u===`fill`?`100%`:void 0,display:x?`grid`:void 0,gridTemplateColumns:x?`1fr`:void 0,gridTemplateRows:x?`1fr`:void 0,minWidth:x?0:void 0,minHeight:x?0:void 0,height:n===`x`?S:void 0,width:n===`y`?S:void 0,x:n===`x`?v:0,y:n===`y`?v:0},...b};return E(BE.Provider,{value:{start:f,end:p,offset:y,projection:v,itemIndex:a,cloneIndex:o,props:C},children:u===`manual`?e:E(pm,{children:e})})}function pm({children:e}){let{props:t}=lm();return E(nt.li,{...t,children:e})}function mm(e,t,n,r,i){let a=u(!1);p(()=>{let s=e.current;if(!s)return;let c=!1,l=new AbortController,u={signal:l.signal},d={...u,capture:!0},f=t===`x`?`scrollLeft`:`scrollTop`,p=t===`x`?`offsetLeft`:`offsetTop`,m=t===`x`?`ArrowLeft`:`ArrowUp`,h=t===`x`?`ArrowRight`:`ArrowDown`,g=[],_=0,v=()=>{let e=g[_];e&&(e.focus({preventScroll:!0}),n.set(-e[p]),s[f]=0,L.render(()=>{s[f]=0}))},y=e=>{if(e.key===`Tab`){e.preventDefault(),S();let t=Array.from(document.querySelectorAll(`a, button, input, textarea, select, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]`)).filter(gm);t.sort(hm);let n=t[e.shiftKey?0:t.length-1],r=e.shiftKey?t.length-1:0;if(s.contains(n)){t[r].focus();return}else{let n=t.indexOf(g[_]),r=e.shiftKey?-1:1;for(let e=n;e<t.length&&e>=0;e+=r){let n=t[e];if(!s.contains(n)){n.focus();return}}}return}else e.key===m?_--:e.key===h&&_++;_=$e(0,g.length,_),v()},b=()=>{a.current||(g=Array.from(s.querySelectorAll(`.ticker-item a, .ticker-item button, .ticker-item input, .ticker-item textarea, .ticker-item select, .ticker-item [tabindex]:not([tabindex="-1"]), .ticker-item [contenteditable="true"]`)).filter(gm),_=0,g.length&&(i(!0),a.current=!0,v(),o.addEventListener(`focus`,x,d),o.addEventListener(`blur`,x,d),s.addEventListener(`keydown`,y,u)))},x=e=>{(!e.target||!(e.target instanceof HTMLElement)||!s.contains(e.target))&&S()},S=()=>{a.current&&(a.current=!1,i(!1),r.set(n.get()),o.removeEventListener(`focus`,x),o.removeEventListener(`blur`,x),s.removeEventListener(`keydown`,y))},C=e=>{let{target:t}=e;gm(t)&&(a.current||b())},w=()=>{c||(c=!0,s.addEventListener(`focus`,C,d),o.addEventListener(`pointermove`,T,u))},T=()=>{c&&(c=!1,s.removeEventListener(`focus`,C,!0),o.removeEventListener(`pointermove`,T,u))};return o.addEventListener(`keydown`,w,u),s.addEventListener(`pointerdown`,e=>{let t=e.target.closest(`[aria-hidden="true"]`);t&&t.removeAttribute(`aria-hidden`)},u),s.addEventListener(`scroll`,()=>{s.scrollLeft=0,s.scrollTop=0},u),()=>{l.abort(),S()}},[])}function hm(e,t){return e.tabIndex>=1&&t.tabIndex>=1?e.tabIndex-t.tabIndex:e.tabIndex>=1&&t.tabIndex<=0?-1:t.tabIndex>=1&&e.tabIndex<=0?1:0}function gm(e){return e instanceof HTMLElement}function _m(e){return e.end-e.start}function vm(e){return e[e.length-1].end-e[0].start}function ym(e,t,n){let r=vm(t),i=Math.max(...t.map(_m)),a=0,o=0;for(;o<e;)o=(r+n)*(a+1)-i,a++;return Math.max(a-1,0)}function bm({items:e,velocity:n=50,hoverFactor:r=1,gap:i=10,axis:a=`x`,align:l=`center`,offset:d,isStatic:f=!1,itemSize:p=`auto`,overflow:m=!1,loop:h=!0,children:g,as:_=`div`,snap:v,safeMargin:y=0,fade:b=0,fadeTransition:x,pageTransition:S,...C},w){let T=u(null),D=at(w,T),O=u(null),[k,A]=t({direction:`ltr`,visibleLength:0,inset:0,totalItemLength:0,containerLength:0,itemPositions:[],isMeasured:!1,maxInset:null}),j=GE[l]||l,{sign:M}=dm(a,k.direction);if(f){let t=xe(0);return E(zE.Provider,{value:{...k,gap:i,clampOffset:se,offset:t,renderedOffset:t},children:E(xm,{containerProps:C,containerRef:D,children:g,gap:i,axis:a,alignItems:j,offset:t,renderedOffset:t,items:e,itemSize:p,state:k,overflow:m,safeMargin:y,isStatic:!0,as:_,fade:b,sign:M})})}let[ee,te]=t(!1),ne=xe(1),re=xe(0);d??=re;let ae=N(()=>k.direction===`rtl`&&a===`x`?$e(k.totalItemLength+i+k.inset,k.inset,d.get()):$e(-k.totalItemLength-i-k.inset,-k.inset,d.get())),oe=xe(0),ce=ee?oe:h?ae:d,le=ie(T,{margin:`100px`}),ue=fe(),pe=le&&ue,me=de(),he=()=>{if(!T.current||!O.current)return;let e=o.getComputedStyle(T.current).direction,{measureItem:t,lengthProp:n,viewportLengthProp:r,getCumulativeInset:i}=dm(a,e),s=a===`x`?`paddingLeft`:`paddingTop`,c=a===`x`?`paddingRight`:`paddingBottom`,l=T.current,u=O.current.querySelectorAll(`.ticker-item`);if(!u.length)return;let d=!1,f=[];for(let e=0;e<u.length;e++){let n=t(u[e],l);f.push(n);let r=k.itemPositions[e];(!r||n.start!==r.start||n.end!==r.end)&&(d=!0)}let p=Math.min(l[n],o[r]),g=m?o[r]:p;y>0&&(g+=y*2);let _=vm(f),v=o.getComputedStyle(l),b=parseInt(v[s]??0),x=parseInt(v[c]??0),S=m?i(u[0]):b,C=h===!1?Math.max(0,_-p+b+x):null;(g!==k.visibleLength||_!==k.totalItemLength||S!==k.inset||k.itemPositions.length!==f.length||d)&&A({direction:e,visibleLength:g,itemPositions:f,totalItemLength:_,inset:S,containerLength:p,maxInset:C,isMeasured:!0})};be(()=>{if(!pe||!T.current)return;he();let e=m?P(he):void 0,t=P(T.current,he);return()=>{e?.(),t()}},[e,pe,m]);let ge=k.totalItemLength>0;ve(ge&&pe&&d===re&&!me?(e,t)=>{let r=t/1e3*(n*M*ne.get());d.set(d.get()-r)}:se);let _e=s(()=>!ge||!k.visibleLength?0:ym(k.visibleLength,k.itemPositions,i),[ge,k]),ye=k.totalItemLength===0?0:(k.totalItemLength+i)*(_e+1),F=[];if(h)for(let t=0;t<_e;t++){let n=[];e.forEach((r,o)=>{let s=k.itemPositions[o],c=(k.totalItemLength+i)*(t+1),l=s?{start:s.start+c,end:s.end+c}:qE;n.push(E(fm,{offset:ce,axis:a,listSize:ye,itemIndex:o,cloneIndex:o,bounds:l,alignItems:j,size:p,safeMargin:y,numItems:e.length,children:r},`clone-${t}-${o}`))});let r=`ticker-group-${t}`;F.push(E(Xe,{id:r,children:n},r))}mm(T,a,oe,d,te);let I=c(e=>k.maxInset===null?e:Fe(-k.maxInset,0,e),[k.maxInset]);return E(zE.Provider,{value:{...k,gap:i,clampOffset:I,offset:d,renderedOffset:ce},children:E(xm,{containerProps:C,children:g,containerRef:D,listRef:O,gap:i,axis:a,alignItems:j,isMeasured:ge,isInView:pe,offset:d,renderedOffset:ce,items:e,itemSize:p,clonedItems:F,clampOffset:I,snap:v,safeMargin:y,onPointerEnter:()=>{Ne(ne,r)},onPointerLeave:()=>{Ne(ne,1)},totalListSize:ye,state:k,overflow:m,loop:h,as:_,fade:b,sign:M,fadeTransition:x,pageTransition:S})})}function xm({children:e,containerProps:t,containerRef:n,listRef:r,gap:i,axis:a,alignItems:o,isMeasured:c,isInView:l,isStatic:d,items:f,offset:p,clonedItems:m,clampOffset:h,renderedOffset:g,onPointerEnter:_,onPointerLeave:v,totalListSize:y,itemSize:x,overflow:S,state:C,safeMargin:w,snap:T,loop:D,as:O,fade:k,sign:j,fadeTransition:M=XE,pageTransition:ee}){let te=s(()=>nt.create(O),[O]),ne={},{maxInset:re}=C;re!==null&&(ne=a===`x`?j>0?{left:re*-1,right:0}:{right:re,left:0}:{top:re*-1,bottom:0});let{drag:ie,_dragX:ae,_dragY:oe,dragMomentum:se=!1,onDragEnd:ce,onPointerDown:ue,...de}=t,fe=a===`x`?ae:oe,pe=u(null),me=()=>{pe.current&&=(pe.current.stop(),null)};!ce&&ie&&fe&&(ue=()=>{fe.jump(p.get()),me()},ce=(e,{velocity:t})=>{let n=p.get();me(),L.postRender(()=>{let e=n+t[a]*(T?.3:.8);if(T)if(t[a]<0)e=-om(-n,C.itemPositions,i,-e);else if(t[a]>0)e=-sm(-n,C.itemPositions,i,-e,C.containerLength);else{let t=-om(-n,C.itemPositions,i,-n),r=-sm(-n,C.itemPositions,i,-n,C.containerLength);e=Math.abs(n-t)<Math.abs(n-r)?t:r}let r=D?{}:j>0?{max:0,min:ne[a===`x`?`left`:`top`]}:{min:0,max:ne.right};pe.current=Ne(fe,h(e*j)*j,T?ee:{type:`inertia`,velocity:t[a],modifyTarget:()=>e,bounceDamping:40,bounceStiffness:400,...r})})});let he=xe(D?0:1),P=xe(0),ge=dm(a,C.direction),_e=typeof k==`number`?`px`:``,ve=N(()=>`linear-gradient(to ${ge.direction}, rgba(0,0,0,${he.get()}) 0px, black ${k}${_e}, black calc(100% - ${k}${_e}), rgba(0,0,0,${P.get()}) 100%)`),ye=k?{maskImage:ve,WebkitMaskImage:ve}:{},F=u({start:!0,end:!1});return le(g,`change`,e=>{if(re===null)return;let t=re*-1;e*=j,e<0?F.current.start&&(Ne(he,0,M),F.current.start=!1):F.current.start||(Ne(he,1,M),F.current.start=!0),e>t?F.current.end&&(Ne(P,0,M),F.current.end=!1):F.current.end||(Ne(P,1,M),F.current.end=!0)}),A(b,{children:[E(te,{...de,ref:n,style:{overflowX:!S&&a===`x`?`clip`:void 0,overflowY:!S&&a===`y`?`clip`:void 0,...JE,...t.style,...ye},onPointerEnter:_,onPointerLeave:v,drag:ie,_dragX:ae,_dragY:oe,dragConstraints:ne,dragMomentum:se,onPointerDown:ue,onDragEnd:ce,children:A(nt.ul,{ref:r,style:{...YE,flexDirection:a===`x`?`row`:`column`,gap:`${i}px`,x:a===`x`?g:0,y:a===`y`?g:0,opacity:c||d?1:0,alignItems:o,willChange:c&&l?`transform`:void 0,width:`100%`,height:`100%`,maxHeight:`100%`,maxWidth:`100%`},children:[f.map((e,t)=>E(fm,{axis:a,offset:g,listSize:y,itemIndex:t,bounds:C.itemPositions[t]??qE,alignItems:o,size:x,reproject:D,safeMargin:w,numItems:f.length,children:e},`original-`+t)),m||null]})}),` `,e]})}function Sm(e,t){if(!e)throw Error(t)}function Cm(e,t){if(G(e))return e;if(!B(e))return;let n=e.split(` `),r=n[0],i=n[1]??n[0];if(t===`x`&&i)return wm(parseInt(i));if(t===`y`&&r)return wm(parseInt(r))}function wm(e){return Number.isNaN(e)?void 0:e}function Tm(e){let t=e.__FramerMetadata__.exports.default.annotations?.framerVariables;if(t)try{return JSON.parse(t)}catch{return}}function Em(e,t){return n=>{let r={},i=Tm(t);for(let e in n)lx(r)[i?.[e]??e]=n[e];return E(e,{...r})}}function Dm(e,t,n){let r=[],i=tl(e,t,e=>r.unshift(e,e));if(n){let e=i[i.length-1];if(!V(e))return iD;i.push(e+1),r.push(-1)}let a=i[0];return V(a)?a<=1?{inputRange:i,outputRange:r}:{inputRange:[0,Math.max(a-1,0),...i],outputRange:[-1,-1,...r]}:iD}function Om(e){return e.weight!==void 0&&e.style!==void 0}function km(e,t){let n=t===`normal`?`Regular`:`Italic`;return e===400?n:t===`normal`?`${pD[e]}`:`${pD[e]} ${n}`}function Am(){return o===void 0?{}:hD||(hD=jm(),hD)}function jm(){let e=o.location,t=o?.bootstrap?.services;if(t)return t;let n;try{if(n=o.top.location.origin,t=o.top?.bootstrap?.services,t)return t}catch{}if(n&&n!==e.origin)throw Error(`Unexpectedly embedded by ${n} (expected ${e.origin})`);if(e.origin.endsWith(`framer.com`)||e.origin.endsWith(`framer.dev`))throw Error(`ServiceMap data was not provided in document`);try{let n=new URLSearchParams(e.search).get(`services`)||new URLSearchParams(e.hash.substring(1)).get(`services`);n&&(t=JSON.parse(n))}catch{}if(t&&typeof t==`object`&&t.api)return t;throw Error(`ServiceMap requested but not available`)}function Mm(e){return e.key+e.extension}function Nm(e){return`${Am().userContent}/assets/${e}`}function Pm(e){return Nm(Mm(e))}function Fm(e,t){return t?`${e} ${gD}`:e}function Im(e,t){switch(t){case`custom`:throw Error(`Custom fonts are not supported`);default:return Fm(e.name,e.isVariable)}}function Lm(e){return!!(e&&Array.isArray(e))}function Rm(e){if(!e||!Array.isArray(e))return;let t=[];for(let n of e)Bm(n)&&t.push({tag:n.tag,name:n.name,minValue:n.minValue,maxValue:n.maxValue,defaultValue:n.defaultValue});return t}function zm(e){return!(typeof e!=`object`||!e||!(`tag`in e)||typeof e.tag!=`string`||`coverage`in e&&e.coverage!==void 0&&!Array.isArray(e.coverage))}function Bm(e){return!(typeof e!=`object`||!e||!(`tag`in e)||typeof e.tag!=`string`||`name`in e&&typeof e.name!=`string`||!(`minValue`in e)||typeof e.minValue!=`number`||!(`maxValue`in e)||typeof e.maxValue!=`number`||!(`defaultValue`in e)||typeof e.defaultValue!=`number`)}function Vm(e){return yD[Um(e)]}function Hm(e,t){let n=e?.find(e=>e.tag===`wght`)?.defaultValue;return n!==void 0&&n>=1&&n<=1e3?n:t??Vm(`variable`)??500}function Um(e){return e.toLowerCase().replace(/\s+/gu,`-`)}function Wm(e){return e=e.toLowerCase(),e.includes(`italic`)||e.includes(`oblique`)||e.includes(`slanted`)?`italic`:`normal`}function Gm(e,t){return{...Km(e,t),...qm(e,t)}}function Km(e,t){if(t.length===0)return{variantBold:void 0,variantBoldItalic:void 0,variantItalic:void 0};let{weight:n,style:r}=e,i=new Map,a=new Map;for(let r of t)r.isVariable===e.isVariable&&(i.set(`${r.weight}-${r.style}`,r),!(r.weight<=n)&&(a.has(r.style)||a.set(r.style,r)));let o=a.get(r),s=a.get(`italic`),c=e.weight;c<=300?(o=i.get(`400-${r}`)??o,s=i.get(`400-italic`)??s):c<=500?(o=i.get(`700-${r}`)??o,s=i.get(`700-italic`)??s):(o=i.get(`900-${r}`)??o,s=i.get(`900-italic`)??s);let l=i.get(`${n}-italic`);return{variantBold:o,variantItalic:l,variantBoldItalic:s}}function qm(e,t){if(t.length===0)return{variantVariable:void 0,variantVariableItalic:void 0};let n,r,i,a;for(let o of t){if(!o.isVariable)continue;let t=o.weight===e.weight,s=o.weight===400;o.style===`normal`?t?n=o:s?i=o:i||=o:o.style===`italic`&&(t?r=o:s?a=o:a||=o)}return{variantVariable:n??i,variantVariableItalic:r??a}}function Jm(e){return!!e.variationAxes}function Ym(e){return Xm(e)||Zm(e)}function Xm(e){return e.startsWith(SD)}function Zm(e){return e.startsWith(xD)}function Qm(e,t){for(let n=0;n<e.length;n++){let r=e[n];if(r){if(r.owner!==t.owner&&r.file===t.file)return{existingFont:r,index:n,projectDuplicate:!0};if(r&&r.selector===t.selector)return{existingFont:r,index:n,projectDuplicate:!1}}}}function $m(e){let{font:t}=e,n=t.fontFamily,r=Array.isArray(t.variationAxes);if(r&&n.toLowerCase().includes(`variable`))return n;let i=r?gD:t.fontSubFamily.trim();return i===``?n:`${n} ${i}`}function eh({fontFamily:e,fontSubFamily:t,variationAxes:n,faceDescriptors:r}){let i=t.trim()||`Regular`,a=i.toLocaleLowerCase().includes(`variable`),o=Rm(n)&&!a?`Variable ${i}`:i,s=`normal`,c=400;return r&&(c=r.weight,s=r.italic||r.oblique?`italic`:`normal`),{family:e,variant:o,weight:c,style:s}}function th(e){if(!(!e.weight||!e.style))return{weight:e.weight,style:e.style,isVariable:Jm(e),selector:e.selector}}function nh(e){let t=e.fonts.map(e=>th(e)).filter(e=>e!==void 0);for(let n of e.fonts){let e=th(n);if(!e)continue;let r=Gm(e,t);n.selectorVariable=r.variantVariable?.selector,n.selectorVariableItalic=r.variantVariableItalic?.selector,n.selectorBold=r.variantBold?.selector,n.selectorBoldItalic=r.variantBoldItalic?.selector,n.selectorItalic=r.variantItalic?.selector}}function rh(e){return e.ownerTypes.includes(`team`)?`team`:`project`}async function ih(e){switch(e){case`google`:return(await import(`./google-3SZHWBC6.C2mhnJN1.mjs`)).default;case`fontshare`:return(await import(`./fontshare-B2QLD7YB.C-nE2VwH.mjs`)).default;default:throw Error(`Unknown font source: ${e}`)}}async function ah(e){switch(e){case`google`:return(await import(`./google-3FCAKCAC.CLFlKKO5.mjs`)).default;case`fontshare`:return(await import(`./fontshare-4THNDPMZ.DVFtyCK6.mjs`)).default;case`framer`:return(await import(`./framer-font-45AI7UCZ._ReXWk3e.mjs`)).default;default:throw Error(`Unknown font source: ${e}`)}}function oh(e){return e.split(`,`).map(e=>e.trim().toLowerCase()).filter(sh)}function sh(e){return wD.includes(e)}function ch(e){let t={serif:`serif`,sans:`sans-serif`,slab:`slab`,display:`display`,handwritten:`handwriting`,script:`handwriting`},n=oh(e)[0];return n&&t[n]}function lh(e){let t={serif:`serif`,"sans-serif":`sans-serif`,display:`display`,handwriting:`handwriting`,monospace:`monospace`};if(e)return t[e]}function uh(e,t){return e.reduce((e,n)=>(e[t(n)]=n,e),{})}async function dh(e,t,n=0){let{family:r,url:i,stretch:a,unicodeRange:o}=e,s=e.weight,c=e.style||`normal`,l=`${r}-${c}-${s}-${i}`;if(!BD.has(l)||n>0){let u=new FontFace(r,`url(${i})`,{weight:B(s)?s:s?.toString(),style:c,stretch:a,unicodeRange:o}),d=u.load().then(()=>(t.fonts.add(u),fh(r,c,s))).catch(l=>{if(l.name!==`NetworkError`)throw l;if(n<RD)return dh(e,t,n+1);throw new zD(`Font loading failed after ${n} retries due to network error: ${JSON.stringify({family:r,style:c,weight:s,url:i,stretch:a,unicodeRange:o})}`)});BD.set(l,d)}await BD.get(l)}async function fh(e,t,n){let r=`${e}-${t}-${n}`;if(!VD.has(r)){let i=new ID.default(e,{style:t,weight:n}).load(null,LD);VD.set(r,i)}try{await VD.get(r)}catch{throw new zD(`Failed to check if font is ready (${LD}ms timeout exceeded): ${JSON.stringify({family:e,style:t,weight:n})}`)}}function ph(e){try{if(e===`framer`)return mh(UD)?UD:void 0;{let t=(async()=>{switch(e){case`google`:return(await import(`./google-GXDJLGJB.CRCRyUIN.mjs`)).default;case`fontshare`:return(await import(`./fontshare-O22OBJ3D.CeL3uey8.mjs`)).default;default:W(e)}})();return mh(t)?t:void 0}}catch(e){console.error(e);return}}function mh(e){return H(e)&&Object.values(e).every(gh)}function hh(e){return H(e)&&B(e.tag)}function gh(e){return Array.isArray(e)&&e.every(hh)}function _h(e,t){p(()=>{function n(n){n.key===`Escape`&&e&&(n.preventDefault(),n.stopPropagation(),t())}return o.addEventListener(`keyup`,n),()=>o.removeEventListener(`keyup`,n)},[e,t])}function vh(e,t,n,r){let i=o.innerHeight-r,a=Math.min(o.innerWidth-n,t),s=i/e;return Math.min(a,s)}function yh(e,{width:t,height:n}){if(!e.src||!e.srcSet)return;let r=new o.Image;return r.src=e.src,r.srcset=e.srcSet,r.sizes=e.sizes||``,r.width=t,r.height=n,r.decode()}function bh(){return document.getElementById(sw)??document.getElementById(ow)??document.body}function xh(e,t){return V(e)?e:t??0}function Sh(e){return xh(e?.paddingTop,e?.padding)+xh(e?.paddingBottom,e?.padding)}function Ch(e){return xh(e?.paddingLeft,e?.padding)+xh(e?.paddingRight,e?.padding)}function wh(e,t){if(!e||!t||!t.src)return t;let n=new URL(t.src);return n.searchParams.delete(`scale-down-to`),n.searchParams.delete(`lossless`),{...t,sizes:`min(100vw, ${e.maxWidth-Ch(e)}px)`,srcSet:xo(t.nodeFixedSize,t,t.src).srcSet}}function Th(e){if(!e)return!1;for(let t in e){if(!(t in KD))continue;let n=KD[t],r=e[t];if(!(!V(n)||!V(r))&&n!==r)return!0}return!1}function Eh(e){let t=Me.get(e.current);if(!t)return!1;if(Th(t.projection?.latestValues))return!0;let n=t.projection?.path;if(!n||n.length===0)return!1;for(let e of n)if(Th(e.latestValues))return!0;return!1}function Dh(e){return j(function({lightbox:n,lightboxClassName:r,onClick:i,...o},l){let d=a(Te),f=a($E),m=!!f,h=u(null),g=l??h,_=u(),v=s(()=>wh(n,o.background),[n,o.background]),[y,x]=t(!1),[S,C]=t(),w=c(()=>{if(n){if(y){te(()=>{x(!0)});return}L.read(()=>{if(!g.current)return;let e=getComputedStyle(g.current),t=g.current.getAttribute(`data-border`)===`true`?getComputedStyle(g.current,`::after`):void 0,r=g.current.offsetWidth??1,i=g.current.offsetHeight??1,a=Eh(g)||m?{duration:0}:n.transition;te(()=>{C({borderRadius:e.borderRadius,aspectRatio:r/(i||1),borderTop:t?.borderTopWidth,borderRight:t?.borderRightWidth,borderBottom:t?.borderBottomWidth,borderLeft:t?.borderLeftWidth,borderStyle:t?.borderStyle,borderColor:t?.borderColor,transition:a,imageRendering:e.imageRendering,filter:e.filter}),x(!0),f?.stop()})})}},[n,y,g,f?.stop,m]),D=S?.aspectRatio??1,O=bp(()=>{if(!n||!v||!v.src)return;let e=_.current?.[v.src];if(e)return e;let t=vh(D,n.maxWidth,Ch(n),Sh(n)),r=yh(v,{width:t,height:t*D});return _.current={[v.src]:r},r}),k=c(async e=>{i?.(e),!(y||!n||!v)&&(await O(),w())},[i,w,y,v,n,O]),j=c(e=>{e?.stopPropagation(),te(()=>{x(!1)})},[]);_h(y,j),p(()=>{if(!n)return;let e;function t(){e=setTimeout(()=>{O()},50)}function r(){clearTimeout(e)}let i=g.current;return i?.addEventListener(`mouseenter`,t),i?.addEventListener(`mouseleave`,r),i?.addEventListener(`pointerdown`,O),()=>{r(),i?.removeEventListener(`mouseenter`,t),i?.removeEventListener(`mouseleave`,r),i?.removeEventListener(`pointerdown`,O)}},[O,g,n]);let M=ee(),N=S?.transition??o.transition??d.transition,re=S?.borderRadius,ie=S?.imageRendering,ae=S?.filter,oe=S?.borderTop,se=S?.borderRight,ce=S?.borderBottom,le=S?.borderLeft,ue=S?.borderStyle,de=S?.borderColor,fe=!!(oe||se||ce||le||ue||de),pe=fe?{"--border-top-width":oe,"--border-right-width":se,"--border-bottom-width":ce,"--border-left-width":le,"--border-style":ue,"--border-color":de}:void 0,me={[HC]:o.id},he=xh(n?.paddingTop,n?.padding),P=xh(n?.paddingBottom,n?.padding),ge=xh(n?.paddingLeft,n?.padding),_e=xh(n?.paddingRight,n?.padding),ve=S?.borderRadius?{...o.style,borderRadius:S.borderRadius}:o.style,ye=y?o.layoutDependency?`${o.layoutDependency}-open`:`open`:o.layoutDependency,F=m&&y?void 0:o.layoutId??(n?M:void 0);return A(b,{children:[E(e,{...o,style:ve,onClick:k,layoutId:F,ref:g,layoutDependency:ye,transition:N}),E(Ue,{onExitComplete:()=>{te(()=>{C(void 0),f?.start()})},children:y&&n&&v&&E(ne,{children:T(A(b,{children:[E(nt.div,{...me,className:r,onClick:j,style:{position:`fixed`,inset:0,zIndex:n.zIndex,backgroundColor:n.backdrop??`transparent`},transition:N,initial:qD,animate:JD,exit:qD}),E(nt.div,{...me,className:r,style:{alignItems:`center`,display:`flex`,inset:`${he}px ${_e}px ${P}px ${ge}px`,justifyContent:`center`,pointerEvents:`none`,position:`fixed`,zIndex:n.zIndex},children:E(`div`,{style:{alignItems:`center`,aspectRatio:D,display:`flex`,justifyContent:`center`,maxHeight:`100%`,position:`relative`,width:`100%`,maxWidth:n.maxWidth},children:E(nt.div,{layoutId:F,transition:N,onClick:w,className:`framer-lightbox-container`,"data-border":fe,style:{aspectRatio:D,borderRadius:re,bottom:0,position:`absolute`,top:0,userSelect:`none`,imageRendering:ie,filter:ae,...pe},children:E(Ao,{image:v,alt:v.alt,draggable:o.draggable})})})})]}),bh())},`backdrop`)})]})})}function Oh(e,t){return ZD&&!t?Document.parseHTMLUnsafe(e):(XD??=new DOMParser,XD.parseFromString(e,t??`text/html`))}function kh(e){return e.replaceAll(`&`,`&amp;`).replaceAll(`<`,`&lt;`).replaceAll(`>`,`&gt;`).replaceAll(`"`,`&quot;`).replaceAll(`'`,`&#39;`)}function Ah(e,t,n,r){return e.replace(QD,(e,i,a,o,s,c,l)=>{if(a.toLowerCase()!==`a`)return e;let u=s||c,d=$l(u.replace(/&amp;/gu,`&`));if(!d||!d.target)return e;let f=t(d.target);if(!zp(f)||!zp(n))return e;let p=f.path,m=n.path;if(!p||!m)return e;let h=` data-framer-page-link-target="${d.target}"`,g=Wt(f,d.element??void 0);g&&(h+=` data-framer-page-link-element="${d.element}"`);let _=tu(u);if(!_||B(_))return e;Uu(n,_,r)&&(h+=` data-framer-page-link-current`);let v=p,y=Object.assign({},r,d.collectionItem?.pathVariables);if(Object.keys(y).length>0&&(v=v.replace(uw,(e,t)=>``+y[t])),d.collectionItem?.pathVariables){let e=new URLSearchParams(d.collectionItem.pathVariables);h+=` data-framer-page-link-path-variables="${e}"`}return v=zn(m,v),i+o+`"${kh(v+(g?`#${g}`:``))}"`+h+l})}function jh(e,t){return e.length===t.length&&e.every((e,n)=>e===t[n])}function Mh(e){switch(e){case`top`:return`flex-start`;case`center`:return`center`;case`bottom`:return`flex-end`}}function Nh(e,t,n){let r=u([]);jh(r.current,e)||(r.current=e,GD.loadFonts(e).then(({newlyLoadedFontCount:e})=>{!t||!n.current||X.current()!==X.canvas||e>0&&Yo(n.current)}))}function Ph(){return{current:null}}async function Fh(e,t){let n=e.current;if(n)return n;let r,i=new Promise((e,n)=>{r=e,t.signal.addEventListener(`abort`,()=>n())});return Object.defineProperty(e,`current`,{get(){return n},set(e){if(n=e,e===null){t.abort();return}r(e)},configurable:!0}),i}function Ih(e){return e in nO}function Lh(e,t){let n={};for(let r in e){if(!Ih(r))continue;let i=e[r],a=nO[r];ut(i)||ut(a)||t&&r!==`opacity`||(n[r]=[i,a])}return n}function Rh(e,t=`character`,n,r,i){if(r){let t=Ph();return n.add(t),E(`span`,{ref:t,style:i,children:e})}switch(t){case`character`:case`line`:{let t=e.split(` `),r=t.length-1;return t.map((e,t)=>{let a=t===r;return A(ne,{children:[E(`span`,{style:{whiteSpace:e.length<=12?`nowrap`:`unset`},children:e.match(rO)?.map((e,t)=>{let r=Ph();return n.add(r),E(`span`,{ref:r,style:i,children:e},e+t)})}),a?null:` `]},e+t+a)})}case`word`:{let t=e.split(` `),r=t.length-1;return t.map((e,t)=>{let a=t===r,o=Ph();return n.add(o),A(ne,{children:[E(`span`,{ref:o,style:i,children:e}),a?null:` `]},e+t+a)})}case`element`:default:return e}}function zh(e){let t=e.type;switch(t){case`appear`:return e.tokenization??`character`;default:W(t)}}function Bh(e){let t=[];return V(e.x)&&t.push(`translateX(${e.x}px)`),V(e.y)&&t.push(`translateY(${e.y}px)`),V(e.scale)&&t.push(`scale(${e.scale})`),V(e.rotate)&&t.push(`rotate(${e.rotate}deg)`),V(e.rotateX)&&t.push(`rotateX(${e.rotateX}deg)`),V(e.rotateY)&&t.push(`rotateY(${e.rotateY}deg)`),V(e.skewX)&&t.push(`skewX(${e.skewX}deg)`),V(e.skewY)&&t.push(`skewY(${e.skewY}deg)`),t.join(` `)}function Vh(e,t,n,r){if(!n||!n.effect)return;let i=n.type;switch(i){case`appear`:switch(n.tokenization){case`element`:return!e||!t?void 0:{opacity:n.effect.opacity,filter:r?void 0:n.effect.filter,transform:r?void 0:Bh(n.effect)};case`line`:case`word`:case`character`:default:return!e||!t?{display:`inline-block`}:{display:`inline-block`,opacity:n.effect.opacity,filter:r?void 0:n.effect.filter,transform:r?void 0:Bh(n.effect)}}default:W(i)}}function Hh(e,t,n){let r=sa(()=>new Set),i=mo(),a=n||!i,o=Ce(),c=u({hasMounted:!1,hasAnimatedOnce:!1,isAnimating:!1,effect:e});c.current.effect=e;let l=e?.trigger??`onMount`,d=e?.target,f=e?.threshold;p(()=>{if(!a||n)return;c.current.hasMounted=!0;function e(){let{effect:e}=c.current;if(!a||!e||e?.repeat!==!0&&c.current.hasAnimatedOnce||e?.type===`appear`&&c.current.isAnimating)return;Object.assign(c.current,{hasAnimatedOnce:!0,isAnimating:!0});let t=e.type;switch(t){case`appear`:{let{transition:t,startDelay:n,repeat:i,tokenization:a}=e,s={current:void 0};return Wh(a,e.effect,r,t,n,i,o,()=>{Object.assign(c.current,{isAnimating:!1})},s),()=>s.current?.()}default:W(t)}}switch(l){case`onMount`:e();return;case`onInView`:{let n=t?.current;return n?tt(n,e,{amount:f??0}):void 0}case`onScrollTarget`:{let t=d?.ref?.current;return t?tt(t,e,{amount:f??0,root:document,margin:d?.offset?`${d.offset}px 0px 0px 0px`:void 0}):void 0}default:W(l)}},[a,r,n,t,d,f,l]);let m=!!e,h=e?zh(e):void 0;return s(()=>({getTokenizer:()=>{if(r.clear(),!m)return;let{hasMounted:e,hasAnimatedOnce:t,effect:i}=c.current,s=Vh(a,n||Uh(e,t,i),c.current.effect,o);return{text:e=>Rh(e,h,r,o,s),props:e=>{if(i?.tokenization!==`element`)return;let t=Ph();return r.add(t),{ref:t,style:{...e,...s}}}}},play:()=>{let{effect:e}=c.current;if(!e)return;let t=e.type;switch(t){case`appear`:{let{transition:t,startDelay:n}=e;Wh(h,e.effect,r,t,n,!1,o);break}default:W(t)}}}),[a,m,r,n,h])}function Uh(e,t,n){return!(e&&n?.trigger===`onMount`||t&&!n?.repeat&&(n?.trigger===`onInView`||n?.trigger===`onScrollTarget`))}async function Wh(e=`character`,t,n,r,i=0,a=!1,o,s,c){let l=Lh(t,o),u=new AbortController;switch(c&&(c.current=()=>u.abort()),e){case`character`:case`element`:case`word`:{let e=await Gh(n,u);if(e===null||(Ne(e,l,{...r,restDelta:.001,delay:me(r?.delay??0,{startDelay:i})}).then(()=>s?.()),!a||!c))return;c.current=()=>{Ne(e,o?{opacity:t.opacity}:t,{...r,restDelta:.001,delay:me(r?.delay??0,{startDelay:i})})};return}case`line`:{try{for(let e of n)await Fh(e,u)}catch{return}let e;if(L.read(()=>{e=Kh(n),e.length!==0&&L.update(()=>{let t=e.map((e,t)=>Ne(e,l,{...r,restDelta:.001,delay:i+t*(r?.delay??0)}));Promise.all(t).then(()=>s?.())})}),!a||!c)return;c.current=()=>{if(e.length===0)return;let n=o?{opacity:t.opacity}:t;e.forEach((e,t)=>{Ne(e,n,{...r,restDelta:.001,delay:i+t*(r?.delay??0)})})};return}default:W(e)}}async function Gh(e,t){if(e.size===0)return null;let n=[];for(let r of e)try{let e=await Fh(r,t);e&&n.push(e)}catch{return null}return n}function Kh(e){let t=[],n=[],r=null;for(let i of e){if(!i.current)continue;let e=i.current.offsetTop,a=i.current.offsetHeight;!a||r===null||e===r?n.push(i.current):(t.push(n),n=[i.current]),a&&(r=e)}return t.push(n),t}function qh(e){let t={};for(let n in e)(ae(n)||dx(n))&&(t[n]=e[n]);return t}function Jh(e){return e.type===ne}function Yh(e){return e.type===`br`}function Xh(e,t,n,r,i={},a,o=Jh(e)?-1:0){let s=d.toArray(e.props.children);ut(n)||(s=s.slice(0,1));let c=!0;s=s.map(e=>{if((!O(e)||!Yh(e))&&(c=!1),O(e))return Xh(e,t,n,r,i,a,o+1);let s=ut(n)?e:n;return B(s)&&a?a.text(s):s});let{"data-preset-tag":l,...u}=e.props;if(B(e.type)||rt(e.type)){let n=ce(e.type)||e.type,d=l||n,f=B(d)?t?.[d]:void 0;u.className=kc(`framer-text`,u.className,f),a&&o===0&&!c&&Object.assign(u,a.props(u.style));let p=n===`h1`||n===`h2`||n===`h3`||n===`h4`||n===`h5`||n===`h6`,m=t?.anchor;if(p&&m){let e=Zh(s,i);u.id=e;let t=kc(`framer-text`,m),n=E(`a`,{href:`#${e}`,className:t,children:s});u.style={...u.style??{},scrollMarginTop:r},s=[n]}}return f(e,u,...s)}function Zh(e,t){let n=Or(e.map(Qh).join(``)),r=t[n]??0;return r>0&&(n+=`-${r}`),t[n]=r+1,n}function Qh(e){return B(e)||V(e)?e.toString():O(e)?Qh(e.props.children):Array.isArray(e)?e.map(Qh).join(``):``}function $h(e){let t=e*Math.PI/180,n={x:-Math.sin(t)*100,y:Math.cos(t)*100},r=yi(n.x,n.y),i=My(yi(.5,.5),r),a=Z.points({x:0,y:0,width:1,height:1}),o=a.map(e=>({point:e,distance:yi.distance(r,e)})).sort((e,t)=>e.distance-t.distance),s=o[0]?.point,c=o[1]?.point;U(s&&c,`linearGradientLine: Must have 2 closest points.`);let[l,u]=a.filter(e=>!yi.isEqual(e,s)&&!yi.isEqual(e,c));U(l&&u,`linearGradientLine: Must have 2 opposing points.`);let d=My.intersection(i,My(s,c)),f=My.intersection(i,My(l,u));return U(d&&f,`linearGradientLine: Must have a start and end point.`),My(d,f)}function eg(e,t){let n=$h(e.angle),r=is(e),i=r[0]?.position??0,a=r[r.length-1]?.position??1,o=My.pointAtPercentDistance(n,i),s=My.pointAtPercentDistance(n,a),c=De([i,a],[0,1]);return{id:`id${t}g${Vx.hash(e)}`,x1:o.x,y1:o.y,x2:s.x,y2:s.y,stops:r.map(t=>({color:t.value,alpha:Fx.getAlpha(t.value)*e.alpha,position:c(t.position)}))}}function tg(e,t){return{id:`id${t}g${Ux.hash(e)}`,widthFactor:e.widthFactor,heightFactor:e.heightFactor,centerAnchorX:e.centerAnchorX,centerAnchorY:e.centerAnchorY,stops:is(e).map(t=>({color:t.value,alpha:Fx.getAlpha(t.value)*e.alpha,position:t.position}))}}function ng(e){if(!B(e)||e.charAt(e.length-1)!==`%`)return!1;let t=e.slice(0,-1);return V(parseFloat(t))}function rg(e){let t=e.slice(0,-1),n=parseFloat(t);return V(n)?n:50}function ig(e){return ng(e)?rg(e)/100:e===`left`?0:e===`right`?1:.5}function ag(e){return ng(e)?rg(e)/100:e===`top`?0:e===`bottom`?1:.5}function og(e,t,n,r){if(e=ty.get(e,`#09F`),!Cx.isImageObject(e)||!e.pixelWidth||!e.pixelHeight)return;let i=e.pixelWidth,a=e.pixelHeight,o,{fit:s}=e,c=1,l=1,u=0,d=0;if(s===`fill`||s===`fit`||s===`tile`||!s){let n=1,f=1,p=i/a,m=t.height*p,h=t.width/p,g=m/t.width,_=h/t.height;if(s===`tile`){e.backgroundSize??=1,c=Math.round(e.backgroundSize*(i/2)),l=Math.round(e.backgroundSize*(a/2));let n=t.x??0,s=t.y??0,f=0,p=0;r&&(f=n,p=s),u=(t.width-c)*ig(e.positionX)+f,d=(t.height-l)*ag(e.positionY)+p,o=`translate(${u+n}, ${d+s})`}else (s===`fill`||!s?_>g:_<g)?(f=_,d=(1-_)*ag(e.positionY)):(n=g,u=(1-g)*ig(e.positionX)),o=`translate(${u}, ${d}) scale(${n}, ${f})`}return{id:`id${n}g-fillImage`,path:e.src??``,transform:o,width:c,height:l,offsetX:u,offsetY:d}}function sg(e){return e.startsWith(`data:${dO}`)}function cg(e,t){if(/^\w+:/u.test(e)&&!sg(e))return e;t=typeof t==`number`?t<=512?512:t<=1024?1024:t<=2048?2048:4096:void 0;let n=X.current()===X.export;return gx.assetResolver(e,{pixelSize:t,isExport:n})??``}function lg(e,t){return p(()=>_O.subscribeToTemplate(e),[e]),_O.template(e,t)}function ug(e){try{let t=Oh(e).getElementsByTagName(`svg`)[0];if(!t)throw Error(`no svg element found`);return t}catch{return}}function dg(e,t){pg(e,fg(t))}function fg(e){return e.replace(/[^\w\-:.]|^[^a-z]+/gi,``)}function pg(e,t){mg(e,t),Array.from(e.children).forEach(e=>{pg(e,t)})}function mg(e,t){e.getAttributeNames().forEach(n=>{let r=e.getAttribute(n);if(!r)return;if(n===`id`&&e.setAttribute(n,`${t}_${r}`),n===`href`||n===`xlink:href`){let[i,a]=r.split(`#`);if(i)return;e.setAttribute(n,`#${t}_${a}`);return}let i=`url(#`;if(r.includes(i)){let a=r.replace(i,`${i}${t}_`);e.setAttribute(n,a)}})}function hg(e){if(!e)return;let t=/(-?[\d.]+)([a-z%]*)/u.exec(e);if(!(t?.[1]===void 0||t?.[2]===void 0)&&!t[2]?.startsWith(`%`))return Math.round(parseFloat(t[1])*(vO[t[2]]||1))}function gg(e){let t=hg(e.getAttribute(`width`)),n=hg(e.getAttribute(`height`));if(!(typeof t!=`number`||typeof n!=`number`)&&!(t<=0||n<=0))return{width:t,height:n}}function _g(e){return e.indexOf(`image`)>=0}function vg(e){return e.indexOf(`var(--`)>=0}function yg(e){return!!(e.borderRadius||e.borderBottomLeftRadius||e.borderBottomRightRadius||e.borderTopLeftRadius||e.borderTopRightRadius)}function bg(e,t){let n=e.current;if(!n)return;let r=t.providedWindow??J,i=n.firstElementChild;if(!i||!(i instanceof r.SVGSVGElement))return;if(!i.getAttribute(`viewBox`)){let e=_O.getViewBox(t.svg);e&&i.setAttribute(`viewBox`,e)}let{withExternalLayout:a,parentSize:o}=t;if(!a&&Ca(t)&&o!==1&&o!==2)return;let{intrinsicWidth:s,intrinsicHeight:c,_constraints:l}=t;i.viewBox?.baseVal?.width===0&&i.viewBox?.baseVal?.height===0&&G(s)&&G(c)&&i.setAttribute(`viewBox`,`0 0 ${s} ${c}`),l&&l.aspectRatio?i.setAttribute(`preserveAspectRatio`,``):i.setAttribute(`preserveAspectRatio`,`none`),i.setAttribute(`width`,`100%`),i.setAttribute(`height`,`100%`)}function xg({height:e,width:t,children:n}){let r=Sg();if(!r||!n)return n;let{props:i}=r;return E(nt.li,{...i,style:{...i.style,width:t??`fit-content`,height:e??`fit-content`},children:n})}function Sg(){try{return lm()}catch{return}}function Cg(e){return e>CO?`lazy`:void 0}function wg(e,t,n){let r=Og(t);!n?.supportsExplicitInterCodegen&&!r.some(e=>e.explicitInter===!1)&&r.push({explicitInter:!1,fonts:[]}),Object.assign(e,{fonts:r})}function Tg(e){return e?e.fonts??Qr():Qr()}function Eg(e){return e.length===0?[{explicitInter:!1,fonts:[]}]:Og(e)}function Dg(e){return e.length===0?[{explicitInter:!1,fonts:[]}]:Og(e)}function Og(e){let t={explicitInter:!1,fonts:[]},n=[];for(let r of e)kg(r)?n.push({explicitInter:r.explicitInter,fonts:r.fonts.map(Ag)}):t.fonts.push(Ag(r));return t.fonts.length>0&&n.push(t),n}function kg(e){return wO in e}function Ag(e){let t=jg(e)||Mg(e)?e:Ng(e);return Mg(t)?t:Pg(t)}function jg(e){return`source`in e}function Mg(e){return`cssFamilyName`in e}function Ng(e){let t;return t=e.url.startsWith(`https://fonts.gstatic.com/s/`)?`google`:e.url.startsWith(`https://framerusercontent.com/third-party-assets/fontshare/`)?`fontshare`:`custom`,{...e,source:t}}function Pg(e){let{family:t,...n}=e,r=e.variationAxes&&e.source!==`custom`?`${t} ${gD}`:t;return{...n,uiFamilyName:t,cssFamilyName:r}}function Fg(e,t){let n=`${e}-start`;performance.mark(n),t();let r=`${e}-end`;performance.mark(r),performance.measure(e,n,r)}function Ig(e){return e.loader}function Lg(e,t,n){let r=Ig(e);return r?r.load(t,n):Promise.resolve(void 0)}var Rg,zg,Bg,Vg,Hg,Ug,Wg,Gg,Kg,qg,Jg,Yg,Xg,Zg,Qg,$g,e_,t_,n_,r_,i_,a_,o_,s_,c_,l_,u_,d_,f_,p_,m_,h_,g_,__,v_,y_,b_,x_,S_,C_,w_,T_,E_,D_,J,O_,k_,A_,j_,M_,N_,P_,F_,I_,L_,R_,z_,B_,V_,H_,U_,W_,G_,K_,q_,J_,Y_,X_,Z_,Q_,$_,ev,tv,nv,rv,iv,av,ov,sv,cv,lv,uv,dv,fv,pv,mv,hv,gv,_v,vv,yv,bv,xv,Sv,Cv,wv,Tv,Ev,Dv,Ov,kv,Av,jv,Mv,Nv,Pv,Fv,Iv,Lv,Rv,zv,Bv,Vv,Hv,Uv,Wv,Gv,Kv,qv,Jv,Yv,Xv,Zv,Qv,$v,ey,ty,ny,ry,iy,ay,oy,sy,cy,ly,uy,dy,fy,py,my,Y,hy,gy,_y,vy,yy,by,xy,Sy,Cy,wy,X,Ty,Ey,Dy,Oy,ky,Ay,jy,My,Z,Ny,Py,Fy,Iy,Ly,Ry,zy,By,Vy,Hy,Uy,Wy,Gy,Ky,qy,Jy,Yy,Xy,Zy,Qy,$y,eb,tb,nb,rb,ib,ab,ob,sb,cb,lb,ub,db,fb,pb,mb,hb,gb,_b,vb,yb,bb,xb,Sb,Cb,wb,Tb,Eb,Db,Ob,kb,Ab,jb,Mb,Nb,Pb,Fb,Ib,Lb,Rb,zb,Bb,Vb,Hb,Ub,Wb,Gb,Kb,qb,Jb,Yb,Xb,Zb,Qb,$b,ex,tx,nx,rx,ix,ax,ox,sx,cx,lx,ux,dx,fx,px,mx,hx,gx,_x,vx,yx,bx,xx,Sx,Cx,wx,Tx,Ex,Dx,Ox,kx,Ax,jx,Mx,Nx,Px,Fx,Ix,Lx,Rx,zx,Bx,Vx,Hx,Ux,Wx,Gx,Kx,qx,Jx,Yx,Xx,Zx,Qx,$x,eS,tS,nS,rS,iS,aS,oS,sS,cS,lS,uS,dS,fS,pS,mS,hS,gS,_S,vS,yS,bS,xS,SS,CS,wS,TS,ES,DS,OS,kS,AS,jS,MS,NS,PS,FS,IS,LS,RS,zS,BS,VS,HS,US,WS,GS,KS,qS,JS,YS,XS,ZS,QS,$S,eC,tC,nC,rC,iC,aC,oC,sC,cC,lC,uC,dC,fC,pC,mC,hC,gC,_C,vC,yC,bC,xC,SC,CC,wC,TC,EC,DC,OC,kC,AC,jC,MC,NC,PC,FC,IC,LC,RC,zC,BC,VC,HC,UC,WC,GC,KC,qC,JC,YC,XC,ZC,QC,$C,ew,tw,nw,rw,iw,aw,ow,sw,cw,lw,uw,dw,fw,pw,mw,hw,gw,_w,vw,yw,bw,xw,Sw,Cw,ww,Tw,Ew,Dw,Ow,kw,Aw,jw,Mw,Nw,Pw,Fw,Iw,Lw,Rw,zw,Bw,Vw,Hw,Uw,Ww,Gw,Kw,qw,Jw,Yw,Xw,Zw,Qw,$w,eT,tT,nT,rT,iT,aT,oT,sT,cT,lT,uT,Q,dT,fT,pT,mT,hT,gT,_T,vT,yT,bT,xT,$,ST,CT,wT,TT,ET,DT,OT,kT,AT,jT,MT,NT,PT,FT,IT,LT,RT,zT,BT,VT,HT,UT,WT,GT,KT,qT,JT,YT,XT,ZT,QT,$T,eE,tE,nE,rE,iE,aE,oE,sE,cE,lE,uE,dE,fE,pE,mE,hE,gE,_E,vE,yE,bE,xE,SE,CE,wE,TE,EE,DE,OE,kE,AE,jE,ME,NE,PE,FE,IE,LE,RE,zE,BE,VE,HE,UE,WE,GE,KE,qE,JE,YE,XE,ZE,QE,$E,eD,tD,nD,rD,iD,aD,oD,sD,cD,lD,uD,dD,fD,pD,mD,hD,gD,_D,vD,yD,bD,xD,SD,CD,wD,TD,ED,DD,OD,kD,AD,jD,MD,ND,PD,FD,ID,LD,RD,zD,BD,VD,HD,UD,WD,GD,KD,qD,JD,YD,XD,ZD,QD,$D,eO,tO,nO,rO,iO,aO,oO,sO,cO,lO,uO,dO,fO,pO,mO,hO,gO,_O,vO,yO,bO,xO,SO,CO,wO,TO=e((()=>{h(
 //! Credit to Astro | MIT License
 /**
 * @license Emotion v11.0.0
@@ -116,17 +116,17 @@ react-is/cjs/react-is.production.min.js:
 `):t;sb.add(e,c)}return i(()=>{c&&rb.has(c)||(ot(t)?t(Za(),r):Array.isArray(t)?t:t.split(`
 `)).forEach(e=>e&&Xa(e,o,s))},[]),E(e,{...r,ref:a})}),ob=class{constructor(){z(this,`styles`,new Set),z(this,`componentIds`,new Set)}add(e,t){this.styles.add(e),t&&this.componentIds.add(t)}getStyles(){return this.styles}getComponentIds(){return this.componentIds}clear(){this.styles.clear(),this.componentIds.clear()}},sb=new ob,lb=`flexbox-gap-not-supported`,ub=!1,db=[`[data-framer-component-type="DeprecatedRichText"] { cursor: inherit; }`,`
 [data-framer-component-type="DeprecatedRichText"] .text-styles-preset-reset {
-    --geo-font-family: Inter, Inter Placeholder, sans-serif;
-    --geo-font-style: normal;
-    --geo-font-weight: 500;
-    --geo-text-color: #000;
-    --geo-font-size: 16px;
-    --geo-letter-spacing: 0;
-    --geo-text-transform: none;
-    --geo-text-decoration: none;
-    --geo-line-height: 1.2em;
-    --geo-text-alignment: start;
-    --geo-font-open-type-features: normal;
+    --framer-font-family: Inter, Inter Placeholder, sans-serif;
+    --framer-font-style: normal;
+    --framer-font-weight: 500;
+    --framer-text-color: #000;
+    --framer-font-size: 16px;
+    --framer-letter-spacing: 0;
+    --framer-text-transform: none;
+    --framer-text-decoration: none;
+    --framer-line-height: 1.2em;
+    --framer-text-alignment: start;
+    --framer-font-open-type-features: normal;
     --font-variation-settings: normal;
 }
 `,`
@@ -154,16 +154,16 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="DeprecatedRichText"] ol,
 [data-framer-component-type="DeprecatedRichText"] ul,
 [data-framer-component-type="DeprecatedRichText"] span:not([data-text-fill]) {
-    font-family: var(--geo-font-family, Inter, Inter Placeholder, sans-serif);
-    font-style: var(--geo-font-style, normal);
-    font-weight: var(--geo-font-weight, 400);
-    color: var(--geo-text-color, #000);
-    font-size: var(--geo-font-size, 16px);
-    letter-spacing: var(--geo-letter-spacing, 0);
-    text-transform: var(--geo-text-transform, none);
-    text-decoration: var(--geo-text-decoration, none);
-    line-height: var(--geo-line-height, 1.2em);
-    text-align: var(--geo-text-alignment, start);
+    font-family: var(--framer-font-family, Inter, Inter Placeholder, sans-serif);
+    font-style: var(--framer-font-style, normal);
+    font-weight: var(--framer-font-weight, 400);
+    color: var(--framer-text-color, #000);
+    font-size: var(--framer-font-size, 16px);
+    letter-spacing: var(--framer-letter-spacing, 0);
+    text-transform: var(--framer-text-transform, none);
+    text-decoration: var(--framer-text-decoration, none);
+    line-height: var(--framer-line-height, 1.2em);
+    text-align: var(--framer-text-alignment, start);
 }
 `,`
 [data-framer-component-type="DeprecatedRichText"] p:not(:first-child),
@@ -176,8 +176,8 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="DeprecatedRichText"] h6:not(:first-child),
 [data-framer-component-type="DeprecatedRichText"] ol:not(:first-child),
 [data-framer-component-type="DeprecatedRichText"] ul:not(:first-child),
-[data-framer-component-type="DeprecatedRichText"] .geo-image:not(:first-child) {
-    margin-top: var(--geo-paragraph-spacing, 0);
+[data-framer-component-type="DeprecatedRichText"] .framer-image:not(:first-child) {
+    margin-top: var(--framer-paragraph-spacing, 0);
 }
 `,`
 [data-framer-component-type="DeprecatedRichText"] span[data-text-fill] {
@@ -189,46 +189,46 @@ react-is/cjs/react-is.production.min.js:
 `,`
 [data-framer-component-type="DeprecatedRichText"] a,
 [data-framer-component-type="DeprecatedRichText"] a span:not([data-text-fill]) {
-    font-family: var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif));
-    font-style: var(--geo-link-font-style, var(--geo-font-style, normal));
-    font-weight: var(--geo-link-font-weight, var(--geo-font-weight, 400));
-    color: var(--geo-link-text-color, var(--geo-text-color, #000));
-    font-size: var(--geo-link-font-size, var(--geo-font-size, 16px));
-    text-transform: var(--geo-link-text-transform, var(--geo-text-transform, none));
-    text-decoration: var(--geo-link-text-decoration, var(--geo-text-decoration, none));
+    font-family: var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif));
+    font-style: var(--framer-link-font-style, var(--framer-font-style, normal));
+    font-weight: var(--framer-link-font-weight, var(--framer-font-weight, 400));
+    color: var(--framer-link-text-color, var(--framer-text-color, #000));
+    font-size: var(--framer-link-font-size, var(--framer-font-size, 16px));
+    text-transform: var(--framer-link-text-transform, var(--framer-text-transform, none));
+    text-decoration: var(--framer-link-text-decoration, var(--framer-text-decoration, none));
 }
 `,`
 [data-framer-component-type="DeprecatedRichText"] a:hover,
 [data-framer-component-type="DeprecatedRichText"] a:hover span:not([data-text-fill]) {
-    font-family: var(--geo-link-hover-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif)));
-    font-style: var(--geo-link-hover-font-style, var(--geo-link-font-style, var(--geo-font-style, normal)));
-    font-weight: var(--geo-link-hover-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400)));
-    color: var(--geo-link-hover-text-color, var(--geo-link-text-color, var(--geo-text-color, #000)));
-    font-size: var(--geo-link-hover-font-size, var(--geo-link-font-size, var(--geo-font-size, 16px)));
-    text-transform: var(--geo-link-hover-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none)));
-    text-decoration: var(--geo-link-hover-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, none)));
+    font-family: var(--framer-link-hover-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif)));
+    font-style: var(--framer-link-hover-font-style, var(--framer-link-font-style, var(--framer-font-style, normal)));
+    font-weight: var(--framer-link-hover-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400)));
+    color: var(--framer-link-hover-text-color, var(--framer-link-text-color, var(--framer-text-color, #000)));
+    font-size: var(--framer-link-hover-font-size, var(--framer-link-font-size, var(--framer-font-size, 16px)));
+    text-transform: var(--framer-link-hover-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none)));
+    text-decoration: var(--framer-link-hover-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, none)));
 }
 `,`
 [data-framer-component-type="DeprecatedRichText"] a[data-framer-page-link-current],
 [data-framer-component-type="DeprecatedRichText"] a[data-framer-page-link-current] span:not([data-text-fill]):not([data-nested-link]) {
-    font-family: var(--geo-link-current-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif)));
-    font-style: var(--geo-link-current-font-style, var(--geo-link-font-style, var(--geo-font-style, normal)));
-    font-weight: var(--geo-link-current-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400)));
-    color: var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-text-color, #000)));
-    font-size: var(--geo-link-current-font-size, var(--geo-link-font-size, var(--geo-font-size, 16px)));
-    text-transform: var(--geo-link-current-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none)));
-    text-decoration: var(--geo-link-current-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, none)));
+    font-family: var(--framer-link-current-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif)));
+    font-style: var(--framer-link-current-font-style, var(--framer-link-font-style, var(--framer-font-style, normal)));
+    font-weight: var(--framer-link-current-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400)));
+    color: var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-text-color, #000)));
+    font-size: var(--framer-link-current-font-size, var(--framer-link-font-size, var(--framer-font-size, 16px)));
+    text-transform: var(--framer-link-current-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none)));
+    text-decoration: var(--framer-link-current-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, none)));
 }
 `,`
 [data-framer-component-type="DeprecatedRichText"] a[data-framer-page-link-current]:hover,
 [data-framer-component-type="DeprecatedRichText"] a[data-framer-page-link-current]:hover span:not([data-text-fill]):not([data-nested-link]) {
-    font-family: var(--geo-link-hover-font-family, var(--geo-link-current-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif))));
-    font-style: var(--geo-link-hover-font-style, var(--geo-link-current-font-style, var(--geo-link-font-style, var(--geo-font-style, normal))));
-    font-weight: var(--geo-link-hover-font-weight, var(--geo-link-current-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400))));
-    color: var(--geo-link-hover-text-color, var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-text-color, #000))));
-    font-size: var(--geo-link-hover-font-size, var(--geo-link-current-font-size, var(--geo-link-font-size, var(--geo-font-size, 16px))));
-    text-transform: var(--geo-link-hover-text-transform, var(--geo-link-current-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none))));
-    text-decoration: var(--geo-link-hover-text-decoration, var(--geo-link-current-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, none))));
+    font-family: var(--framer-link-hover-font-family, var(--framer-link-current-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif))));
+    font-style: var(--framer-link-hover-font-style, var(--framer-link-current-font-style, var(--framer-link-font-style, var(--framer-font-style, normal))));
+    font-weight: var(--framer-link-hover-font-weight, var(--framer-link-current-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400))));
+    color: var(--framer-link-hover-text-color, var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-text-color, #000))));
+    font-size: var(--framer-link-hover-font-size, var(--framer-link-current-font-size, var(--framer-link-font-size, var(--framer-font-size, 16px))));
+    text-transform: var(--framer-link-hover-text-transform, var(--framer-link-current-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none))));
+    text-decoration: var(--framer-link-hover-text-decoration, var(--framer-link-current-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, none))));
 }
 `,`
 [data-framer-component-type="DeprecatedRichText"] strong {
@@ -239,7 +239,7 @@ react-is/cjs/react-is.production.min.js:
     font-style: italic;
 }
 `,`
-[data-framer-component-type="DeprecatedRichText"] .geo-image {
+[data-framer-component-type="DeprecatedRichText"] .framer-image {
     display: block;
     max-width: 100%;
     height: auto;
@@ -275,7 +275,7 @@ react-is/cjs/react-is.production.min.js:
     padding-right: 0.75ch;
     content: "•";
 }
-`],fb=(e=>(e.Padding=`--geo-input-padding`,e.BorderRadiusTopLeft=`--geo-input-border-radius-top-left`,e.BorderRadiusTopRight=`--geo-input-border-radius-top-right`,e.BorderRadiusBottomRight=`--geo-input-border-radius-bottom-right`,e.BorderRadiusBottomLeft=`--geo-input-border-radius-bottom-left`,e.CornerShape=`--geo-input-corner-shape`,e.BorderColor=`--geo-input-border-color`,e.BorderTopWidth=`--geo-input-border-top-width`,e.BorderRightWidth=`--geo-input-border-right-width`,e.BorderBottomWidth=`--geo-input-border-bottom-width`,e.BorderLeftWidth=`--geo-input-border-left-width`,e.BorderStyle=`--geo-input-border-style`,e.Background=`--geo-input-background`,e.FontFamily=`--geo-input-font-family`,e.FontWeight=`--geo-input-font-weight`,e.FontSize=`--geo-input-font-size`,e.FontColor=`--geo-input-font-color`,e.FontStyle=`--geo-input-font-style`,e.FontLetterSpacing=`--geo-input-font-letter-spacing`,e.FontTextAlignment=`--geo-input-font-text-alignment`,e.FontLineHeight=`--geo-input-font-line-height`,e.FontOpenType=`--geo-input-font-open-type-features`,e.FontVariationAxes=`--geo-input-font-variation-axes`,e.PlaceholderColor=`--geo-input-placeholder-color`,e.BoxShadow=`--geo-input-box-shadow`,e.FocusedBorderColor=`--geo-input-focused-border-color`,e.FocusedBorderWidth=`--geo-input-focused-border-width`,e.FocusedBorderStyle=`--geo-input-focused-border-style`,e.FocusedBackground=`--geo-input-focused-background`,e.FocusedBoxShadow=`--geo-input-focused-box-shadow`,e.FocusedTransition=`--geo-input-focused-transition`,e.BooleanCheckedBackground=`--geo-input-boolean-checked-background`,e.BooleanCheckedBorderColor=`--geo-input-boolean-checked-border-color`,e.BooleanCheckedBorderWidth=`--geo-input-boolean-checked-border-width`,e.BooleanCheckedBorderStyle=`--geo-input-boolean-checked-border-style`,e.BooleanCheckedBoxShadow=`--geo-input-boolean-checked-box-shadow`,e.BooleanCheckedTransition=`--geo-input-boolean-checked-transition`,e.InvalidTextColor=`--geo-input-invalid-text-color`,e.IconBackgroundImage=`--geo-input-icon-image`,e.IconMaskImage=`--geo-input-icon-mask-image`,e.IconColor=`--geo-input-icon-color`,e.IconContent=`--geo-input-icon-content`,e.WrapperHeight=`--geo-input-wrapper-height`,e))(fb||{}),pb=fb,mb=(()=>{function e(e,t){let n=` `;for(let e in t){let r=t[e];U(r!==void 0,"Encountered `undefined` in CSSDeclaration"),n+=`${e.replace(/([A-Z])/gu,`-$1`).toLowerCase()}: ${eo(r)}; `}return e+` {`+n+`}`}return e.variable=(...e)=>{let t=e[e.length-1];U(t!==void 0,"Zero variables passed to `css.variable`");let n=t.startsWith(`--`)?`var(${t})`:t;for(let t=e.length-2;t>=0;t--)n=`var(${e[t]}, ${n})`;return n},e})(),`${pb.BorderTopWidth}${pb.BorderRightWidth}${pb.BorderBottomWidth}${pb.BorderLeftWidth}`,hb={display:`flex`,flexDirection:`column`,justifyContent:`flex-start`},gb={display:`inline-block`},_b={display:`block`},vb=(()=>[`
+`],fb=(e=>(e.Padding=`--framer-input-padding`,e.BorderRadiusTopLeft=`--framer-input-border-radius-top-left`,e.BorderRadiusTopRight=`--framer-input-border-radius-top-right`,e.BorderRadiusBottomRight=`--framer-input-border-radius-bottom-right`,e.BorderRadiusBottomLeft=`--framer-input-border-radius-bottom-left`,e.CornerShape=`--framer-input-corner-shape`,e.BorderColor=`--framer-input-border-color`,e.BorderTopWidth=`--framer-input-border-top-width`,e.BorderRightWidth=`--framer-input-border-right-width`,e.BorderBottomWidth=`--framer-input-border-bottom-width`,e.BorderLeftWidth=`--framer-input-border-left-width`,e.BorderStyle=`--framer-input-border-style`,e.Background=`--framer-input-background`,e.FontFamily=`--framer-input-font-family`,e.FontWeight=`--framer-input-font-weight`,e.FontSize=`--framer-input-font-size`,e.FontColor=`--framer-input-font-color`,e.FontStyle=`--framer-input-font-style`,e.FontLetterSpacing=`--framer-input-font-letter-spacing`,e.FontTextAlignment=`--framer-input-font-text-alignment`,e.FontLineHeight=`--framer-input-font-line-height`,e.FontOpenType=`--framer-input-font-open-type-features`,e.FontVariationAxes=`--framer-input-font-variation-axes`,e.PlaceholderColor=`--framer-input-placeholder-color`,e.BoxShadow=`--framer-input-box-shadow`,e.FocusedBorderColor=`--framer-input-focused-border-color`,e.FocusedBorderWidth=`--framer-input-focused-border-width`,e.FocusedBorderStyle=`--framer-input-focused-border-style`,e.FocusedBackground=`--framer-input-focused-background`,e.FocusedBoxShadow=`--framer-input-focused-box-shadow`,e.FocusedTransition=`--framer-input-focused-transition`,e.BooleanCheckedBackground=`--framer-input-boolean-checked-background`,e.BooleanCheckedBorderColor=`--framer-input-boolean-checked-border-color`,e.BooleanCheckedBorderWidth=`--framer-input-boolean-checked-border-width`,e.BooleanCheckedBorderStyle=`--framer-input-boolean-checked-border-style`,e.BooleanCheckedBoxShadow=`--framer-input-boolean-checked-box-shadow`,e.BooleanCheckedTransition=`--framer-input-boolean-checked-transition`,e.InvalidTextColor=`--framer-input-invalid-text-color`,e.IconBackgroundImage=`--framer-input-icon-image`,e.IconMaskImage=`--framer-input-icon-mask-image`,e.IconColor=`--framer-input-icon-color`,e.IconContent=`--framer-input-icon-content`,e.WrapperHeight=`--framer-input-wrapper-height`,e))(fb||{}),pb=fb,mb=(()=>{function e(e,t){let n=` `;for(let e in t){let r=t[e];U(r!==void 0,"Encountered `undefined` in CSSDeclaration"),n+=`${e.replace(/([A-Z])/gu,`-$1`).toLowerCase()}: ${eo(r)}; `}return e+` {`+n+`}`}return e.variable=(...e)=>{let t=e[e.length-1];U(t!==void 0,"Zero variables passed to `css.variable`");let n=t.startsWith(`--`)?`var(${t})`:t;for(let t=e.length-2;t>=0;t--)n=`var(${e[t]}, ${n})`;return n},e})(),`${pb.BorderTopWidth}${pb.BorderRightWidth}${pb.BorderBottomWidth}${pb.BorderLeftWidth}`,hb={display:`flex`,flexDirection:`column`,justifyContent:`flex-start`},gb={display:`inline-block`},_b={display:`block`},vb=(()=>[`
         [data-framer-component-type="RichTextContainer"] {
             display: ${hb.display};
             flex-direction: ${hb.flexDirection};
@@ -284,175 +284,175 @@ react-is/cjs/react-is.production.min.js:
             flex-shrink: 0;
         }
     `,`
-        p.geo-text,
-        div.geo-text,
-        figure.geo-text,
-        h1.geo-text,
-        h2.geo-text,
-        h3.geo-text,
-        h4.geo-text,
-        h5.geo-text,
-        h6.geo-text,
-        ol.geo-text,
-        ul.geo-text {
+        p.framer-text,
+        div.framer-text,
+        figure.framer-text,
+        h1.framer-text,
+        h2.framer-text,
+        h3.framer-text,
+        h4.framer-text,
+        h5.framer-text,
+        h6.framer-text,
+        ol.framer-text,
+        ul.framer-text {
             margin: 0;
             padding: 0;
         }
     `,`
-        p.geo-text,
-        div.geo-text,
-        h1.geo-text,
-        h2.geo-text,
-        h3.geo-text,
-        h4.geo-text,
-        h5.geo-text,
-        h6.geo-text,
-        li.geo-text,
-        ol.geo-text,
-        ul.geo-text,
-        mark.geo-text,
-        span.geo-text:not([data-text-fill]) {
-            font-family: var(--geo-font-family-preview, var(--geo-blockquote-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif)));
-            font-style: var(--geo-font-style-preview, var(--geo-blockquote-font-style, var(--geo-font-style, normal)));
-            font-weight: var(--geo-font-weight-preview, var(--geo-blockquote-font-weight, var(--geo-font-weight, 400)));
-            color: var(--geo-blockquote-text-color, var(--geo-text-color, #000));
-            font-size: calc(var(--geo-blockquote-font-size, var(--geo-font-size, 16px)) * var(--geo-font-size-scale, 1));
-            letter-spacing: var(--geo-blockquote-letter-spacing, var(--geo-letter-spacing, 0));
-            text-transform: var(--geo-blockquote-text-transform, var(--geo-text-transform, none));
-            text-decoration-line: var(--geo-blockquote-text-decoration, var(--geo-text-decoration, initial));
-            text-decoration-style: var(--geo-blockquote-text-decoration-style, var(--geo-text-decoration-style, initial));
-            text-decoration-color: var(--geo-blockquote-text-decoration-color, var(--geo-text-decoration-color, initial));
-            text-decoration-thickness: var(--geo-blockquote-text-decoration-thickness, var(--geo-text-decoration-thickness, initial));
-            text-decoration-skip-ink: var(--geo-blockquote-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink, initial));
-            text-underline-offset: var(--geo-blockquote-text-decoration-offset, var(--geo-text-decoration-offset, initial));
-            line-height: var(--geo-blockquote-line-height, var(--geo-line-height, 1.2em));
-            text-align: var(--geo-blockquote-text-alignment, var(--geo-text-alignment, start));
-            -webkit-text-stroke-width: var(--geo-text-stroke-width, initial);
-            -webkit-text-stroke-color: var(--geo-text-stroke-color, initial);
-            -moz-font-feature-settings: var(--geo-font-open-type-features, initial);
-            -webkit-font-feature-settings: var(--geo-font-open-type-features, initial);
-            font-feature-settings: var(--geo-font-open-type-features, initial);
-            font-variation-settings: var(--geo-font-variation-axes-preview, var(--geo-font-variation-axes, normal));
-            text-wrap: var(--geo-text-wrap-override, var(--geo-text-wrap));
+        p.framer-text,
+        div.framer-text,
+        h1.framer-text,
+        h2.framer-text,
+        h3.framer-text,
+        h4.framer-text,
+        h5.framer-text,
+        h6.framer-text,
+        li.framer-text,
+        ol.framer-text,
+        ul.framer-text,
+        mark.framer-text,
+        span.framer-text:not([data-text-fill]) {
+            font-family: var(--framer-font-family-preview, var(--framer-blockquote-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif)));
+            font-style: var(--framer-font-style-preview, var(--framer-blockquote-font-style, var(--framer-font-style, normal)));
+            font-weight: var(--framer-font-weight-preview, var(--framer-blockquote-font-weight, var(--framer-font-weight, 400)));
+            color: var(--framer-blockquote-text-color, var(--framer-text-color, #000));
+            font-size: calc(var(--framer-blockquote-font-size, var(--framer-font-size, 16px)) * var(--framer-font-size-scale, 1));
+            letter-spacing: var(--framer-blockquote-letter-spacing, var(--framer-letter-spacing, 0));
+            text-transform: var(--framer-blockquote-text-transform, var(--framer-text-transform, none));
+            text-decoration-line: var(--framer-blockquote-text-decoration, var(--framer-text-decoration, initial));
+            text-decoration-style: var(--framer-blockquote-text-decoration-style, var(--framer-text-decoration-style, initial));
+            text-decoration-color: var(--framer-blockquote-text-decoration-color, var(--framer-text-decoration-color, initial));
+            text-decoration-thickness: var(--framer-blockquote-text-decoration-thickness, var(--framer-text-decoration-thickness, initial));
+            text-decoration-skip-ink: var(--framer-blockquote-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink, initial));
+            text-underline-offset: var(--framer-blockquote-text-decoration-offset, var(--framer-text-decoration-offset, initial));
+            line-height: var(--framer-blockquote-line-height, var(--framer-line-height, 1.2em));
+            text-align: var(--framer-blockquote-text-alignment, var(--framer-text-alignment, start));
+            -webkit-text-stroke-width: var(--framer-text-stroke-width, initial);
+            -webkit-text-stroke-color: var(--framer-text-stroke-color, initial);
+            -moz-font-feature-settings: var(--framer-font-open-type-features, initial);
+            -webkit-font-feature-settings: var(--framer-font-open-type-features, initial);
+            font-feature-settings: var(--framer-font-open-type-features, initial);
+            font-variation-settings: var(--framer-font-variation-axes-preview, var(--framer-font-variation-axes, normal));
+            text-wrap: var(--framer-text-wrap-override, var(--framer-text-wrap));
         }
     `,`
-        mark.geo-text,
-        p.geo-text,
-        div.geo-text,
-        h1.geo-text,
-        h2.geo-text,
-        h3.geo-text,
-        h4.geo-text,
-        h5.geo-text,
-        h6.geo-text,
-        li.geo-text,
-        ol.geo-text,
-        ul.geo-text {
-            background-color: var(--geo-blockquote-text-background-color, var(--geo-text-background-color, initial));
-            border-radius: var(--geo-blockquote-text-background-radius, var(--geo-text-background-radius, initial));
-            corner-shape: var(--geo-blockquote-text-background-corner-shape, var(--geo-text-background-corner-shape, initial));
-            padding: var(--geo-blockquote-text-background-padding, var(--geo-text-background-padding, initial));
+        mark.framer-text,
+        p.framer-text,
+        div.framer-text,
+        h1.framer-text,
+        h2.framer-text,
+        h3.framer-text,
+        h4.framer-text,
+        h5.framer-text,
+        h6.framer-text,
+        li.framer-text,
+        ol.framer-text,
+        ul.framer-text {
+            background-color: var(--framer-blockquote-text-background-color, var(--framer-text-background-color, initial));
+            border-radius: var(--framer-blockquote-text-background-radius, var(--framer-text-background-radius, initial));
+            corner-shape: var(--framer-blockquote-text-background-corner-shape, var(--framer-text-background-corner-shape, initial));
+            padding: var(--framer-blockquote-text-background-padding, var(--framer-text-background-padding, initial));
         }
     `,`
         @supports not (color: color(display-p3 1 1 1)) {
-            p.geo-text,
-            div.geo-text,
-            h1.geo-text,
-            h2.geo-text,
-            h3.geo-text,
-            h4.geo-text,
-            h5.geo-text,
-            h6.geo-text,
-            li.geo-text,
-            ol.geo-text,
-            ul.geo-text,
-            span.geo-text:not([data-text-fill]) {
-                color: ${to([`--geo-blockquote-text-color`,`--geo-text-color`],`#000`)};
-                -webkit-text-stroke-color: ${to([`--geo-text-stroke-color`],`initial`)};
+            p.framer-text,
+            div.framer-text,
+            h1.framer-text,
+            h2.framer-text,
+            h3.framer-text,
+            h4.framer-text,
+            h5.framer-text,
+            h6.framer-text,
+            li.framer-text,
+            ol.framer-text,
+            ul.framer-text,
+            span.framer-text:not([data-text-fill]) {
+                color: ${to([`--framer-blockquote-text-color`,`--framer-text-color`],`#000`)};
+                -webkit-text-stroke-color: ${to([`--framer-text-stroke-color`],`initial`)};
             }
 
-            mark.geo-text {
-                background-color: ${to([`--geo-blockquote-text-background-color`,`--geo-text-background-color`],`initial`)};
+            mark.framer-text {
+                background-color: ${to([`--framer-blockquote-text-background-color`,`--framer-text-background-color`],`initial`)};
             }
         }
     `,`
-        .geo-fit-text .geo-text {
+        .framer-fit-text .framer-text {
             white-space: nowrap;
             white-space-collapse: preserve;
         }
     `,`
-        strong.geo-text {
-            font-family: var(--geo-blockquote-font-family-bold, var(--geo-font-family-bold));
-            font-style: var(--geo-blockquote-font-style-bold, var(--geo-font-style-bold));
-            font-weight: var(--geo-blockquote-font-weight-bold, var(--geo-font-weight-bold, bolder));
-            font-variation-settings: var(--geo-blockquote-font-variation-axes-bold, var(--geo-font-variation-axes-bold));
+        strong.framer-text {
+            font-family: var(--framer-blockquote-font-family-bold, var(--framer-font-family-bold));
+            font-style: var(--framer-blockquote-font-style-bold, var(--framer-font-style-bold));
+            font-weight: var(--framer-blockquote-font-weight-bold, var(--framer-font-weight-bold, bolder));
+            font-variation-settings: var(--framer-blockquote-font-variation-axes-bold, var(--framer-font-variation-axes-bold));
         }
     `,`
-        em.geo-text {
-            font-family: var(--geo-blockquote-font-family-italic, var(--geo-font-family-italic));
-            font-style: var(--geo-blockquote-font-style-italic, var(--geo-font-style-italic, italic));
-            font-weight: var(--geo-blockquote-font-weight-italic, var(--geo-font-weight-italic));
-            font-variation-settings: var(--geo-blockquote-font-variation-axes-italic, var(--geo-font-variation-axes-italic));
+        em.framer-text {
+            font-family: var(--framer-blockquote-font-family-italic, var(--framer-font-family-italic));
+            font-style: var(--framer-blockquote-font-style-italic, var(--framer-font-style-italic, italic));
+            font-weight: var(--framer-blockquote-font-weight-italic, var(--framer-font-weight-italic));
+            font-variation-settings: var(--framer-blockquote-font-variation-axes-italic, var(--framer-font-variation-axes-italic));
         }
     `,`
-        em.geo-text > strong.geo-text {
-            font-family: var(--geo-blockquote-font-family-bold-italic, var(--geo-font-family-bold-italic));
-            font-style: var(--geo-blockquote-font-style-bold-italic, var(--geo-font-style-bold-italic, italic));
-            font-weight: var(--geo-blockquote-font-weight-bold-italic, var(--geo-font-weight-bold-italic, bolder));
-            font-variation-settings: var(--geo-blockquote-font-variation-axes-bold-italic, var(--geo-font-variation-axes-bold-italic));
+        em.framer-text > strong.framer-text {
+            font-family: var(--framer-blockquote-font-family-bold-italic, var(--framer-font-family-bold-italic));
+            font-style: var(--framer-blockquote-font-style-bold-italic, var(--framer-font-style-bold-italic, italic));
+            font-weight: var(--framer-blockquote-font-weight-bold-italic, var(--framer-font-weight-bold-italic, bolder));
+            font-variation-settings: var(--framer-blockquote-font-variation-axes-bold-italic, var(--framer-font-variation-axes-bold-italic));
         }
     `,`
-        p.geo-text:not(:first-child),
-        div.geo-text:not(:first-child),
-        h1.geo-text:not(:first-child),
-        h2.geo-text:not(:first-child),
-        h3.geo-text:not(:first-child),
-        h4.geo-text:not(:first-child),
-        h5.geo-text:not(:first-child),
-        h6.geo-text:not(:first-child),
-        ol.geo-text:not(:first-child),
-        ul.geo-text:not(:first-child),
-        blockquote.geo-text:not(:first-child),
-        table.geo-text:not(:first-child),
-        figure.geo-text:not(:first-child),
-        .geo-image.geo-text:not(:first-child) {
-            margin-top: var(--geo-blockquote-paragraph-spacing, var(--geo-paragraph-spacing, 0));
+        p.framer-text:not(:first-child),
+        div.framer-text:not(:first-child),
+        h1.framer-text:not(:first-child),
+        h2.framer-text:not(:first-child),
+        h3.framer-text:not(:first-child),
+        h4.framer-text:not(:first-child),
+        h5.framer-text:not(:first-child),
+        h6.framer-text:not(:first-child),
+        ol.framer-text:not(:first-child),
+        ul.framer-text:not(:first-child),
+        blockquote.framer-text:not(:first-child),
+        table.framer-text:not(:first-child),
+        figure.framer-text:not(:first-child),
+        .framer-image.framer-text:not(:first-child) {
+            margin-top: var(--framer-blockquote-paragraph-spacing, var(--framer-paragraph-spacing, 0));
         }
     `,`
-        li.geo-text > ul.geo-text:nth-child(2),
-        li.geo-text > ol.geo-text:nth-child(2) {
+        li.framer-text > ul.framer-text:nth-child(2),
+        li.framer-text > ol.framer-text:nth-child(2) {
             margin-top: 0;
         }
     `,`
-        .geo-text[data-text-fill] {
+        .framer-text[data-text-fill] {
             display: ${gb.display};
             background-clip: text;
             -webkit-background-clip: text;
             /* make this a transparent color if you want to visualise the clipping  */
             -webkit-text-fill-color: transparent;
-            padding: max(0em, calc(calc(1.3em - var(--geo-blockquote-line-height, var(--geo-line-height, 1.3em))) / 2));
-            margin: min(0em, calc(calc(1.3em - var(--geo-blockquote-line-height, var(--geo-line-height, 1.3em))) / -2));
+            padding: max(0em, calc(calc(1.3em - var(--framer-blockquote-line-height, var(--framer-line-height, 1.3em))) / 2));
+            margin: min(0em, calc(calc(1.3em - var(--framer-blockquote-line-height, var(--framer-line-height, 1.3em))) / -2));
         }
     `,`
-        code.geo-text,
-        code.geo-text span.geo-text:not([data-text-fill]) {
-            font-family: var(--geo-code-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif));
-            font-style: var(--geo-blockquote-font-style, var(--geo-code-font-style, var(--geo-font-style, normal)));
-            font-weight: var(--geo-blockquote-font-weight, var(--geo-code-font-weight, var(--geo-font-weight, 400)));
-            color: var(--geo-blockquote-text-color, var(--geo-code-text-color, var(--geo-text-color, #000)));
-            font-size: calc(var(--geo-blockquote-font-size, var(--geo-font-size, 16px)) * var(--geo-font-size-scale, 1));
-            letter-spacing: var(--geo-blockquote-letter-spacing, var(--geo-letter-spacing, 0));
-            line-height: var(--geo-blockquote-line-height, var(--geo-line-height, 1.2em));
+        code.framer-text,
+        code.framer-text span.framer-text:not([data-text-fill]) {
+            font-family: var(--framer-code-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif));
+            font-style: var(--framer-blockquote-font-style, var(--framer-code-font-style, var(--framer-font-style, normal)));
+            font-weight: var(--framer-blockquote-font-weight, var(--framer-code-font-weight, var(--framer-font-weight, 400)));
+            color: var(--framer-blockquote-text-color, var(--framer-code-text-color, var(--framer-text-color, #000)));
+            font-size: calc(var(--framer-blockquote-font-size, var(--framer-font-size, 16px)) * var(--framer-font-size-scale, 1));
+            letter-spacing: var(--framer-blockquote-letter-spacing, var(--framer-letter-spacing, 0));
+            line-height: var(--framer-blockquote-line-height, var(--framer-line-height, 1.2em));
         }
     `,`
         @supports not (color: color(display-p3 1 1 1)) {
-            code.geo-text,
-            code.geo-text span.geo-text:not([data-text-fill]) {
-                color: ${to([`--geo-blockquote-text-color`,`--geo-code-text-color`,`--geo-text-color`],`#000`)};
+            code.framer-text,
+            code.framer-text span.framer-text:not([data-text-fill]) {
+                color: ${to([`--framer-blockquote-text-color`,`--framer-code-text-color`,`--framer-text-color`],`#000`)};
             }
         }
     `,`
-        blockquote.geo-text {
+        blockquote.framer-text {
             margin-block-start: initial;
             margin-block-end: initial;
             margin-inline-start: initial;
@@ -460,326 +460,326 @@ react-is/cjs/react-is.production.min.js:
             unicode-bidi: initial;
         }
     `,`
-        a.geo-text,
-        a.geo-text span.geo-text:not([data-text-fill]),
-        span.geo-text[data-nested-link],
-        span.geo-text[data-nested-link] span.geo-text:not([data-text-fill]) {
+        a.framer-text,
+        a.framer-text span.framer-text:not([data-text-fill]),
+        span.framer-text[data-nested-link],
+        span.framer-text[data-nested-link] span.framer-text:not([data-text-fill]) {
             /* Ensure the color is inherited from the link style rather than the parent text for nested spans */
             color: inherit;
-            font-family: var(--geo-font-family-preview, var(--geo-blockquote-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif))));
-            font-style: var(--geo-font-style-preview, var(--geo-blockquote-font-style, var(--geo-link-font-style, var(--geo-font-style, normal))));
-            font-weight: var(--geo-font-weight-preview, var(--geo-blockquote-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400))));
-            font-size: calc(var(--geo-blockquote-font-size, var(--geo-font-size, 16px)) * var(--geo-font-size-scale, 1));
-            text-transform: var(--geo-blockquote-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none)));
+            font-family: var(--framer-font-family-preview, var(--framer-blockquote-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif))));
+            font-style: var(--framer-font-style-preview, var(--framer-blockquote-font-style, var(--framer-link-font-style, var(--framer-font-style, normal))));
+            font-weight: var(--framer-font-weight-preview, var(--framer-blockquote-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400))));
+            font-size: calc(var(--framer-blockquote-font-size, var(--framer-font-size, 16px)) * var(--framer-font-size-scale, 1));
+            text-transform: var(--framer-blockquote-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none)));
             /* Cursor inherit to overwrite the user agent stylesheet on rich text links. */
-            cursor: var(--geo-custom-cursors, pointer);
+            cursor: var(--framer-custom-cursors, pointer);
             /* Don't inherit background styles from any parent text style. */
             background-color: initial;
-            border-radius: var(--geo-link-text-background-radius, initial);
-            corner-shape: var(--geo-link-text-background-corner-shape, initial);
-            padding: var(--geo-link-text-background-padding, initial);
+            border-radius: var(--framer-link-text-background-radius, initial);
+            corner-shape: var(--framer-link-text-background-corner-shape, initial);
+            padding: var(--framer-link-text-background-padding, initial);
         }
     `,`
-        a.geo-text,
-        span.geo-text[data-nested-link] {
-            color: var(--geo-blockquote-text-color, var(--geo-link-text-color, var(--geo-text-color, #000)));
-            text-decoration-line: var(--geo-blockquote-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, initial)));
-            text-decoration-style: var(--geo-blockquote-text-decoration-style, var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, initial)));
-            text-decoration-color: var(--geo-blockquote-text-decoration-color, var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, initial)));
-            text-decoration-thickness: var(--geo-blockquote-text-decoration-thickness, var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, initial)));
-            text-decoration-skip-ink: var(--geo-blockquote-text-decoration-skip-ink, var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink, initial)));
-            text-underline-offset: var(--geo-blockquote-text-decoration-offset, var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset, initial)));
+        a.framer-text,
+        span.framer-text[data-nested-link] {
+            color: var(--framer-blockquote-text-color, var(--framer-link-text-color, var(--framer-text-color, #000)));
+            text-decoration-line: var(--framer-blockquote-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, initial)));
+            text-decoration-style: var(--framer-blockquote-text-decoration-style, var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, initial)));
+            text-decoration-color: var(--framer-blockquote-text-decoration-color, var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, initial)));
+            text-decoration-thickness: var(--framer-blockquote-text-decoration-thickness, var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, initial)));
+            text-decoration-skip-ink: var(--framer-blockquote-text-decoration-skip-ink, var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink, initial)));
+            text-underline-offset: var(--framer-blockquote-text-decoration-offset, var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset, initial)));
             /* Don't inherit background styles from any parent text style. */
-            background-color: var(--geo-link-text-background-color, initial);
+            background-color: var(--framer-link-text-background-color, initial);
         }
     `,`
         @supports not (color: color(display-p3 1 1 1)) {
-            a.geo-text,
-            span.geo-text[data-nested-link] {
-                color: ${to([`--geo-blockquote-text-color`,`--geo-link-text-color`,`--geo-text-color`],`#000`)};
-                background-color: ${to([`--geo-link-text-background-color`],`initial`)};
-                text-decoration-color: ${to([`--geo-link-text-decoration-color`,`--geo-text-decoration-color`],`currentcolor`)};
+            a.framer-text,
+            span.framer-text[data-nested-link] {
+                color: ${to([`--framer-blockquote-text-color`,`--framer-link-text-color`,`--framer-text-color`],`#000`)};
+                background-color: ${to([`--framer-link-text-background-color`],`initial`)};
+                text-decoration-color: ${to([`--framer-link-text-decoration-color`,`--framer-text-decoration-color`],`currentcolor`)};
             }
         }
     `,`
-    code.geo-text a.geo-text,
-    code.geo-text a.geo-text span.geo-text:not([data-text-fill]),
-    code.geo-text span.geo-text[data-nested-link],
-    code.geo-text span.geo-text[data-nested-link] span.geo-text:not([data-text-fill]) {
-        font-family: var(--geo-code-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif));
-        font-style: var(--geo-blockquote-font-style, var(--geo-code-font-style, var(--geo-font-style, normal)));
-        font-weight: var(--geo-blockquote-font-weight, var(--geo-code-font-weight, var(--geo-font-weight, 400)));
+    code.framer-text a.framer-text,
+    code.framer-text a.framer-text span.framer-text:not([data-text-fill]),
+    code.framer-text span.framer-text[data-nested-link],
+    code.framer-text span.framer-text[data-nested-link] span.framer-text:not([data-text-fill]) {
+        font-family: var(--framer-code-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif));
+        font-style: var(--framer-blockquote-font-style, var(--framer-code-font-style, var(--framer-font-style, normal)));
+        font-weight: var(--framer-blockquote-font-weight, var(--framer-code-font-weight, var(--framer-font-weight, 400)));
         color: inherit;
-        font-size: calc(var(--geo-blockquote-font-size, var(--geo-font-size, 16px)) * var(--geo-font-size-scale, 1));
+        font-size: calc(var(--framer-blockquote-font-size, var(--framer-font-size, 16px)) * var(--framer-font-size-scale, 1));
     }
 `,`
-    code.geo-text a.geo-text,
-    code.geo-text span.geo-text[data-nested-link] {
-        color: var(--geo-blockquote-text-color, var(--geo-link-text-color, var(--geo-code-text-color, var(--geo-text-color, #000))));
+    code.framer-text a.framer-text,
+    code.framer-text span.framer-text[data-nested-link] {
+        color: var(--framer-blockquote-text-color, var(--framer-link-text-color, var(--framer-code-text-color, var(--framer-text-color, #000))));
     }
 `,`
     @supports not (color: color(display-p3 1 1 1)) {
-        code.geo-text a.geo-text,
-        code.geo-text a.geo-text span.geo-text:not([data-text-fill]),
-        code.geo-text span.geo-text[data-nested-link],
-        code.geo-text span.geo-text[data-nested-link] span.geo-text:not([data-text-fill]) {
-            color: ${to([`--geo-blockquote-text-color`,`--geo-link-text-color`,`--geo-code-text-color`,`--geo-text-color`],`#000`)};
+        code.framer-text a.framer-text,
+        code.framer-text a.framer-text span.framer-text:not([data-text-fill]),
+        code.framer-text span.framer-text[data-nested-link],
+        code.framer-text span.framer-text[data-nested-link] span.framer-text:not([data-text-fill]) {
+            color: ${to([`--framer-blockquote-text-color`,`--framer-link-text-color`,`--framer-code-text-color`,`--framer-text-color`],`#000`)};
         }
     }
 `,`
-        a.geo-text:hover,
-        a.geo-text:hover span.geo-text:not([data-text-fill]),
-        span.geo-text[data-nested-link]:hover,
-        span.geo-text[data-nested-link]:hover span.geo-text:not([data-text-fill]) {
-            font-family: var(--geo-font-family-preview, var(--geo-link-hover-font-family, var(--geo-blockquote-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif)))));
-            font-style: var(--geo-font-style-preview, var(--geo-link-hover-font-style, var(--geo-blockquote-font-style, var(--geo-link-font-style, var(--geo-font-style, normal)))));
-            font-weight: var(--geo-font-weight-preview, var(--geo-link-hover-font-weight, var(--geo-blockquote-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400)))));
-            font-size: calc(var(--geo-link-hover-font-size, var(--geo-blockquote-font-size, var(--geo-font-size, 16px))) * var(--geo-font-size-scale, 1));
-            text-transform: var(--geo-link-hover-text-transform, var(--geo-blockquote-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none))));
-            border-radius: var(--geo-link-hover-text-background-radius, var(--geo-link-text-background-radius, var(--geo-text-background-radius, initial)));
-            corner-shape: var(--geo-link-hover-text-background-corner-shape, var(--geo-link-text-background-corner-shape, var(--geo-text-background-corner-shape, initial)));
-            padding: var(--geo-link-hover-text-background-padding, var(--geo-link-text-background-padding, var(--geo-text-background-padding, initial)));
+        a.framer-text:hover,
+        a.framer-text:hover span.framer-text:not([data-text-fill]),
+        span.framer-text[data-nested-link]:hover,
+        span.framer-text[data-nested-link]:hover span.framer-text:not([data-text-fill]) {
+            font-family: var(--framer-font-family-preview, var(--framer-link-hover-font-family, var(--framer-blockquote-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif)))));
+            font-style: var(--framer-font-style-preview, var(--framer-link-hover-font-style, var(--framer-blockquote-font-style, var(--framer-link-font-style, var(--framer-font-style, normal)))));
+            font-weight: var(--framer-font-weight-preview, var(--framer-link-hover-font-weight, var(--framer-blockquote-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400)))));
+            font-size: calc(var(--framer-link-hover-font-size, var(--framer-blockquote-font-size, var(--framer-font-size, 16px))) * var(--framer-font-size-scale, 1));
+            text-transform: var(--framer-link-hover-text-transform, var(--framer-blockquote-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none))));
+            border-radius: var(--framer-link-hover-text-background-radius, var(--framer-link-text-background-radius, var(--framer-text-background-radius, initial)));
+            corner-shape: var(--framer-link-hover-text-background-corner-shape, var(--framer-link-text-background-corner-shape, var(--framer-text-background-corner-shape, initial)));
+            padding: var(--framer-link-hover-text-background-padding, var(--framer-link-text-background-padding, var(--framer-text-background-padding, initial)));
         }
     `,`
-        a.geo-text:hover,
-        span.geo-text[data-nested-link]:hover {
-            color: var(--geo-link-hover-text-color, var(--geo-blockquote-text-color, var(--geo-link-text-color, var(--geo-text-color, #000))));
-            text-decoration-line: var(--geo-link-hover-text-decoration, var(--geo-blockquote-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, initial))));
-            text-decoration-style: var(--geo-link-hover-text-decoration-style, var(--geo-blockquote-text-decoration-style, var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, initial))));
-            text-decoration-color: var(--geo-link-hover-text-decoration-color, var(--geo-blockquote-text-decoration-color, var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, initial))));
-            text-decoration-thickness: var(--geo-link-hover-text-decoration-thickness, var(--geo-blockquote-text-decoration-thickness, var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, initial))));
-            text-decoration-skip-ink: var(--geo-link-hover-text-decoration-skip-ink, var(--geo-blockquote-text-decoration-skip-ink, var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink, initial))));
-            text-underline-offset: var(--geo-link-hover-text-decoration-offset, var(--geo-blockquote-text-decoration-offset, var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset, initial))));
-            background-color: var(--geo-link-hover-text-background-color, var(--geo-link-text-background-color, var(--geo-text-background-color, initial)));
+        a.framer-text:hover,
+        span.framer-text[data-nested-link]:hover {
+            color: var(--framer-link-hover-text-color, var(--framer-blockquote-text-color, var(--framer-link-text-color, var(--framer-text-color, #000))));
+            text-decoration-line: var(--framer-link-hover-text-decoration, var(--framer-blockquote-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, initial))));
+            text-decoration-style: var(--framer-link-hover-text-decoration-style, var(--framer-blockquote-text-decoration-style, var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, initial))));
+            text-decoration-color: var(--framer-link-hover-text-decoration-color, var(--framer-blockquote-text-decoration-color, var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, initial))));
+            text-decoration-thickness: var(--framer-link-hover-text-decoration-thickness, var(--framer-blockquote-text-decoration-thickness, var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, initial))));
+            text-decoration-skip-ink: var(--framer-link-hover-text-decoration-skip-ink, var(--framer-blockquote-text-decoration-skip-ink, var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink, initial))));
+            text-underline-offset: var(--framer-link-hover-text-decoration-offset, var(--framer-blockquote-text-decoration-offset, var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset, initial))));
+            background-color: var(--framer-link-hover-text-background-color, var(--framer-link-text-background-color, var(--framer-text-background-color, initial)));
         }
     `,`
     @supports not (color: color(display-p3 1 1 1)) {
-        a.geo-text:hover,
-        span.geo-text[data-nested-link]:hover {
-            color: ${to([`--geo-link-hover-text-color`,`--geo-blockquote-text-color`,`--geo-link-text-color`,`--geo-text-color`],`#000`)};
-            background-color: ${to([`--geo-link-hover-text-background-color`,`--geo-link-text-background-color`,`--geo-text-background-color`],`initial`)};
-            text-decoration-color: ${to([`--geo-link-hover-text-decoration-color`,`--geo-link-text-decoration-color`,`--geo-text-decoration-color`],`currentcolor`)};
+        a.framer-text:hover,
+        span.framer-text[data-nested-link]:hover {
+            color: ${to([`--framer-link-hover-text-color`,`--framer-blockquote-text-color`,`--framer-link-text-color`,`--framer-text-color`],`#000`)};
+            background-color: ${to([`--framer-link-hover-text-background-color`,`--framer-link-text-background-color`,`--framer-text-background-color`],`initial`)};
+            text-decoration-color: ${to([`--framer-link-hover-text-decoration-color`,`--framer-link-text-decoration-color`,`--framer-text-decoration-color`],`currentcolor`)};
         }
     }
     `,`
-        code.geo-text a.geo-text:hover,
-        code.geo-text span.geo-text[data-nested-link]:hover {
-            color: var(--geo-link-hover-text-color, var(--geo-blockquote-text-color, var(--geo-link-text-color, var(--geo-code-text-color, var(--geo-text-color, #000)))));
+        code.framer-text a.framer-text:hover,
+        code.framer-text span.framer-text[data-nested-link]:hover {
+            color: var(--framer-link-hover-text-color, var(--framer-blockquote-text-color, var(--framer-link-text-color, var(--framer-code-text-color, var(--framer-text-color, #000)))));
         }
     `,`
     @supports not (color: color(display-p3 1 1 1)) {
-        code.geo-text a.geo-text:hover,
-        code.geo-text span.geo-text[data-nested-link]:hover {
-            color: ${to([`--geo-link-hover-text-color`,`--geo-blockquote-text-color`,`--geo-link-text-color`,`--geo-code-text-color`,`--geo-text-color`],`#000`)};
+        code.framer-text a.framer-text:hover,
+        code.framer-text span.framer-text[data-nested-link]:hover {
+            color: ${to([`--framer-link-hover-text-color`,`--framer-blockquote-text-color`,`--framer-link-text-color`,`--framer-code-text-color`,`--framer-text-color`],`#000`)};
         }
     }
    `,`
-        a.geo-text[data-framer-page-link-current],
-        a.geo-text[data-framer-page-link-current] span.geo-text:not([data-text-fill]),
-        span.geo-text[data-framer-page-link-current],
-        span.geo-text[data-framer-page-link-current] span.geo-text:not([data-text-fill]) {
-            font-family: var(--geo-font-family-preview, var(--geo-link-current-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif))));
-            font-style: var(--geo-font-style-preview, var(--geo-link-current-font-style, var(--geo-link-font-style, var(--geo-font-style, normal))));
-            font-weight: var(--geo-font-weight-preview, var(--geo-link-current-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400))));
-            font-size: calc(var(--geo-link-current-font-size, var(--geo-link-font-size, var(--geo-font-size, 16px))) * var(--geo-font-size-scale, 1));
-            text-transform: var(--geo-link-current-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none)));
-            border-radius: var(--geo-link-current-text-background-radius, var(--geo-link-text-background-radius, initial));
-            corner-shape: var(--geo-link-current-text-background-corner-shape, var(--geo-link-text-background-corner-shape, initial));
-            padding: var(--geo-link-current-text-background-padding, var(--geo-link-text-background-padding, initial));
+        a.framer-text[data-framer-page-link-current],
+        a.framer-text[data-framer-page-link-current] span.framer-text:not([data-text-fill]),
+        span.framer-text[data-framer-page-link-current],
+        span.framer-text[data-framer-page-link-current] span.framer-text:not([data-text-fill]) {
+            font-family: var(--framer-font-family-preview, var(--framer-link-current-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif))));
+            font-style: var(--framer-font-style-preview, var(--framer-link-current-font-style, var(--framer-link-font-style, var(--framer-font-style, normal))));
+            font-weight: var(--framer-font-weight-preview, var(--framer-link-current-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400))));
+            font-size: calc(var(--framer-link-current-font-size, var(--framer-link-font-size, var(--framer-font-size, 16px))) * var(--framer-font-size-scale, 1));
+            text-transform: var(--framer-link-current-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none)));
+            border-radius: var(--framer-link-current-text-background-radius, var(--framer-link-text-background-radius, initial));
+            corner-shape: var(--framer-link-current-text-background-corner-shape, var(--framer-link-text-background-corner-shape, initial));
+            padding: var(--framer-link-current-text-background-padding, var(--framer-link-text-background-padding, initial));
         }
     `,`
-        a.geo-text[data-framer-page-link-current],
-        span.geo-text[data-framer-page-link-current] {
-            color: var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-text-color, #000)));
-            text-decoration-line: var(--geo-link-current-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, initial)));
-            text-decoration-style: var(--geo-link-current-text-decoration-style, var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, initial)));
-            text-decoration-color: var(--geo-link-current-text-decoration-color, var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, initial)));
-            text-decoration-thickness: var(--geo-link-current-text-decoration-thickness, var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, initial)));
-            text-decoration-skip-ink: var(--geo-link-current-text-decoration-skip-ink, var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink, initial)));
-            text-underline-offset: var(--geo-link-current-text-decoration-offset, var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset, initial)));
-            background-color: var(--geo-link-current-text-background-color, var(--geo-link-text-background-color, var(--geo-text-background-color, initial)));
+        a.framer-text[data-framer-page-link-current],
+        span.framer-text[data-framer-page-link-current] {
+            color: var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-text-color, #000)));
+            text-decoration-line: var(--framer-link-current-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, initial)));
+            text-decoration-style: var(--framer-link-current-text-decoration-style, var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, initial)));
+            text-decoration-color: var(--framer-link-current-text-decoration-color, var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, initial)));
+            text-decoration-thickness: var(--framer-link-current-text-decoration-thickness, var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, initial)));
+            text-decoration-skip-ink: var(--framer-link-current-text-decoration-skip-ink, var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink, initial)));
+            text-underline-offset: var(--framer-link-current-text-decoration-offset, var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset, initial)));
+            background-color: var(--framer-link-current-text-background-color, var(--framer-link-text-background-color, var(--framer-text-background-color, initial)));
         }
     `,`
         @supports not (color: color(display-p3 1 1 1)) {
-            a.geo-text[data-framer-page-link-current],
-            span.geo-text[data-framer-page-link-current]{
-                color: ${to([`--geo-link-current-text-color`,`--geo-link-text-color`,`--geo-text-color`],`#000`)};
-                background-color: ${to([`--geo-link-current-text-background-color`,`--geo-link-text-background-color`,`--geo-text-background-color`],`initial`)};
-                text-decoration-color: ${to([`--geo-link-current-text-decoration-color`,`--geo-link-text-decoration-color`,`--geo-text-decoration-color`],`currentcolor`)};
+            a.framer-text[data-framer-page-link-current],
+            span.framer-text[data-framer-page-link-current]{
+                color: ${to([`--framer-link-current-text-color`,`--framer-link-text-color`,`--framer-text-color`],`#000`)};
+                background-color: ${to([`--framer-link-current-text-background-color`,`--framer-link-text-background-color`,`--framer-text-background-color`],`initial`)};
+                text-decoration-color: ${to([`--framer-link-current-text-decoration-color`,`--framer-link-text-decoration-color`,`--framer-text-decoration-color`],`currentcolor`)};
             }
         }
     `,`
-        code.geo-text a.geo-text[data-framer-page-link-current],
-        code.geo-text a.geo-text[data-framer-page-link-current] span.geo-text:not([data-text-fill]),
-        code.geo-text span.geo-text[data-framer-page-link-current],
-        code.geo-text span.geo-text[data-framer-page-link-current] span.geo-text:not([data-text-fill]) {
-            font-family: var(--geo-code-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif));
-            font-style: var(--geo-code-font-style, var(--geo-font-style, normal));
-            font-weight: var(--geo-code-font-weight, var(--geo-font-weight, 400));
+        code.framer-text a.framer-text[data-framer-page-link-current],
+        code.framer-text a.framer-text[data-framer-page-link-current] span.framer-text:not([data-text-fill]),
+        code.framer-text span.framer-text[data-framer-page-link-current],
+        code.framer-text span.framer-text[data-framer-page-link-current] span.framer-text:not([data-text-fill]) {
+            font-family: var(--framer-code-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif));
+            font-style: var(--framer-code-font-style, var(--framer-font-style, normal));
+            font-weight: var(--framer-code-font-weight, var(--framer-font-weight, 400));
             color: inherit;
-            font-size: calc(var(--geo-link-current-font-size, var(--geo-link-font-size, var(--geo-font-size, 16px))) * var(--geo-font-size-scale, 1));
+            font-size: calc(var(--framer-link-current-font-size, var(--framer-link-font-size, var(--framer-font-size, 16px))) * var(--framer-font-size-scale, 1));
         }
     `,`
-        code.geo-text a.geo-text[data-framer-page-link-current],
-        code.geo-text span.geo-text[data-framer-page-link-current] {
-            color: var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-code-text-color, var(--geo-text-color, #000))));
+        code.framer-text a.framer-text[data-framer-page-link-current],
+        code.framer-text span.framer-text[data-framer-page-link-current] {
+            color: var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-code-text-color, var(--framer-text-color, #000))));
         }
     `,`
         @supports not (color: color(display-p3 1 1 1)) {
-            code.geo-text a.geo-text[data-framer-page-link-current],
-            code.geo-text a.geo-text[data-framer-page-link-current] span.geo-text:not([data-text-fill]),
-            code.geo-text span.geo-text[data-framer-page-link-current],
-            code.geo-text span.geo-text[data-framer-page-link-current] span.geo-text:not([data-text-fill]) {
-                color: ${to([`--geo-link-current-text-color`,`--geo-link-text-color`,`--geo-code-text-color`,`--geo-text-color`],`#000`)};
-                background-color: ${to([`--geo-link-current-text-background-color`,`--geo-link-text-background-color`,`--geo-text-background-color`],`initial`)};
+            code.framer-text a.framer-text[data-framer-page-link-current],
+            code.framer-text a.framer-text[data-framer-page-link-current] span.framer-text:not([data-text-fill]),
+            code.framer-text span.framer-text[data-framer-page-link-current],
+            code.framer-text span.framer-text[data-framer-page-link-current] span.framer-text:not([data-text-fill]) {
+                color: ${to([`--framer-link-current-text-color`,`--framer-link-text-color`,`--framer-code-text-color`,`--framer-text-color`],`#000`)};
+                background-color: ${to([`--framer-link-current-text-background-color`,`--framer-link-text-background-color`,`--framer-text-background-color`],`initial`)};
             }
         }
     `,`
-        a.geo-text[data-framer-page-link-current]:hover,
-        a.geo-text[data-framer-page-link-current]:hover span.geo-text:not([data-text-fill]),
-        span.geo-text[data-framer-page-link-current]:hover,
-        span.geo-text[data-framer-page-link-current]:hover span.geo-text:not([data-text-fill]) {
+        a.framer-text[data-framer-page-link-current]:hover,
+        a.framer-text[data-framer-page-link-current]:hover span.framer-text:not([data-text-fill]),
+        span.framer-text[data-framer-page-link-current]:hover,
+        span.framer-text[data-framer-page-link-current]:hover span.framer-text:not([data-text-fill]) {
             color: inherit;
-            font-family: var(--geo-font-family-preview, var(--geo-link-hover-font-family, var(--geo-link-current-font-family, var(--geo-link-font-family, var(--geo-font-family, Inter, Inter Placeholder, sans-serif)))));
-            font-style: var(--geo-font-style-preview, var(--geo-link-hover-font-style, var(--geo-link-current-font-style, var(--geo-link-font-style, var(--geo-font-style, normal)))));
-            font-weight: var(--geo-font-weight-preview, var(--geo-link-hover-font-weight, var(--geo-link-current-font-weight, var(--geo-link-font-weight, var(--geo-font-weight, 400)))));
-            font-size: calc(var(--geo-link-hover-font-size, var(--geo-link-current-font-size, var(--geo-link-font-size, var(--geo-font-size, 16px)))) * var(--geo-font-size-scale, 1));
-            text-transform: var(--geo-link-hover-text-transform, var(--geo-link-current-text-transform, var(--geo-link-text-transform, var(--geo-text-transform, none))));
-            border-radius: var(--geo-link-hover-text-background-radius, var(--geo-link-current-text-background-radius, var(--geo-link-text-background-radius, initial)));
-            corner-shape: var(--geo-link-hover-text-background-corner-shape, var(--geo-link-current-text-background-corner-shape, var(--geo-link-text-background-corner-shape, initial)));
-            padding: var(--geo-link-hover-text-background-padding, var(--geo-link-current-text-background-padding, var(--geo-link-text-background-padding, initial)));
+            font-family: var(--framer-font-family-preview, var(--framer-link-hover-font-family, var(--framer-link-current-font-family, var(--framer-link-font-family, var(--framer-font-family, Inter, Inter Placeholder, sans-serif)))));
+            font-style: var(--framer-font-style-preview, var(--framer-link-hover-font-style, var(--framer-link-current-font-style, var(--framer-link-font-style, var(--framer-font-style, normal)))));
+            font-weight: var(--framer-font-weight-preview, var(--framer-link-hover-font-weight, var(--framer-link-current-font-weight, var(--framer-link-font-weight, var(--framer-font-weight, 400)))));
+            font-size: calc(var(--framer-link-hover-font-size, var(--framer-link-current-font-size, var(--framer-link-font-size, var(--framer-font-size, 16px)))) * var(--framer-font-size-scale, 1));
+            text-transform: var(--framer-link-hover-text-transform, var(--framer-link-current-text-transform, var(--framer-link-text-transform, var(--framer-text-transform, none))));
+            border-radius: var(--framer-link-hover-text-background-radius, var(--framer-link-current-text-background-radius, var(--framer-link-text-background-radius, initial)));
+            corner-shape: var(--framer-link-hover-text-background-corner-shape, var(--framer-link-current-text-background-corner-shape, var(--framer-link-text-background-corner-shape, initial)));
+            padding: var(--framer-link-hover-text-background-padding, var(--framer-link-current-text-background-padding, var(--framer-link-text-background-padding, initial)));
         }
     `,`
-        a.geo-text[data-framer-page-link-current]:hover,
-        span.geo-text[data-framer-page-link-current]:hover {
-            color: var(--geo-link-hover-text-color, var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-text-color, #000))));
-            text-decoration-line: var(--geo-link-hover-text-decoration, var(--geo-link-current-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, initial))));
-            text-decoration-style: var(--geo-link-hover-text-decoration-style, var(--geo-link-current-text-decoration-style, var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, initial))));
-            text-decoration-color: var(--geo-link-hover-text-decoration-color, var(--geo-link-current-text-decoration-color, var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, initial))));
-            text-decoration-thickness: var(--geo-link-hover-text-decoration-thickness, var(--geo-link-current-text-decoration-thickness, var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, initial))));
-            text-decoration-skip-ink: var(--geo-link-hover-text-decoration-skip-ink, var(--geo-link-current-text-decoration-skip-ink, var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink, initial))));
-            text-underline-offset: var(--geo-link-hover-text-decoration-offset, var(--geo-link-current-text-decoration-offset, var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset, initial))));
-            background-color: var(--geo-link-hover-text-background-color, var(--geo-link-current-text-background-color, var(--geo-link-text-background-color, initial)));
-        }
-    `,`
-        @supports not (color: color(display-p3 1 1 1)) {
-            a.geo-text[data-framer-page-link-current]:hover,
-            span.geo-text[data-framer-page-link-current]:hover {
-                color: ${to([`--geo-link-hover-text-color`,`--geo-link-current-text-color`,`--geo-link-text-color`,`--geo-code-text-color`,`--geo-text-color`],`#000`)};
-                background-color: ${to([`--geo-link-hover-text-background-color`,`--geo-link-current-text-background-color`,`--geo-link-text-background-color`],`initial`)};
-                text-decoration-color: ${to([`--geo-link-hover-text-decoration-color`,`--geo-link-current-text-decoration-color`,`--geo-link-text-decoration-color`,`--geo-text-decoration-color`],`currentcolor`)};
-            }
-        }
-    `,`
-        code.geo-text a.geo-text[data-framer-page-link-current]:hover,
-        code.geo-text span.geo-text[data-framer-page-link-current]:hover {
-            color: var(--geo-link-hover-text-color, var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-code-text-color, var(--geo-text-color, #000)))));
+        a.framer-text[data-framer-page-link-current]:hover,
+        span.framer-text[data-framer-page-link-current]:hover {
+            color: var(--framer-link-hover-text-color, var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-text-color, #000))));
+            text-decoration-line: var(--framer-link-hover-text-decoration, var(--framer-link-current-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, initial))));
+            text-decoration-style: var(--framer-link-hover-text-decoration-style, var(--framer-link-current-text-decoration-style, var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, initial))));
+            text-decoration-color: var(--framer-link-hover-text-decoration-color, var(--framer-link-current-text-decoration-color, var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, initial))));
+            text-decoration-thickness: var(--framer-link-hover-text-decoration-thickness, var(--framer-link-current-text-decoration-thickness, var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, initial))));
+            text-decoration-skip-ink: var(--framer-link-hover-text-decoration-skip-ink, var(--framer-link-current-text-decoration-skip-ink, var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink, initial))));
+            text-underline-offset: var(--framer-link-hover-text-decoration-offset, var(--framer-link-current-text-decoration-offset, var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset, initial))));
+            background-color: var(--framer-link-hover-text-background-color, var(--framer-link-current-text-background-color, var(--framer-link-text-background-color, initial)));
         }
     `,`
         @supports not (color: color(display-p3 1 1 1)) {
-            code.geo-text a.geo-text[data-framer-page-link-current]:hover,
-            code.geo-text a.geo-text[data-framer-page-link-current]:hover span.geo-text:not([data-text-fill]),
-            code.geo-text span.geo-text[data-framer-page-link-current]:hover,
-            code.geo-text span.geo-text[data-framer-page-link-current]:hover span.geo-text:not([data-text-fill]) {
-                color: ${to([`--geo-link-hover-text-color`,`--geo-link-current-text-color`,`--geo-link-text-color`,`--geo-code-text-color`,`--geo-text-color`],`#000`)};
-                background-color: ${to([`--geo-link-hover-text-background-color`,`--geo-link-current-text-background-color`,`--geo-link-text-background-color`],`initial`)};
+            a.framer-text[data-framer-page-link-current]:hover,
+            span.framer-text[data-framer-page-link-current]:hover {
+                color: ${to([`--framer-link-hover-text-color`,`--framer-link-current-text-color`,`--framer-link-text-color`,`--framer-code-text-color`,`--framer-text-color`],`#000`)};
+                background-color: ${to([`--framer-link-hover-text-background-color`,`--framer-link-current-text-background-color`,`--framer-link-text-background-color`],`initial`)};
+                text-decoration-color: ${to([`--framer-link-hover-text-decoration-color`,`--framer-link-current-text-decoration-color`,`--framer-link-text-decoration-color`,`--framer-text-decoration-color`],`currentcolor`)};
             }
         }
     `,`
-        .geo-image.geo-text {
+        code.framer-text a.framer-text[data-framer-page-link-current]:hover,
+        code.framer-text span.framer-text[data-framer-page-link-current]:hover {
+            color: var(--framer-link-hover-text-color, var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-code-text-color, var(--framer-text-color, #000)))));
+        }
+    `,`
+        @supports not (color: color(display-p3 1 1 1)) {
+            code.framer-text a.framer-text[data-framer-page-link-current]:hover,
+            code.framer-text a.framer-text[data-framer-page-link-current]:hover span.framer-text:not([data-text-fill]),
+            code.framer-text span.framer-text[data-framer-page-link-current]:hover,
+            code.framer-text span.framer-text[data-framer-page-link-current]:hover span.framer-text:not([data-text-fill]) {
+                color: ${to([`--framer-link-hover-text-color`,`--framer-link-current-text-color`,`--framer-link-text-color`,`--framer-code-text-color`,`--framer-text-color`],`#000`)};
+                background-color: ${to([`--framer-link-hover-text-background-color`,`--framer-link-current-text-background-color`,`--framer-link-text-background-color`],`initial`)};
+            }
+        }
+    `,`
+        .framer-image.framer-text {
             display: ${_b.display};
             max-width: 100%;
             height: auto;
         }
     `,`
-        .text-styles-preset-reset.geo-text {
-            --geo-font-family: Inter, Inter Placeholder, sans-serif;
-            --geo-font-style: normal;
-            --geo-font-weight: 500;
-            --geo-text-color: #000;
-            --geo-font-size: 16px;
-            --geo-letter-spacing: 0;
-            --geo-text-transform: none;
-            --geo-text-decoration: none;
-            --geo-text-decoration-style: none;
-            --geo-text-decoration-color: none;
-            --geo-text-decoration-thickness: none;
-            --geo-text-decoration-skip-ink: none;
-            --geo-text-decoration-offset: none;
-            --geo-line-height: 1.2em;
-            --geo-text-alignment: start;
-            --geo-font-open-type-features: normal;
-            --geo-text-background-color: initial;
-            --geo-text-background-radius: initial;
-            --geo-text-background-corner-shape: initial;
-            --geo-text-background-padding: initial;
+        .text-styles-preset-reset.framer-text {
+            --framer-font-family: Inter, Inter Placeholder, sans-serif;
+            --framer-font-style: normal;
+            --framer-font-weight: 500;
+            --framer-text-color: #000;
+            --framer-font-size: 16px;
+            --framer-letter-spacing: 0;
+            --framer-text-transform: none;
+            --framer-text-decoration: none;
+            --framer-text-decoration-style: none;
+            --framer-text-decoration-color: none;
+            --framer-text-decoration-thickness: none;
+            --framer-text-decoration-skip-ink: none;
+            --framer-text-decoration-offset: none;
+            --framer-line-height: 1.2em;
+            --framer-text-alignment: start;
+            --framer-font-open-type-features: normal;
+            --framer-text-background-color: initial;
+            --framer-text-background-radius: initial;
+            --framer-text-background-corner-shape: initial;
+            --framer-text-background-padding: initial;
         }
     `,`
-        ol.geo-text {
+        ol.framer-text {
             --list-style-type: decimal;
         }
     `,`
-        ul.geo-text,
-        ol.geo-text {
+        ul.framer-text,
+        ol.framer-text {
             padding-inline-start: 0;
             position: relative;
         }
     `,`
-        li.geo-text {
+        li.framer-text {
             counter-increment: list-item;
             list-style: none;
             padding-inline-start: 2ch;
         }
     `,`
-        ol.geo-text > li.geo-text::before {
+        ol.framer-text > li.framer-text::before {
             position: absolute;
             inset-inline-start: 0;
             content: counter(list-item, var(--list-style-type)) ".";
             font-variant-numeric: tabular-nums;
         }
     `,`
-        ol.geo-text > li.geo-text:nth-last-child(n + 10),
-        ol.geo-text > li.geo-text:nth-last-child(n + 10) ~ li {
+        ol.framer-text > li.framer-text:nth-last-child(n + 10),
+        ol.framer-text > li.framer-text:nth-last-child(n + 10) ~ li {
             padding-inline-start: 3ch;
         }
     `,`
-        ol.geo-text > li.geo-text:nth-last-child(n + 100),
-        ol.geo-text > li.geo-text:nth-last-child(n + 100) ~ li {
+        ol.framer-text > li.framer-text:nth-last-child(n + 100),
+        ol.framer-text > li.framer-text:nth-last-child(n + 100) ~ li {
             padding-inline-start: 4ch;
         }
     `,`
-        ol.geo-text > li.geo-text:nth-last-child(n + 1000),
-        ol.geo-text > li.geo-text:nth-last-child(n + 1000) ~ li {
+        ol.framer-text > li.framer-text:nth-last-child(n + 1000),
+        ol.framer-text > li.framer-text:nth-last-child(n + 1000) ~ li {
             padding-inline-start: 5ch;
         }
     `,`
-        ol.geo-text > li.geo-text:nth-last-child(n + 10000),
-        ol.geo-text > li.geo-text:nth-last-child(n + 10000) ~ li {
+        ol.framer-text > li.framer-text:nth-last-child(n + 10000),
+        ol.framer-text > li.framer-text:nth-last-child(n + 10000) ~ li {
             padding-inline-start: 6ch;
         }
     `,`
-        ol.geo-text > li.geo-text:nth-last-child(n + 100000),
-        ol.geo-text > li.geo-text:nth-last-child(n + 100000) ~ li {
+        ol.framer-text > li.framer-text:nth-last-child(n + 100000),
+        ol.framer-text > li.framer-text:nth-last-child(n + 100000) ~ li {
             padding-inline-start: 7ch;
         }
     `,`
-        ol.geo-text > li.geo-text:nth-last-child(n + 1000000),
-        ol.geo-text > li.geo-text:nth-last-child(n + 1000000) ~ li {
+        ol.framer-text > li.framer-text:nth-last-child(n + 1000000),
+        ol.framer-text > li.framer-text:nth-last-child(n + 1000000) ~ li {
             padding-inline-start: 8ch;
         }
     `,`
-        ul.geo-text > li.geo-text::before {
+        ul.framer-text > li.framer-text::before {
             position: absolute;
             inset-inline-start: 0;
             content: "•";
         }
     `,`
-        .geo-table-wrapper {
+        .framer-table-wrapper {
             overflow-x: auto;
         }
     `,`
-        table.geo-text,
-        .geo-table-wrapper table.geo-text {
+        table.framer-text,
+        .framer-table-wrapper table.framer-text {
             border-collapse: separate;
             border-spacing: 0;
             table-layout: auto;
@@ -787,17 +787,17 @@ react-is/cjs/react-is.production.min.js:
             width: 100%;
         }
     `,`
-        td.geo-text,
-        th.geo-text {
+        td.framer-text,
+        th.framer-text {
             min-width: 16ch;
             overflow-wrap: anywhere;
             vertical-align: top;
         }
     `,`
-        ${no(`.geo-text-module[data-width="fill"]`,`:first-child`)} {
+        ${no(`.framer-text-module[data-width="fill"]`,`:first-child`)} {
             width: 100% !important;
         }
-    `])(),yb=`--text-truncation-display-inline-for-safari-16`,bb=`--text-truncation-display-none-for-safari-16`,xb=`--text-truncation-line-break-for-safari-16`,Sb=[`div.geo-text`,`p.geo-text`,`h1.geo-text`,`h2.geo-text`,`h3.geo-text`,`h4.geo-text`,`h5.geo-text`,`h6.geo-text`,`ol.geo-text`,`ul.geo-text`,`li.geo-text`,`blockquote.geo-text`,`.geo-text.geo-image`],Cb=`(background: -webkit-named-image(i))`,wb=`(contain-intrinsic-size: inherit)`,Tb=(()=>[`@supports ${Cb} and (not ${wb}) {
+    `])(),yb=`--text-truncation-display-inline-for-safari-16`,bb=`--text-truncation-display-none-for-safari-16`,xb=`--text-truncation-line-break-for-safari-16`,Sb=[`div.framer-text`,`p.framer-text`,`h1.framer-text`,`h2.framer-text`,`h3.framer-text`,`h4.framer-text`,`h5.framer-text`,`h6.framer-text`,`ol.framer-text`,`ul.framer-text`,`li.framer-text`,`blockquote.framer-text`,`.framer-text.framer-image`],Cb=`(background: -webkit-named-image(i))`,wb=`(contain-intrinsic-size: inherit)`,Tb=(()=>[`@supports ${Cb} and (not ${wb}) {
         /* Render block-like elements inline when text is truncated, otherwise default to user agent (revert)  */
         ${Sb.join(`, `)} { display: var(${yb}, revert) }
 
@@ -805,14 +805,14 @@ react-is/cjs/react-is.production.min.js:
         ${Sb.map(e=>`${e}::after`).join(`, `)} { content: var(${xb}); white-space: pre; }
 
         /* Don't render modules (e.g. videos, code-blocks), or tables when text is truncated, because often these can't be truncated and their children might be block elements */
-        .geo-text.geo-text-module,
-        .geo-text.geo-table-wrapper { display: var(${bb}, revert) }
+        .framer-text.framer-text-module,
+        .framer-text.framer-table-wrapper { display: var(${bb}, revert) }
 
         /* Render text-fill elements inline when text is truncated, otherwise default to their default value (e.g. inline-block) */
-        p.geo-text[data-text-fill] { display: var(${yb}, ${gb.display}) }
+        p.framer-text[data-text-fill] { display: var(${yb}, ${gb.display}) }
     }`])(),Eb=[`[data-framer-component-type] { position: absolute; }`],Db=[`[data-framer-component-type="Text"] { cursor: inherit; }`,`[data-framer-component-text-autosized] * { white-space: pre; }`,`
 [data-framer-component-type="Text"] > * {
-    text-align: var(--geo-text-alignment, start);
+    text-align: var(--framer-text-alignment, start);
 }`,`
 [data-framer-component-type="Text"] span span,
 [data-framer-component-type="Text"] p span,
@@ -847,14 +847,14 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="Text"] a {
     font-family: var(--font-family);
     font-style: var(--font-style);
-    font-weight: min(calc(var(--geo-font-weight-increase, 0) + var(--font-weight, 400)), 900);
+    font-weight: min(calc(var(--framer-font-weight-increase, 0) + var(--font-weight, 400)), 900);
     color: var(--text-color);
     letter-spacing: var(--letter-spacing);
     font-size: var(--font-size);
     text-transform: var(--text-transform);
-    --text-decoration: var(--geo-text-decoration-style, solid) var(--geo-text-decoration, none) var(--geo-text-decoration-color, currentcolor) var(--geo-text-decoration-thickness, auto);
-    --text-decoration-skip-ink: var(--geo-text-decoration-skip-ink);
-    --text-underline-offset: var(--geo-text-decoration-offset);
+    --text-decoration: var(--framer-text-decoration-style, solid) var(--framer-text-decoration, none) var(--framer-text-decoration-color, currentcolor) var(--framer-text-decoration-thickness, auto);
+    --text-decoration-skip-ink: var(--framer-text-decoration-skip-ink);
+    --text-underline-offset: var(--framer-text-decoration-offset);
     line-height: var(--line-height);
 }`,`
 [data-framer-component-type="Text"] div div span,
@@ -868,17 +868,17 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="Text"] h5 span span,
 [data-framer-component-type="Text"] h6 span span,
 [data-framer-component-type="Text"] a {
-    --font-family: var(--geo-font-family);
-    --font-style: var(--geo-font-style);
-    --font-weight: var(--geo-font-weight);
-    --text-color: var(--geo-text-color);
-    --letter-spacing: var(--geo-letter-spacing);
-    --font-size: var(--geo-font-size);
-    --text-transform: var(--geo-text-transform);
-    --text-decoration: var(--geo-text-decoration-style, solid) var(--geo-text-decoration, none) var(--geo-text-decoration-color, currentcolor) var(--geo-text-decoration-thickness, auto);
-    --text-decoration-skip-ink: var(--geo-text-decoration-skip-ink);
-    --text-underline-offset: var(--geo-text-decoration-offset);
-    --line-height: var(--geo-line-height);
+    --font-family: var(--framer-font-family);
+    --font-style: var(--framer-font-style);
+    --font-weight: var(--framer-font-weight);
+    --text-color: var(--framer-text-color);
+    --letter-spacing: var(--framer-letter-spacing);
+    --font-size: var(--framer-font-size);
+    --text-transform: var(--framer-text-transform);
+    --text-decoration: var(--framer-text-decoration-style, solid) var(--framer-text-decoration, none) var(--framer-text-decoration-color, currentcolor) var(--framer-text-decoration-thickness, auto);
+    --text-decoration-skip-ink: var(--framer-text-decoration-skip-ink);
+    --text-underline-offset: var(--framer-text-decoration-offset);
+    --line-height: var(--framer-line-height);
 }`,`
 [data-framer-component-type="Text"] a,
 [data-framer-component-type="Text"] a div span,
@@ -890,15 +890,15 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="Text"] a h4 span span,
 [data-framer-component-type="Text"] a h5 span span,
 [data-framer-component-type="Text"] a h6 span span {
-    --font-family: var(--geo-link-font-family, var(--geo-font-family));
-    --font-style: var(--geo-link-font-style, var(--geo-font-style));
-    --font-weight: var(--geo-link-font-weight, var(--geo-font-weight));
-    --text-color: var(--geo-link-text-color, var(--geo-text-color));
-    --font-size: var(--geo-link-font-size, var(--geo-font-size));
-    --text-transform: var(--geo-link-text-transform, var(--geo-text-transform));
-    --text-decoration: var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, solid)) var(--geo-link-text-decoration, var(--geo-text-decoration, none)) var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, currentcolor)) var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, auto));
-    --text-decoration-skip-ink: var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink));
-    --text-underline-offset: var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset));
+    --font-family: var(--framer-link-font-family, var(--framer-font-family));
+    --font-style: var(--framer-link-font-style, var(--framer-font-style));
+    --font-weight: var(--framer-link-font-weight, var(--framer-font-weight));
+    --text-color: var(--framer-link-text-color, var(--framer-text-color));
+    --font-size: var(--framer-link-font-size, var(--framer-font-size));
+    --text-transform: var(--framer-link-text-transform, var(--framer-text-transform));
+    --text-decoration: var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, solid)) var(--framer-link-text-decoration, var(--framer-text-decoration, none)) var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, currentcolor)) var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, auto));
+    --text-decoration-skip-ink: var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink));
+    --text-underline-offset: var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset));
 }`,`
 [data-framer-component-type="Text"] a:hover,
 [data-framer-component-type="Text"] a div span:hover,
@@ -910,15 +910,15 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="Text"] a h4 span span:hover,
 [data-framer-component-type="Text"] a h5 span span:hover,
 [data-framer-component-type="Text"] a h6 span span:hover {
-    --font-family: var(--geo-link-hover-font-family, var(--geo-link-font-family, var(--geo-font-family)));
-    --font-style: var(--geo-link-hover-font-style, var(--geo-link-font-style, var(--geo-font-style)));
-    --font-weight: var(--geo-link-hover-font-weight, var(--geo-link-font-weight, var(--geo-font-weight)));
-    --text-color: var(--geo-link-hover-text-color, var(--geo-link-text-color, var(--geo-text-color)));
-    --font-size: var(--geo-link-hover-font-size, var(--geo-link-font-size, var(--geo-font-size)));
-    --text-transform: var(--geo-link-hover-text-transform, var(--geo-link-text-transform, var(--geo-text-transform)));
-    --text-decoration: var(--geo-link-hover-text-decoration-style, var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, solid))) var(--geo-link-hover-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, none))) var(--geo-link-hover-text-decoration-color, var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, currentcolor))) var(--geo-link-hover-text-decoration-thickness, var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, auto)));
-    --text-decoration-skip-ink: var(--geo-link-hover-text-decoration-skip-ink, var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink)));
-    --text-underline-offset: var(--geo-link-hover-text-decoration-offset, var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset)));
+    --font-family: var(--framer-link-hover-font-family, var(--framer-link-font-family, var(--framer-font-family)));
+    --font-style: var(--framer-link-hover-font-style, var(--framer-link-font-style, var(--framer-font-style)));
+    --font-weight: var(--framer-link-hover-font-weight, var(--framer-link-font-weight, var(--framer-font-weight)));
+    --text-color: var(--framer-link-hover-text-color, var(--framer-link-text-color, var(--framer-text-color)));
+    --font-size: var(--framer-link-hover-font-size, var(--framer-link-font-size, var(--framer-font-size)));
+    --text-transform: var(--framer-link-hover-text-transform, var(--framer-link-text-transform, var(--framer-text-transform)));
+    --text-decoration: var(--framer-link-hover-text-decoration-style, var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, solid))) var(--framer-link-hover-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, none))) var(--framer-link-hover-text-decoration-color, var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, currentcolor))) var(--framer-link-hover-text-decoration-thickness, var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, auto)));
+    --text-decoration-skip-ink: var(--framer-link-hover-text-decoration-skip-ink, var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink)));
+    --text-underline-offset: var(--framer-link-hover-text-decoration-offset, var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset)));
 }`,`
 [data-framer-component-type="Text"].isCurrent a,
 [data-framer-component-type="Text"].isCurrent a div span,
@@ -930,15 +930,15 @@ react-is/cjs/react-is.production.min.js:
 [data-framer-component-type="Text"].isCurrent a h4 span span,
 [data-framer-component-type="Text"].isCurrent a h5 span span,
 [data-framer-component-type="Text"].isCurrent a h6 span span {
-    --font-family: var(--geo-link-current-font-family, var(--geo-link-font-family, var(--geo-font-family)));
-    --font-style: var(--geo-link-current-font-style, var(--geo-link-font-style, var(--geo-font-style)));
-    --font-weight: var(--geo-link-current-font-weight, var(--geo-link-font-weight, var(--geo-font-weight)));
-    --text-color: var(--geo-link-current-text-color, var(--geo-link-text-color, var(--geo-text-color)));
-    --font-size: var(--geo-link-current-font-size, var(--geo-link-font-size, var(--geo-font-size)));
-    --text-transform: var(--geo-link-current-text-transform, var(--geo-link-text-transform, var(--geo-text-transform)));
-    --text-decoration: var(--geo-link-current-text-decoration-style, var(--geo-link-text-decoration-style, var(--geo-text-decoration-style, solid))) var(--geo-link-current-text-decoration, var(--geo-link-text-decoration, var(--geo-text-decoration, none))) var(--geo-link-current-text-decoration-color, var(--geo-link-text-decoration-color, var(--geo-text-decoration-color, currentcolor))) var(--geo-link-current-text-decoration-thickness, var(--geo-link-text-decoration-thickness, var(--geo-text-decoration-thickness, auto)));
-    --text-decoration-skip-ink: var(--geo-link-current-text-decoration-skip-ink, var(--geo-link-text-decoration-skip-ink, var(--geo-text-decoration-skip-ink)));
-    --text-underline-offset: var(--geo-link-current-text-decoration-offset, var(--geo-link-text-decoration-offset, var(--geo-text-decoration-offset)));
+    --font-family: var(--framer-link-current-font-family, var(--framer-link-font-family, var(--framer-font-family)));
+    --font-style: var(--framer-link-current-font-style, var(--framer-link-font-style, var(--framer-font-style)));
+    --font-weight: var(--framer-link-current-font-weight, var(--framer-link-font-weight, var(--framer-font-weight)));
+    --text-color: var(--framer-link-current-text-color, var(--framer-link-text-color, var(--framer-text-color)));
+    --font-size: var(--framer-link-current-font-size, var(--framer-link-font-size, var(--framer-font-size)));
+    --text-transform: var(--framer-link-current-text-transform, var(--framer-link-text-transform, var(--framer-text-transform)));
+    --text-decoration: var(--framer-link-current-text-decoration-style, var(--framer-link-text-decoration-style, var(--framer-text-decoration-style, solid))) var(--framer-link-current-text-decoration, var(--framer-link-text-decoration, var(--framer-text-decoration, none))) var(--framer-link-current-text-decoration-color, var(--framer-link-text-decoration-color, var(--framer-text-decoration-color, currentcolor))) var(--framer-link-current-text-decoration-thickness, var(--framer-link-text-decoration-thickness, var(--framer-text-decoration-thickness, auto)));
+    --text-decoration-skip-ink: var(--framer-link-current-text-decoration-skip-ink, var(--framer-link-text-decoration-skip-ink, var(--framer-text-decoration-skip-ink)));
+    --text-underline-offset: var(--framer-link-current-text-decoration-offset, var(--framer-link-text-decoration-offset, var(--framer-text-decoration-offset)));
 }`],Ob=`
 :not([data-framer-generated]) > [data-framer-stack-content-wrapper] > *,
 :not([data-framer-generated]) > [data-framer-stack-content-wrapper] > [data-framer-component-type],
@@ -997,11 +997,11 @@ NavigationContainer
 [data-framer-component-type="NavigationContainer"] > *,
 [data-framer-component-type="NavigationContainer"] > [data-framer-component-type] {
     position: relative;
-}`],Fb=[`[data-framer-component-type="Scroll"]::-webkit-scrollbar { display: none; }`,`[data-framer-component-type="ScrollContentWrapper"] > * { position: relative; }`],Ib=[`[data-framer-component-type="NativeScroll"] { -webkit-overflow-scrolling: touch; }`,`[data-framer-component-type="NativeScroll"] > * { position: relative; }`,`[data-framer-component-type="NativeScroll"].direction-both { overflow-x: auto; overflow-y: auto; }`,`[data-framer-component-type="NativeScroll"].direction-vertical { overflow-x: hidden; overflow-y: auto; }`,`[data-framer-component-type="NativeScroll"].direction-horizontal { overflow-x: auto; overflow-y: hidden; }`,`[data-framer-component-type="NativeScroll"].direction-vertical > * { width: 100% !important; }`,`[data-framer-component-type="NativeScroll"].direction-horizontal > * { height: 100% !important; }`,`[data-framer-component-type="NativeScroll"].scrollbar-hidden::-webkit-scrollbar { display: none; }`],Lb=[`[data-framer-component-type="DeviceComponent"].no-device > * { width: 100% !important; height: 100% !important; }`],Rb=[`[data-framer-component-type="PageContentWrapper"] > *, [data-framer-component-type="PageContentWrapper"] > [data-framer-component-type] { position: relative; }`],zb=[`[data-is-present="false"], [data-is-present="false"] * { pointer-events: none !important; }`],Bb=[`.geo-lightbox-container { opacity: 1 !important; pointer-events: auto !important; }`],Vb=[`[data-framer-cursor="pointer"] { cursor: pointer; }`,`[data-framer-cursor="grab"] { cursor: grab; }`,`[data-framer-cursor="grab"]:active { cursor: grabbing; }`],Hb=[`[data-framer-component-type="Frame"] *, [data-framer-component-type="Stack"] * { pointer-events: auto; }`,`[data-framer-generated] * { pointer-events: unset }`],Ub=[`[data-reset="button"] {
+}`],Fb=[`[data-framer-component-type="Scroll"]::-webkit-scrollbar { display: none; }`,`[data-framer-component-type="ScrollContentWrapper"] > * { position: relative; }`],Ib=[`[data-framer-component-type="NativeScroll"] { -webkit-overflow-scrolling: touch; }`,`[data-framer-component-type="NativeScroll"] > * { position: relative; }`,`[data-framer-component-type="NativeScroll"].direction-both { overflow-x: auto; overflow-y: auto; }`,`[data-framer-component-type="NativeScroll"].direction-vertical { overflow-x: hidden; overflow-y: auto; }`,`[data-framer-component-type="NativeScroll"].direction-horizontal { overflow-x: auto; overflow-y: hidden; }`,`[data-framer-component-type="NativeScroll"].direction-vertical > * { width: 100% !important; }`,`[data-framer-component-type="NativeScroll"].direction-horizontal > * { height: 100% !important; }`,`[data-framer-component-type="NativeScroll"].scrollbar-hidden::-webkit-scrollbar { display: none; }`],Lb=[`[data-framer-component-type="DeviceComponent"].no-device > * { width: 100% !important; height: 100% !important; }`],Rb=[`[data-framer-component-type="PageContentWrapper"] > *, [data-framer-component-type="PageContentWrapper"] > [data-framer-component-type] { position: relative; }`],zb=[`[data-is-present="false"], [data-is-present="false"] * { pointer-events: none !important; }`],Bb=[`.framer-lightbox-container { opacity: 1 !important; pointer-events: auto !important; }`],Vb=[`[data-framer-cursor="pointer"] { cursor: pointer; }`,`[data-framer-cursor="grab"] { cursor: grab; }`,`[data-framer-cursor="grab"]:active { cursor: grabbing; }`],Hb=[`[data-framer-component-type="Frame"] *, [data-framer-component-type="Stack"] * { pointer-events: auto; }`,`[data-framer-generated] * { pointer-events: unset }`],Ub=[`[data-reset="button"] {
         border-width: 0;
         padding: 0;
         background: none;
-}`],Wb=[`[data-hide-scrollbars="true"]::-webkit-scrollbar { width: 0px; height: 0px; }`,`[data-hide-scrollbars="true"]::-webkit-scrollbar-thumb { background: transparent; }`,`[data-hide-scrollbars="true"] { scrollbar-width: none; }`],Gb=`--geo-will-change-override`,Kb=`--geo-will-change-effect-override`,qb=`--geo-will-change-filter-override`,Jb=`(background: -webkit-named-image(i))`,Yb=`(grid-template-rows: subgrid)`,Xb=`(position-area: top right)`,Zb=e=>e?[`body { ${Gb}: none; }`,`@supports ${Jb} and (not ${Yb}) { body { ${Gb}: transform; } }`]:[`body { ${Gb}: none; ${Kb}: none; }`],Qb=e=>e?[`body { ${qb}: none; }`,`@supports ${Jb} and (not ${Xb}) { body { ${qb}: filter; } }`]:[`body { ${qb}: none; }`],$b=e=>e?Hb:[],ex=[`.svgContainer svg { display: block; }`],tx=`--overflow-clip-fallback`,nx=(()=>[`@supports (not (overflow: clip)) {
+}`],Wb=[`[data-hide-scrollbars="true"]::-webkit-scrollbar { width: 0px; height: 0px; }`,`[data-hide-scrollbars="true"]::-webkit-scrollbar-thumb { background: transparent; }`,`[data-hide-scrollbars="true"] { scrollbar-width: none; }`],Gb=`--framer-will-change-override`,Kb=`--framer-will-change-effect-override`,qb=`--framer-will-change-filter-override`,Jb=`(background: -webkit-named-image(i))`,Yb=`(grid-template-rows: subgrid)`,Xb=`(position-area: top right)`,Zb=e=>e?[`body { ${Gb}: none; }`,`@supports ${Jb} and (not ${Yb}) { body { ${Gb}: transform; } }`]:[`body { ${Gb}: none; ${Kb}: none; }`],Qb=e=>e?[`body { ${qb}: none; }`,`@supports ${Jb} and (not ${Xb}) { body { ${qb}: filter; } }`]:[`body { ${qb}: none; }`],$b=e=>e?Hb:[],ex=[`.svgContainer svg { display: block; }`],tx=`--overflow-clip-fallback`,nx=(()=>[`@supports (not (overflow: clip)) {
         :root { ${tx}: hidden; }
     }`])(),rx=`--one-if-corner-shape-supported`,ix=(()=>[`@supports (corner-shape: superellipse(2)) { :root { ${rx}: 1 } }`])(),ax=e=>[...Zb(e),...Qb(e),...Eb,...Db,...vb,...db,...Nb,...Pb,...Fb,...Ib,...Rb,...Lb,...zb,...Vb,...$b(e),...ex,...Ub,...Wb,...nx,...Bb,...Tb,...ix],ox=ax(!1),sx=ax(!0),cx=`optional`,lx=e=>e,ux=/^(?:children|dangerouslySetInnerHTML|key|ref|autoFocus|defaultValue|defaultChecked|innerHTML|suppressContentEditableWarning|suppressHydrationWarning|valueLink|abbr|accept|acceptCharset|accessKey|action|allow|allowUserMedia|allowPaymentRequest|allowFullScreen|allowTransparency|alt|async|autoComplete|autoPlay|capture|cellPadding|cellSpacing|challenge|charSet|checked|cite|classID|className|cols|colSpan|content|contentEditable|contextMenu|controls|controlsList|coords|crossOrigin|data|dateTime|decoding|default|defer|dir|disabled|disablePictureInPicture|download|draggable|encType|enterKeyHint|form|formAction|formEncType|formMethod|formNoValidate|formTarget|frameBorder|headers|height|hidden|high|href|hrefLang|htmlFor|httpEquiv|id|inputMode|integrity|is|keyParams|keyType|kind|label|lang|list|loading|loop|low|marginHeight|marginWidth|max|maxLength|media|mediaGroup|method|min|minLength|multiple|muted|name|nonce|noValidate|open|optimum|pattern|placeholder|playsInline|poster|preload|profile|radioGroup|readOnly|referrerPolicy|rel|required|reversed|role|rows|rowSpan|sandbox|scope|scoped|scrolling|seamless|selected|shape|size|sizes|slot|span|spellCheck|src|srcDoc|srcLang|srcSet|start|step|style|summary|tabIndex|target|title|translate|type|useMap|value|width|wmode|wrap|about|datatype|inlist|prefix|property|resource|typeof|vocab|autoCapitalize|autoCorrect|autoSave|color|incremental|fallback|inert|itemProp|itemScope|itemType|itemID|itemRef|on|option|results|security|unselectable|accentHeight|accumulate|additive|alignmentBaseline|allowReorder|alphabetic|amplitude|arabicForm|ascent|attributeName|attributeType|autoReverse|azimuth|baseFrequency|baselineShift|baseProfile|bbox|begin|bias|by|calcMode|capHeight|clip|clipPathUnits|clipPath|clipRule|colorInterpolation|colorInterpolationFilters|colorProfile|colorRendering|contentScriptType|contentStyleType|cursor|cx|cy|[dkrxyz]|decelerate|descent|diffuseConstant|direction|display|divisor|dominantBaseline|dur|dx|dy|edgeMode|elevation|enableBackground|end|exponent|externalResourcesRequired|fill|fillOpacity|fillRule|filter|filterRes|filterUnits|floodColor|floodOpacity|focusable|fontFamily|fontSize|fontSizeAdjust|fontStretch|fontStyle|fontVariant|fontWeight|format|from|fr|fx|fy|g1|g2|glyphName|glyphOrientationHorizontal|glyphOrientationVertical|glyphRef|gradientTransform|gradientUnits|hanging|horizAdvX|horizOriginX|ideographic|imageRendering|in|in2|intercept|k1|k2|k3|k4|kernelMatrix|kernelUnitLength|kerning|keyPoints|keySplines|keyTimes|lengthAdjust|letterSpacing|lightingColor|limitingConeAngle|local|markerEnd|markerMid|markerStart|markerHeight|markerUnits|markerWidth|mask|maskContentUnits|maskUnits|mathematical|mode|numOctaves|offset|opacity|operator|order|orient|orientation|origin|overflow|overlinePosition|overlineThickness|panose1|paintOrder|pathLength|patternContentUnits|patternTransform|patternUnits|pointerEvents|points|pointsAtX|pointsAtY|pointsAtZ|preserveAlpha|preserveAspectRatio|primitiveUnits|radius|refX|refY|renderingIntent|repeatCount|repeatDur|requiredExtensions|requiredFeatures|restart|result|rotate|rx|ry|scale|seed|shapeRendering|slope|spacing|specularConstant|specularExponent|speed|spreadMethod|startOffset|stdDeviation|stemh|stemv|stitchTiles|stopColor|stopOpacity|strikethroughPosition|strikethroughThickness|string|stroke|strokeDasharray|strokeDashoffset|strokeLinecap|strokeLinejoin|strokeMiterlimit|strokeOpacity|strokeWidth|surfaceScale|systemLanguage|tableValues|targetX|targetY|textAnchor|textDecoration|textRendering|textLength|to|transform|u1|u2|underlinePosition|underlineThickness|unicode|unicodeBidi|unicodeRange|unitsPerEm|vAlphabetic|vHanging|vIdeographic|vMathematical|values|vectorEffect|version|vertAdvY|vertOriginX|vertOriginY|viewBox|viewTarget|visibility|widths|wordSpacing|writingMode|xHeight|x1|x2|xChannelSelector|xlinkActuate|xlinkArcrole|xlinkHref|xlinkRole|xlinkShow|xlinkTitle|xlinkType|xmlBase|xmlns|xmlnsXlink|xmlLang|xmlSpace|y1|y2|yChannelSelector|zoomAndPan|for|class|autofocus|(?:[Dd][Aa][Tt][Aa]|[Aa][Rr][Ii][Aa]|x)-.*)$/u,dx=go(e=>ux.test(e)||e.charCodeAt(0)===111&&e.charCodeAt(1)===110&&e.charCodeAt(2)<91),fx=e=>()=>{fi(e)},px=()=>()=>{},mx={imagePlaceholderSvg:`<svg xmlns="http://www.w3.org/2000/svg" width="126" height="126"><path id="a" d="M126 0v21.584L21.584 126H0v-17.585L108.415 0H126Zm0 108.414V126h-17.586L126 108.414Zm0-84v39.171L63.585 126H24.414L126 24.414Zm0 42v39.17L105.584 126h-39.17L126 66.414ZM105.586 0 0 105.586V66.415L66.415 0h39.171Zm-42 0L0 63.586V24.415L24.415 0h39.171Zm-42 0L0 21.586V0h21.586Z" fill="rgb(136, 136, 136, 0.2)" fill-rule="evenodd"/></svg>`,useImageSource(e){return e.src??``},useImageElement(e,t,n){let r=gx.useImageSource(e,t,n);return s(()=>{let t=new Image;return t.src=r,e.srcSet&&(t.srcset=e.srcSet),t},[r,e.srcSet])},canRenderOptimizedCanvasImage(){return!1},isOnPageCanvas:!1},hx=!1,gx=new Proxy(mx,{get(e,t,n){return Reflect.has(e,t)?Reflect.get(e,t,n):[`getLogger`].includes(String(t))?px():fx(hx?`${String(t)} is not available in this version of Framer.`:`${String(t)} is only available inside of Framer. https://www.framer.com/`)}}),_x={borderRadius:`inherit`,cornerShape:`inherit`},vx=[1,2,2.2],yx=[512,1024,2048,4096],bx=512,xx=(()=>({position:`absolute`,..._x,top:0,right:0,bottom:0,left:0}))(),Sx=`src`,Cx={isImageObject:function(e){return!e||typeof e==`string`?!1:typeof e==`object`&&Sx in e}},wx=Va(),Tx=typeof document<`u`?m:p,Ex=M.createContext(!1),Dx=class{constructor(){z(this,`sharedResizeObserver`),z(this,`callbacks`,new WeakMap),this.sharedResizeObserver=new ResizeObserver(this.updateResizedElements.bind(this))}updateResizedElements(e){for(let t of e){let e=this.callbacks.get(t.target);e&&e(t.contentRect)}}observeElementWithCallback(e,t){this.sharedResizeObserver.observe(e),this.callbacks.set(e,t)}unobserve(e){this.sharedResizeObserver.unobserve(e),this.callbacks.delete(e)}},Ox=(()=>Wa()?new Dx:void 0)(),kx=`data-framer-size-compatibility-wrapper`,Ax=`0.000001px`,jx=(()=>` translateZ(${Ax})`)(),Mx=(()=>Ga()||Ha()||Ka())(),Nx=(()=>{class e extends S{constructor(){super(...arguments),z(this,`layerElement`,null),z(this,`setLayerElement`,e=>{this.layerElement=e})}static applyWillChange(e,t,n){e.willChangeTransform&&(n?Xo(t):Zo(t))}shouldComponentUpdate(e,t){return e._needsMeasure||this.state!==t||!Ft(this.props,e)}componentDidUpdate(e){lx(this.props).clip&&lx(this.props).radius===0&&lx(e).radius!==0&&$o(this.layerElement,`overflow`,`hidden`,!1)}}return z(e,`defaultProps`,{}),e})(),Px=e=>{let t=0,n,r;if(e.length===0)return t;for(n=0;n<e.length;n++)r=e.charCodeAt(n),t=(t<<5)-t+r,t|=0;return t},Fx={hueRotate:(e,t)=>Y.toHslString(Y.hueRotate(Y(e),t)),setAlpha:(e,t)=>Y.toRgbString(Y.alpha(Y(e),t)),getAlpha:e=>{let t=Ri(e);return t?t.a:1},multiplyAlpha:(e,t)=>Y.toRgbString(Y.multiplyAlpha(Y(e),t)),toHexValue:e=>Y.toHex(Y(e)).toUpperCase(),toHex:e=>Y.toHexString(Y(e)).toUpperCase(),toRgb:e=>Y.toRgb(Y(e)),toRgbString:e=>Y.toRgbString(Y(e)),toHSV:e=>Y.toHsv(Y(e)),toHSL:e=>Y.toHsl(Y(e)),toHslString:e=>Y.toHslString(Y(e)),toHsvString:e=>Y.toHsvString(Y(e)),hsvToHSLString:e=>Y.toHslString(Y(Ei(e.h,e.s,e.v,e.a))),hsvToHexValue:e=>Y.toHex(Y(Ei(e.h,e.s,e.v,e.a))).toUpperCase(),hsvToHex:e=>Y.toHexString(Y(Ei(e.h,e.s,e.v,e.a))).toUpperCase(),hsvToRgbString:e=>Y.toRgbString(Y(Ei(e.h,e.s,e.v,e.a))),hsvToString:e=>Ei(e.h,e.s,e.v),rgbaToString:e=>Y.toRgbString(Y(e)),rgbToHexValue:e=>Y.toHex(Y(e)),rgbToHexString:e=>Y.toHexString(Y(e)),hslToString:e=>Y.toHslString(Y(e)),hslToRgbString:e=>Y.toRgbString(Y(e)),toColorPickerSquare:e=>Y.toRgbString(Y({h:e,s:1,l:.5,a:1})),isValid:e=>Y(e).isValid!==!1,equals:(e,t)=>Y.isP3String(e)||Y.isP3String(t)?e===t:(typeof e==`string`&&(e=Y(e)),typeof t==`string`&&(t=Y(t)),Y.equal(e,t)),toHexOrRgbaString:e=>{let t=Y(e);return t.a===1?Y.toHexString(t):Y.toRgbString(t)},toFormatString:e=>Y.isP3String(e)?e:Y.toRgbString(Y(e))},Ix=/var\(.+\)/u,Lx=new Map,Rx=[`stops`],zx=[`start`,`end`],Bx=[`angle`,`alpha`],Vx={isLinearGradient:e=>H(e)&&Bx.every(t=>t in e)&&(ss(e)||os(e)),hash:e=>e.angle^as(e,e.alpha),toCSS:(e,t,n)=>{let r=is(e,e.alpha),i=t===void 0?e.angle:t;return`linear-gradient(${Math.round(i)}deg, ${r.map(e=>`${n?.(e.value)??e.value} ${e.position*100}%`).join(`, `)})`}},Hx=[`widthFactor`,`heightFactor`,`centerAnchorX`,`centerAnchorY`,`alpha`],Ux={isRadialGradient:e=>H(e)&&Hx.every(t=>t in e)&&(ss(e)||os(e)),hash:e=>e.centerAnchorX^e.centerAnchorY^e.widthFactor^e.heightFactor^as(e,e.alpha),toCSS:(e,t)=>{let{alpha:n,widthFactor:r,heightFactor:i,centerAnchorX:a,centerAnchorY:o}=e,s=is(e,n),c=s.map((e,n)=>{let r=s[n+1],i=e.position===1&&r?.position===1?e.position-1e-4:e.position;return`${t?.(e.value)??e.value} ${i*100}%`});return`radial-gradient(${r*100}% ${i*100}% at ${a*100}% ${o*100}%, ${c.join(`, `)})`}},Wx=[`onClick`,`onDoubleClick`,`onMouse`,`onMouseDown`,`onMouseUp`,`onTapDown`,`onTap`,`onTapUp`,`onPointer`,`onPointerDown`,`onPointerUp`,`onTouch`,`onTouchDown`,`onTouchUp`],Gx=(()=>new Set([...Wx,...Wx.map(e=>`${e}Capture`)]))(),Kx=`overflow`,qx={x:0,y:0,width:200,height:200},Jx=new Set([`width`,`height`,`opacity`,`overflow`,`radius`,`background`,`color`,`x`,`y`,`z`,`rotate`,`rotateX`,`rotateY`,`rotateZ`,`scale`,`scaleX`,`scaleY`,`skew`,`skewX`,`skewY`,`originX`,`originY`,`originZ`]),Yx=j(function(e,t){let{name:n,center:r,border:i,_border:o,__portal:s}=e,{props:c,children:l}=Bo(e),d=vs(c),f=Ho(e),p=ps(e),m=u(null),h=t??m,g={"data-geo-component-type":e.componentType??`Frame`,"data-geo-cursor":p,"data-geo-highlight":p===`pointer`?!0:void 0,"data-layoutid":f,"data-geo-offset-parent-id":lx(e)[`data-framer-offset-parent-id`]};!ys(e)&&n&&(lx(g)[`data-framer-name`]=n);let[_,v]=_s(c),y=gs(c),x=Fa(y);r&&!(v&&!x&&Ca(y))?(d.transformTemplate||=Vo(r),Object.assign(g,Ro(r))):d.transformTemplate||=void 0,Jo(e,h);let S=Po(e),C=bs(c,y,v,a(Ex)),w=Na(A(b,{children:[S?E(Ao,{alt:e.alt??``,image:S,containerSize:v??void 0,nodeId:e.id&&zo(e.id),layoutId:f}):null,l,E(Mo,{...o,border:i,layoutId:f})]}),C),T=Io(e.as),D=Fo(S);return e.fitImageDimension&&D&&(_[e.fitImageDimension]=`auto`,_.aspectRatio=D.width/D.height),A(T,{...g,...d,layoutId:f,style:_,ref:h,children:[w,s]})}),Xx=io(j(function(e,t){let{visible:n=!0}=e;return n?E(Yx,{...e,ref:t}):null})),Zx=`__LAYOUT_TREE_ROOT`,Qx=M.createContext({schedulePromoteTree:()=>{},scheduleProjectionDidUpdate:()=>{},initLead:()=>{}}),$x=class extends S{constructor(){super(...arguments),z(this,`shouldAnimate`,!1),z(this,`transition`),z(this,`lead`),z(this,`follow`),z(this,`scheduledPromotion`,!1),z(this,`scheduledDidUpdate`,!1),z(this,`scheduleProjectionDidUpdate`,()=>{this.scheduledDidUpdate=!0}),z(this,`schedulePromoteTree`,(e,t,n)=>{this.follow=this.lead,this.shouldAnimate=n,this.lead=e,this.transition=t,this.scheduledPromotion=!0}),z(this,`initLead`,(e,t)=>{this.follow=this.lead,this.lead=e,this.follow&&t&&(this.follow.layoutMaybeMutated=!0)}),z(this,`sharedLayoutContext`,{schedulePromoteTree:this.schedulePromoteTree,scheduleProjectionDidUpdate:this.scheduleProjectionDidUpdate,initLead:this.initLead})}getSnapshotBeforeUpdate(){if(!this.scheduledPromotion||!this.lead||!this.follow)return null;let e=this.lead?.layoutMaybeMutated&&!this.shouldAnimate;return this.lead.projectionNodes.forEach(t=>{t?.promote({needsReset:e,transition:this.shouldAnimate?this.transition:void 0,preserveFollowOpacity:t.options.layoutId===Zx&&!this.follow?.isExiting})}),this.shouldAnimate?this.follow.layoutMaybeMutated=!0:this.scheduleProjectionDidUpdate(),this.lead.layoutMaybeMutated=!1,this.transition=void 0,this.scheduledPromotion=!1,null}componentDidUpdate(){if(!this.lead)return null;this.scheduledDidUpdate&&=(this.lead.rootProjectionNode?.root?.didUpdate(),!1)}render(){return E(Qx.Provider,{value:this.sharedLayoutContext,children:this.props.children})}},eS={width:`100%`,height:`100%`,backgroundColor:`none`},tS=class{constructor(e){z(this,`sharedIntersectionObserver`),z(this,`callbacks`,new WeakMap),this.sharedIntersectionObserver=new IntersectionObserver(this.intersectionObserverCallback.bind(this),e)}intersectionObserverCallback(e,t){for(let n of e){let e=this.callbacks.get(n.target);e&&e(n,t)}}observeElementWithCallback(e,t){this.sharedIntersectionObserver&&(this.sharedIntersectionObserver.observe(e),this.callbacks.set(e,t))}unobserve(e){this.sharedIntersectionObserver&&(this.sharedIntersectionObserver.unobserve(e),this.callbacks.delete(e))}get root(){return this.sharedIntersectionObserver?.root}},nS=g(new Map),rS=typeof IntersectionObserver>`u`?Wg:ks,iS=Array(100).fill(void 0).map((e,t)=>t*.01),aS=M.createContext(null),oS=class extends S{constructor(){super(...arguments),z(this,`layoutMaybeMutated`,!1),z(this,`projectionNodes`,new Map),z(this,`rootProjectionNode`),z(this,`isExiting`),z(this,`shouldPreserveFollowOpacity`,e=>e.options.layoutId===Zx&&!this.props.isExiting),z(this,`switchLayoutGroupContext`,{register:e=>this.addChild(e),deregister:e=>this.removeChild(e),transition:this.props.isLead!==void 0&&this.props.animatesLayout?this.props.transition:void 0,shouldPreserveFollowOpacity:this.shouldPreserveFollowOpacity})}componentDidMount(){this.props.isLead&&this.props.sharedLayoutContext.initLead(this,!!this.props.animatesLayout)}shouldComponentUpdate(e){let{isLead:t,isExiting:n,isOverlayed:r,animatesLayout:i,transition:a,sharedLayoutContext:o}=e;if(this.isExiting=n,t===void 0)return!0;let s=!this.props.isLead&&t,c=this.props.isExiting&&!n,l=s||c,u=!!this.props.isLead&&!t,d=this.props.isOverlayed!==r;return(l||u)&&this.projectionNodes.forEach(e=>e?.willUpdate()),l?o.schedulePromoteTree(this,a,!!i):d&&o.scheduleProjectionDidUpdate(),!!l&&!!i}addChild(e){let t=e.options.layoutId;t&&(this.projectionNodes.set(t,e),this.setRootChild(e))}setRootChild(e){if(!this.rootProjectionNode)return this.rootProjectionNode=e;this.rootProjectionNode=this.rootProjectionNode.depth<e.depth?this.rootProjectionNode:e}removeChild(e){let t=e.options.layoutId;t&&this.projectionNodes.delete(t)}render(){return E(Be.Provider,{value:this.switchLayoutGroupContext,children:this.props.children})}},sS=e=>{let t=M.useContext(Qx);return E(oS,{...e,sharedLayoutContext:t})},cS=M.createContext(!0),lS=g({register:()=>{},deregister:()=>{}}),uS=({isCurrent:e,isOverlayed:t,children:n})=>{let r=Fs(),i=u({register:c(e=>{if(r.has(e)){console.warn(`NavigationTargetWrapper: already registered`);return}r.set(e,void 0)},[r]),deregister:c(e=>{r.get(e)?.(),r.delete(e)},[r])}).current;return p(()=>(r.forEach((n,i)=>{let a=i(e,t);r.set(i,ot(a)?a:void 0)}),()=>{r.forEach((e,t)=>{e&&(e(),r.set(t,void 0))})}),[e,t,r]),E(lS.Provider,{value:i,children:n})},dS=M.memo(function({isLayeredContainer:e,isCurrent:t,isPrevious:n,isOverlayed:r=!1,visible:i,transitionProps:o,children:s,backdropColor:c,onTapBackdrop:l,backfaceVisible:d,exitBackfaceVisible:f,animation:m,exitAnimation:h,instant:g,initialProps:_,exitProps:v,position:y={top:0,right:0,bottom:0,left:0},withMagicMotion:b,index:x,areMagicMotionLayersPresent:S,id:C,isInitial:w}){let T=pe(),D=a(Oe),{persistLayoutIdCache:O}=a(Ey),k=u({wasCurrent:void 0,wasPrevious:!1,wasBeingRemoved:!1,wasReset:!0,origins:Rs({},_,o)}),j=u(null),M=D!==null&&!D.isPresent;t&&k.current.wasCurrent===void 0&&O(),p(()=>{if(e||!T)return;if(M){k.current={...k.current,wasBeingRemoved:M};return}let{wasPrevious:r,wasCurrent:i}=k.current,a=t&&!i||!M&&k.current.wasBeingRemoved&&t,s=n&&!r,c=Rs(k.current.origins,_,o),l=k.current.wasReset;a||s?(T.stop(),T.start({zIndex:x,...c,...o}),l=!1):l===!1&&(T.stop(),T.set({zIndex:x,...fS,opacity:0}),l=!0),k.current={wasCurrent:!!t,wasPrevious:!!n,wasBeingRemoved:!1,wasReset:l,origins:c}},[t,n,M]);let ee=g?{type:!1}:`velocity`in m?{...m,velocity:0}:m,te=g?{type:!1}:h||m,ne={...y};(ne.left===void 0||ne.right===void 0)&&(ne.width=`auto`),(ne.top===void 0||ne.bottom===void 0)&&(ne.height=`auto`);let N=(zs(o)||zs(_))&&(e||t||n)?1200:void 0,re={...fS,...k.current.origins},ie=e?{initial:{...re,..._},animate:{...re,...o,transition:ee},exit:{...re,...v,transition:m}}:{animate:T,exit:{...re,...v,transition:te}},ae=!(M||S===!1),oe=!!t&&ae,se=t&&w;return A(Xx,{"data-geo-component-type":`NavigationContainerWrapper`,width:`100%`,height:`100%`,style:{position:`absolute`,transformStyle:`flat`,backgroundColor:`transparent`,overflow:`hidden`,zIndex:e||M||t&&b?x:void 0,pointerEvents:void 0,visibility:i?`visible`:`hidden`,perspective:N},children:[e&&E(Xx,{width:`100%`,height:`100%`,"data-geo-component-type":`NavigationContainerBackdrop`,transition:m,initial:{opacity:g&&i?1:0},animate:{opacity:1},exit:{opacity:0},backgroundColor:c||`transparent`,onTap:M?void 0:l}),E(Xx,{...ne,...ie,transition:{default:ee,originX:{type:!1},originY:{type:!1},originZ:{type:!1}},backgroundColor:`transparent`,backfaceVisible:M?f:d,"data-geo-component-type":`NavigationContainer`,"data-geo-is-current-navigation-target":!!t,style:{pointerEvents:void 0,opacity:se||e||t&&b?1:0},"data-is-present":ae?void 0:!1,ref:j,children:E(aS.Provider,{value:j,children:E(cS.Provider,{value:oe,children:E(uS,{isCurrent:oe,isOverlayed:r,children:E(sS,{isLead:t,animatesLayout:!!b,transition:ee,isExiting:!ae,isOverlayed:r,id:C,children:s})})})})})]})},Ls),fS={x:0,y:0,z:0,rotate:0,rotateX:0,rotateY:0,rotateZ:0,scale:1,scaleX:1,scaleY:1,scaleZ:1,skew:0,skewX:0,skewY:0,originX:.5,originY:.5,originZ:0,opacity:1},pS=class{constructor(){z(this,`warning`,()=>{fi(`The Navigator API is only available inside of Framer: https://www.framer.com/`)}),z(this,`goBack`,()=>this.warning()),z(this,`instant`,()=>this.warning()),z(this,`fade`,()=>this.warning()),z(this,`push`,()=>this.warning()),z(this,`modal`,()=>this.warning()),z(this,`overlay`,()=>this.warning()),z(this,`flip`,()=>this.warning()),z(this,`customTransition`,()=>this.warning()),z(this,`magicMotion`,()=>this.warning())}},mS=g(new pS),hS={Fade:{exit:{opacity:0},enter:{opacity:0}},PushLeft:{exit:{x:`-30%`},enter:{x:`100%`}},PushRight:{exit:{x:`30%`},enter:{x:`-100%`}},PushUp:{exit:{y:`-30%`},enter:{y:`100%`}},PushDown:{exit:{y:`30%`},enter:{y:`-100%`}},Instant:{animation:{type:!1},enter:{opacity:0}},Modal:{overCurrentContext:!0,goBackOnTapOutside:!0,position:{center:!0},enter:{opacity:0,scale:1.2}},OverlayLeft:{overCurrentContext:!0,goBackOnTapOutside:!0,position:{right:0,top:0,bottom:0},enter:{x:`100%`}},OverlayRight:{overCurrentContext:!0,goBackOnTapOutside:!0,position:{left:0,top:0,bottom:0},enter:{x:`-100%`}},OverlayUp:{overCurrentContext:!0,goBackOnTapOutside:!0,position:{bottom:0,left:0,right:0},enter:{y:`100%`}},OverlayDown:{overCurrentContext:!0,goBackOnTapOutside:!0,position:{top:0,left:0,right:0},enter:{y:`-100%`}},FlipLeft:{backfaceVisible:!1,exit:{rotateY:-180},enter:{rotateY:180}},FlipRight:{backfaceVisible:!1,exit:{rotateY:180},enter:{rotateY:-180}},FlipUp:{backfaceVisible:!1,exit:{rotateX:180},enter:{rotateX:-180}},FlipDown:{backfaceVisible:!1,exit:{rotateX:-180},enter:{rotateX:180}},MagicMotion:{withMagicMotion:!0}},gS=()=>({current:-1,previous:-1,currentOverlay:-1,previousOverlay:-1,visualIndex:0,overlayItemId:0,historyItemId:0,history:[],overlayStack:[],containers:{},containerIndex:{},containerVisualIndex:{},containerIsRemoved:{},transitionForContainer:{},previousTransition:null}),_S=t_(fS),vS=M.createContext(void 0),yS=M.createContext(void 0),bS=(()=>{var e,t,n,r,i,a,o;return t=class extends S{constructor(t){super(t),Ke(this,n),Ke(this,e,null),z(this,`state`,gS()),Ke(this,a,e=>{if(!this.props.enabled&&this.state.history.length>0)return;let t=Us(this.state,e);if(!t)return;let{skipLayoutAnimation:n}=this.props,r=t.history[t.current],i=e.type===`add`&&e.transition.withMagicMotion||e.type===`forward`&&r?.transition.withMagicMotion||e.type===`remove`&&!!t.previousTransition,a=()=>{this.setState(t),r?.key&&this.context?.(r.key)};n&&!i?n(a):a()}),z(this,`goBack`,()=>{if(!ke(this,n,i).call(this))return Ve(this,e,globalThis.event?.timeStamp||null),this.state.currentOverlay===-1?R(this,a).call(this,{type:`remove`}):R(this,a).call(this,{type:`removeOverlay`})});let r=this.props.children;if(!r||!fa(r)||!da(r))return;let o={...hS.Instant},s={type:`add`,key:r.key?.toString()||`stack-${this.state.historyItemId+1}`,transition:o,component:r},c=Us(this.state,s);c&&(this.state=c)}componentDidMount(){let e=this.state.history[this.state.current];e&&this.context?.(e.key)}UNSAFE_componentWillReceiveProps(e){let t=e.children;if(!fa(t)||!da(t))return;let r=t.key?.toString();r&&(this.state.history.length===0?ke(this,n,o).call(this,t,hS.Instant):R(this,a).call(this,{type:`update`,key:r,component:t}))}componentWillUnmount(){this.props.resetProjection?.()}instant(e){ke(this,n,o).call(this,e,hS.Instant,void 0)}fade(e,t){ke(this,n,o).call(this,e,hS.Fade,t)}push(e,t){ke(this,n,o).call(this,e,Bs(t),t)}modal(e,t){ke(this,n,o).call(this,e,hS.Modal,t)}overlay(e,t){ke(this,n,o).call(this,e,Vs(t),t)}flip(e,t){ke(this,n,o).call(this,e,Hs(t),t)}magicMotion(e,t){ke(this,n,o).call(this,e,hS.MagicMotion,t)}customTransition(e,t){ke(this,n,o).call(this,e,t)}render(){let e=ke(this,n,r).call(this,{overCurrentContext:!1}),t=ke(this,n,r).call(this,{overCurrentContext:!0}),i=ic(t),a=t.current>-1,o=this.state.history.length===1,s=[];for(let[t,n]of Object.entries(this.state.containers)){let r=this.state.containerIndex[t];U(r!==void 0,`Container's index must be registered`);let i=this.state.containerVisualIndex[t];U(i!==void 0,`Container's visual index must be registered`);let c=this.state.containerIsRemoved[t],l=this.state.history[r],u=this.state.transitionForContainer[t],d=r===this.state.current,f=r===this.state.previous,p=d?!1:c,m=l?.transition?.withMagicMotion||d&&!!this.state.previousTransition;s.push(E(dS,{id:t,index:i,isInitial:o,isCurrent:d,isPrevious:f,isOverlayed:a,visible:d||f,position:l?.transition?.position,instant:mc(r,e),transitionProps:u,animation:pc(r,e),backfaceVisible:dc(r,e),exitAnimation:l?.transition?.animation,exitBackfaceVisible:l?.transition?.backfaceVisible,exitProps:l?.transition?.enter,withMagicMotion:m,areMagicMotionLayersPresent:p?!1:void 0,children:E(xs,{children:gc({component:n,transition:l?.transition})})},t))}let c=this.state.overlayStack.map((e,n)=>E(dS,{isLayeredContainer:!0,isCurrent:n===this.state.currentOverlay,position:e.transition.position,initialProps:uc(n,t),transitionProps:fc(n,t),instant:mc(n,t,!0),animation:pc(n,t),exitProps:e.transition.enter,visible:hc(n,t),backdropColor:cc(e.transition),backfaceVisible:lc(n,t),onTapBackdrop:_c(e.transition,this.goBack),index:this.state.current+1+n,children:gc({component:e.component,transition:e.transition})},e.key));return E(Xx,{"data-geo-component-type":`NavigationRoot`,top:0,left:0,width:`100%`,height:`100%`,position:`relative`,style:{overflow:`hidden`,backgroundColor:`unset`,pointerEvents:void 0,...this.props.style},children:E(mS.Provider,{value:this,children:A(yS.Provider,{value:o,children:[E(dS,{isLayeredContainer:!0,position:void 0,initialProps:{},instant:!1,transitionProps:ac(i),animation:oc(i),backfaceVisible:sc(i),visible:!0,backdropColor:void 0,onTapBackdrop:void 0,index:0,children:E(ia,{children:E($x,{children:E(Ue,{presenceAffectsLayout:!1,children:s})})})}),E(Ue,{children:c})]})})})}},e=new WeakMap,n=new WeakSet,r=function(e){let{current:t,previous:n,currentOverlay:r,previousOverlay:i}=this.state;return e.overCurrentContext?{current:r,previous:i,history:this.state.overlayStack}:{current:t,previous:n,history:this.state.history}},i=function(){return globalThis.event?R(this,e)===globalThis.event.timeStamp:!1},a=new WeakMap,o=function(t,r,o){if(ke(this,n,i).call(this)||(Ve(this,e,globalThis.event?.timeStamp||null),!t||!fa(t)||!da(t)))return;let s={...r,...o};if(s.overCurrentContext)return R(this,a).call(this,{type:`addOverlay`,transition:s,component:t});let c=t.key?.toString()||`stack-${this.state.historyItemId+1}`;R(this,a).call(this,{type:`add`,key:c,transition:s,component:t})},z(t,`defaultProps`,{enabled:!0}),z(t,`contextType`,vS),t})(),xS={stiffness:500,damping:50,restDelta:1,type:`spring`},SS=io(vc),Pe(Hg(),1),Pe(Hg(),1),Pe(Hg(),1),CS=(e,t)=>Object.prototype.hasOwnProperty.call(e,t),wS=Symbol(`private`),TS=(()=>{function e(e={},t=!1,n=!0){let r={[wS]:{makeAnimatables:t,observeAnimatables:n,observers:new ey,reset(){for(let t in i)if(CS(i,t)){let n=CS(e,t)?lx(e)[t]:void 0;n===void 0?delete i[t]:i[t]=n}},transactions:new Set}},i=new Proxy(r,DS);return Object.assign(i,e),i}return e.resetObject=e=>e[wS].reset(),e.addObserver=(e,t)=>e[wS].observers.add(t),e})(),ES=class{constructor(){z(this,`set`,(e,t,n,r)=>{if(t===wS)return!1;let i=e[wS],a,o;if(mi(n)?(a=n,o=a.get()):o=n,i.makeAnimatables&&typeof n!=`function`&&typeof n!=`object`&&!a&&(a=ty(n)),i.observeAnimatables&&a){let e=i.transactions;a.onUpdate({update:(t,n)=>{n&&e.add(n),i.observers.notify({value:r},n)},finish:t=>{e.delete(t)&&i.observers.finishTransaction(t)}})}let s=!1,c=!0,l=lx(e)[t];if(l!==void 0){mi(l)?(c=l.get()!==o,l.set(o)):(c=l!==o,lx(e)[t]=o);let n=typeof o==`object`&&!!o;(Array.isArray(o)||n)&&(c=!0),s=!0}else a&&(n=a),s=Reflect.set(e,t,n);return c&&i.observers.notify({value:r}),s}),z(this,`get`,(e,t,n)=>{if(t===wS)return lx(e)[t];let r=Reflect.get(e,t,n);return typeof r==`function`?r.bind(n):r})}deleteProperty(e,t){let n=Reflect.deleteProperty(e,t);return e[wS].observers.notify({value:e}),n}ownKeys(e){let t=Reflect.ownKeys(e),n=t.indexOf(wS);return n!==-1&&t.splice(n,1),t}getOwnPropertyDescriptor(e,t){if(t!==wS)return Reflect.getOwnPropertyDescriptor(e,t)}},DS=new ES,OS=`opacity`,kS=(()=>{function e(t={}){let n=TS(t,!1,!1);return e.addData(n),n}return e._stores=[],e.addData=t=>{e._stores.push(t)},e.reset=()=>{e._stores.forEach(e=>TS.resetObject(e))},e.addObserver=(e,t)=>TS.addObserver(e,t),e})(),AS={update:0},jS=M.createContext({update:NaN}),MS=class extends S{constructor(){super(...arguments),z(this,`observers`,[]),z(this,`state`,AS),z(this,`taskAdded`,!1),z(this,`frameTask`,()=>{this.setState({update:this.state.update+1}),this.taskAdded=!1}),z(this,`observer`,()=>{this.taskAdded||(this.taskAdded=!0,Cy.addFrameTask(this.frameTask))})}componentWillUnmount(){this.observers.map(e=>e()),kS.reset()}render(){let{children:e}=this.props;return this.observers.map(e=>e()),this.observers=[],kS._stores.forEach(e=>{let t=kS.addObserver(e,this.observer);this.observers.push(t)}),E(jS.Provider,{value:{...this.state},children:e})}},Pe(Hg(),1),NS=`__geo__`,PS=(()=>NS.length)(),FS=M.createContext(void 0),IS=M.createContext(void 0),LS=`ssr-variant`,RS=`ssr-variant-group-separator`,zS=M.forwardRef(function(e,t){let n=Pc(t),r=M.useContext(IS),i=M.useSyncExternalStore(Yg,Zg,Xg),a=sa(()=>i?Wa()?1:2:0),o=M.useContext(FS);return jr(()=>{let{breakpoint:t,overrides:i,children:s,...c}=e;if(!o)return console.warn(`PropertyOverrides is missing GeneratedComponentContext`),n(s,c);let{primaryVariantId:l,variantClassNames:u}=o,d=r?.primaryVariantId===l?r?.variants:void 0;switch(a){case 0:return n(s,Hc(t,c,i));case 1:return Lc(i,s,c,u,l,d,n,t);case 2:return Lc(i,s,c,u,l,d,Nc,void 0);default:W(a)}},[o,r,n,e])}),BS=(()=>ab(zS,`.${LS} { display: contents }`,`PropertyOverrides`))(),VS=`default`,HS=new Set([VS]),WS=class{constructor(){z(this,`entries`,new Map),Ke(this,US,{})}set(e,t,n,r){switch(t){case`transformTemplate`:U(typeof n==`string`,`transformTemplate must be a string, received: ${n}`),this.setHash(e,r,{transformTemplate:n,legacy:!0});break;case`initial`:case`animate`:U(typeof n==`object`,`${t} must be a valid object, received: ${n}`),this.setHash(e,r,{[t]:n,legacy:!0});break;default:break}}setHash(e,t=VS,n){let r=this.entries.get(e)??{},i=r[t]??{};r[t]=n===null?null:{...i,...n},this.entries.set(e,r)}variantHash(e,t){if(e===t?.primaryVariantId)return VS;let n=R(this,US)[e];if(n)return n;let r=t?.variantClassNames[e];return r?R(this,US)[e]=Rc(r):VS}setAll(e,t=HS,n,r){if(n===null){for(let n of t)this.setHash(e,this.variantHash(n,r),null);return}let i=ot(n.transformTemplate)?n.transformTemplate?.({},KS):void 0,a=n.__geo__presenceInitial??n.initial,o=n.__geo__presenceAnimate??n.animate,s={initial:H(a)?a:void 0,animate:H(o)?o:void 0,transformTemplate:B(i)?i:void 0};for(let n of t)this.setHash(e,this.variantHash(n,r),s)}clear(){this.entries.clear()}toObject(){return Object.fromEntries(this.entries)}},US=new WeakMap,GS=new WS,KS=`__Appear_Animation_Transform__`,qS=`data-framer-appear-id`,JS=`data-framer-appear-animation`,YS=e=>{if(mo())return{animate:Wc(e.animate)?e.animate:void 0,initial:Wc(e.initial)?e.initial:void 0,exit:void 0}},XS=[`opacity`,`x`,`y`,`scale`,`rotate`,`rotateX`,`rotateY`,`skewX`,`skewY`,`transformPerspective`],ZS=e=>({x:F(e?.x??0),y:F(e?.y??0),opacity:F(e?.opacity??1),scale:F(e?.scale??1),rotate:F(e?.rotate??0),rotateX:F(e?.rotateX??0),rotateY:F(e?.rotateY??0),skewX:F(e?.skewX??0),skewY:F(e?.skewY??0),transformPerspective:F(e?.transformPerspective??0)}),QS={x:0,y:0,scale:1,opacity:1,rotate:0,rotateX:0,rotateY:0,skewX:0,skewY:0,transformPerspective:0},$S={willChange:`transform`},Object.freeze($S),eC={},Object.freeze(eC),tC=new Set([`loopEffectEnabled`,`loopTransition`,`loop`,`loopRepeatType`,`loopRepeatDelay`,`loopPauseOffscreen`]),nC=()=>{let e=u();return p(()=>()=>{clearTimeout(e.current)},[]),async t=>new Promise(n=>{e.current=setTimeout(()=>{n(!0)},t*1e3)})},rC=new Set([`speed`,`adjustPosition`,`offset`,`parallaxTransformEnabled`]),iC=new Set([`presenceInitial`,`presenceAnimate`,`presenceExit`]),aC=1,oC=4,sC=new Set([`threshold`,`animateOnce`,`opacity`,`targetOpacity`,`x`,`y`,`scale`,`transition`,`rotate`,`rotateX`,`rotateY`,`perspective`,`enter`,`exit`,`animate`,`styleAppearEffectEnabled`,`targets`,`scrollDirection`]),cC=[`animate`,`animate`],lC={inputRange:[],outputRange:[]},uC=new Set([`transformViewportThreshold`,`styleTransformEffectEnabled`,`transformTargets`,`spring`,`transformTrigger`]),dC=(e,t)=>{let n=e?.[0]?.target;return t?{opacity:n?.opacity??1}:n},fC=()=>({opacity:[],x:[],y:[],scale:[],rotate:[],rotateX:[],rotateY:[],skewX:[],skewY:[],transformPerspective:[]}),pC=[0,1],mC={parallax:rC,styleAppear:sC,styleTransform:uC,loop:tC,presence:iC},hC=t_(mC),gC=e=>e.reduce((e,t)=>e+=t,0),_C=e=>e.reduce((e,t)=>e*=t,1),vC=`current`,yC=e=>M.forwardRef((t,n)=>{if(t.__withFX)return E(e,{...t,animate:void 0,initial:void 0,exit:void 0,ref:n});let r=YS(t);if(r)return E(e,{...t,...r,ref:n});let{parallax:i={},styleAppear:a={},styleTransform:o={},presence:s={},loop:c={},forwardedProps:l,targetOpacityValue:u,withPerspective:d,inSmartComponent:f=!1}=pl(t),p=Es(n),{values:m,style:h}=$c(s,p,f,t.style,t[oe]),{values:g,style:_}=Yc(i,p,t.style?.visibility),{values:v,style:y}=dl(o,p),{values:b,style:x}=sl(a,p),{values:S,style:C}=qc(c,p),w=M.useMemo(()=>{let e=new Qe(u??1);return{scale:[b.scale,S.scale,m.scale,v.scale],opacity:[b.opacity,S.opacity,m.opacity,e,v.opacity],x:[b.x,S.x,m.x,v.x],y:[b.y,S.y,g.y,m.y,v.y],rotate:[b.rotate,S.rotate,m.rotate,v.rotate],rotateX:[b.rotateX,S.rotateX,m.rotateX,v.rotateX],rotateY:[b.rotateY,S.rotateY,m.rotateY,v.rotateY],skewX:[b.skewX,S.skewX,m.skewX,v.skewX],skewY:[b.skewY,S.skewY,m.skewY,v.skewY],transformPerspective:[v.transformPerspective,b.transformPerspective]}},[u,v,g,b,S,m]);hl(t.style,w);let T=N(w.scale,_C),D=N(w.opacity,_C),O=N(w.x,gC),k=N(w.y,gC),A=N(w.rotate,gC),j=N(w.rotateX,gC),ee=N(w.rotateY,gC),te=N(w.skewX,gC),ne=N(w.skewY,gC),re=N(w.transformPerspective,gC),{drag:ie,dragConstraints:ae}=l;Wo(ie&&ml(ae)?ae:void 0);let se={opacity:D,scale:T,x:O,y:k,rotate:A,rotateX:j,rotateY:ee,skewX:te,skewY:ne};ut(d)&&(se.transformPerspective=re);let ce=gl(t.animate)?t.animate:void 0,le=gl(t.initial)?t.initial:void 0,ue=gl(t.exit)?t.exit:void 0,de=f&&!s.presenceInitial?{initial:le,animate:ce,exit:ue}:{};return E(e,{...l,...de,__withFX:!0,style:{...t.style,..._,...y,...C,...se,...x,...h},values:m,ref:p})}),bC=g({}),xC=M.createContext({}),SC=M.forwardRef(function({width:e,height:t,y:n,children:r,...i},a){let o=M.useMemo(()=>({width:e,height:t,y:n}),[e,t,n]),s=Pc(a);return E(xC.Provider,{value:o,children:s(r,i)})}),CC=e=>M.forwardRef((t,n)=>E(e,{layoutId:Ho(t),...t,layoutIdKey:void 0,duplicatedFrom:void 0,ref:n})),wC=!1,TC=class extends S{constructor(){super(...arguments),z(this,`state`,{error:void 0})}static getDerivedStateFromError(e){return{error:e}}componentDidCatch(e,t){if(!bl(e))return;let n=t?.componentStack;console.error(`Caught an error in SynchronousSuspenseErrorBoundary:
 
