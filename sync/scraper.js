@@ -3,6 +3,7 @@ import { join, extname, dirname } from 'path'
 import { createHash } from 'crypto'
 import { load } from 'cheerio'
 import { URL } from 'url'
+import { injectCmsSection } from './cms.js'
 
 const BASE_URL = 'https://iiadil.framer.website'
 const OUT_DIR = 'public'
@@ -72,21 +73,24 @@ function extractJsUrls(content) {
   return urls
 }
 
-// Remplacement ciblé des identifiants Framer dans les bundles JS/MJS
-// Appliqué uniquement sur les strings littéraux, pas sur les URLs CDN ni le contenu utilisateur
+// Remplacement complet des identifiants Framer dans les bundles JS/MJS
+// Les imports relatifs ./framer-* sont protégés pendant le rename
 function sanitizeJs(text) {
+  // Protéger les imports relatifs ./framer- (ex: ./framer-font-*.mjs)
+  text = text.replace(/(['"`])\.\/framer-/g, '$1./FRAMER_KEEP_')
+  // Renommer framer- dans toutes les strings (class names, sélecteurs, event names)
+  text = text.replace(/([`"'])framer-/g, '$1geo-')
+  // Variables CSS --framer-
+  text = text.replace(/--framer-/g, '--geo-')
+  // Sélecteurs CSS .framer- générés par JS
+  text = text.replace(/\.framer-/g, '.geo-')
+  // Identifiants globaux
+  text = text.replace(/__framer__/g, '__geo__')
+  text = text.replace(/__framer_/g, '__geo_')
+  text = text.replace(/framerAppearId/g, 'geoAppearId')
+  // Restaurer les imports relatifs protégés
+  text = text.replace(/(['"`])\.\/FRAMER_KEEP_/g, '$1./framer-')
   return text
-    // Attributs data-framer-* en string littéral dans le JS
-    .replace(/"data-framer-/g, '"data-geo-')
-    .replace(/'data-framer-/g, "'data-geo-")
-    // Variables globales window.__framer__* et __framer_*
-    .replace(/__framer__/g, '__geo__')
-    .replace(/__framer_/g, '__geo_')
-    // Identifiant camelCase utilisé pour générer data-framer-appear-id
-    .replace(/framerAppearId/g, 'geoAppearId')
-    // Types de script custom Framer
-    .replace(/"framer\/appear"/g, '"geo/appear"')
-    .replace(/"framer\/handover"/g, '"geo/handover"')
 }
 
 async function syncAsset(rawUrl, baseUrl) {
@@ -138,23 +142,16 @@ async function drainAssetQueue() {
 
 const FRAMER_COMMENT_RE = /<!--\s*(?:Made in Framer[^-]*?|Published [^-]*?)-->/g
 
-// Remplacement des attributs data-framer-* et identifiants Framer dans le HTML
-// (inline scripts + attributs — les bundles JS ont leur propre sanitizeJs)
 function sanitizeHtmlStr(html) {
   return html
-    .replace(/data-framer-hydrate-v2/g, 'data-geo-hydrate-v2')
-    .replace(/data-framer-html-style/g, 'data-geo-html-style')
-    .replace(/data-framer-appear-animation/g, 'data-geo-appear-animation')
-    .replace(/data-framer-appear-id/g, 'data-geo-appear-id')
-    .replace(/data-framer-root/g, 'data-geo-root')
-    .replace(/data-framer-breakpoint-css/g, 'data-geo-breakpoint-css')
-    .replace(/data-framer-css-ssr-minified/g, 'data-geo-css-ssr-minified')
+    .replace(/data-framer-/g, 'data-geo-')
+    .replace(/--framer-/g, '--geo-')
+    .replace(/\.framer-/g, '.geo-')
     .replace(/__framer__/g, '__geo__')
     .replace(/__framer_/g, '__geo_')
     .replace(/framerAppearId/g, 'geoAppearId')
     .replace(/type="framer\/appear"/g, 'type="geo/appear"')
     .replace(/type="framer\/handover"/g, 'type="geo/handover"')
-    .replace(/id="__geo__appearAnimationsContent"/g, 'id="__geo__appearAnimationsContent"')
 }
 
 function sanitizeHtml($) {
@@ -214,6 +211,12 @@ async function scrapePage(pathname, visited, queue) {
     html = sanitizeHtmlStr(html)
     const $ = load(html)
     sanitizeHtml($)
+    // Renommer les classes framer-HASH token par token (préserve les slugs d'URL)
+    $('[class]').each((_, el) => {
+      const orig = $(el).attr('class')
+      const renamed = orig.split(/\s+/).map(c => c.startsWith('framer-') ? 'geo-' + c.slice(7) : c).join(' ')
+      if (renamed !== orig) $(el).attr('class', renamed)
+    })
     const jobs = []
 
     $('script[src]').each((_, el) => {
@@ -241,8 +244,8 @@ async function scrapePage(pathname, visited, queue) {
     await Promise.allSettled(jobs)
     await drainAssetQueue()
 
-    const rewritten = $.html()
-    const h = md5(rewritten)
+    const withCms = await injectCmsSection($.html(), pathname)
+    const h = md5(withCms)
     const filePath = routeToFile(pathname)
 
     if (!FORCE && state.pages[pathname] === h && existsSync(filePath)) {
@@ -251,7 +254,7 @@ async function scrapePage(pathname, visited, queue) {
     }
 
     ensureDir(filePath)
-    writeFileSync(filePath, rewritten, 'utf8')
+    writeFileSync(filePath, withCms, 'utf8')
     state.pages[pathname] = h
     changed = true
     console.log(`  ✓ page: ${pathname}`)
