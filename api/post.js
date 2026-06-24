@@ -1,5 +1,8 @@
 import { readFileSync } from 'fs'
-import { join } from 'path'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://boszjuorhmpgzultsanu.supabase.co'
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY ||
@@ -45,7 +48,7 @@ async function fetchPost(slug) {
 
 function loadTemplate(postType) {
   const name = postType === 'traversée' ? 'traversee' : 'formation'
-  const templatePath = join(process.cwd(), 'sync', 'templates', `${name}.html`)
+  const templatePath = join(__dirname, '..', 'sync', 'templates', `${name}.html`)
   return readFileSync(templatePath, 'utf8')
 }
 
