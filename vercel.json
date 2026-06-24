@@ -1,0 +1,29 @@
+{
+  "outputDirectory": "public",
+  "rewrites": [
+    {
+      "source": "/geospherique-listes/partager-un-savoir/:slug",
+      "destination": "/api/post?type=formation&slug=:slug"
+    },
+    {
+      "source": "/partager-un-savoir/geospherique-partages/:slug",
+      "destination": "/api/post?type=atelier&slug=:slug"
+    },
+    {
+      "source": "/partager-un-savoir/geospherique-tools/:slug",
+      "destination": "/api/post?type=outil&slug=:slug"
+    },
+    {
+      "source": "/les-travers%C3%A9es-de-geospherique/:slug",
+      "destination": "/api/post?type=travers%C3%A9e&slug=:slug"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "s-maxage=300, stale-while-revalidate=3600" }
+      ]
+    }
+  ]
+}

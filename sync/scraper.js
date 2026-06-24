@@ -3,7 +3,7 @@ import { join, extname, dirname } from 'path'
 import { createHash } from 'crypto'
 import { load } from 'cheerio'
 import { URL } from 'url'
-import { injectCmsSection, fetchAllPublishedPosts, getPostPath } from './cms.js'
+import { injectCmsSection } from './cms.js'
 
 const BASE_URL = 'https://iiadil.framer.website'
 const OUT_DIR = 'public'
@@ -263,82 +263,6 @@ async function scrapePage(pathname, visited, queue) {
   }
 }
 
-// List page templates to fall back to if Framer doesn't have the individual page yet
-const POST_TYPE_LIST_TEMPLATES = {
-  'formation': '/partager-un-savoir/geospherique-formations',
-  'atelier':   '/partager-un-savoir/geospherique-partages',
-  'outil':     '/partager-un-savoir/geospherique-tools',
-  'traversée': '/les-traversées-de-geospherique',
-}
-
-async function fetchFramerPage(pathname) {
-  try {
-    let html = await fetchText(BASE_URL + pathname)
-    html = html.replace(FRAMER_COMMENT_RE, '')
-    html = sanitizeHtmlStr(html)
-    const $ = load(html)
-    sanitizeHtml($)
-    $('[class]').each((_, el) => {
-      const orig = $(el).attr('class')
-      const renamed = orig.split(/\s+/).map(c => c.startsWith('framer-') ? 'geo-' + c.slice(7) : c).join(' ')
-      if (renamed !== orig) $(el).attr('class', renamed)
-    })
-    // Sync assets inline (don't add to queue)
-    const jobs = []
-    $('script[src]').each((_, el) => { const s = $(el).attr('src'); if (s) jobs.push(syncAsset(s, BASE_URL + pathname).then(r => $(el).attr('src', r))) })
-    $('link[href]').each((_, el) => { const h = $(el).attr('href'); if (h) jobs.push(syncAsset(h, BASE_URL + pathname).then(r => $(el).attr('href', r))) })
-    $('img[src]').each((_, el) => { const s = $(el).attr('src'); if (s) jobs.push(syncAsset(s, BASE_URL + pathname).then(r => $(el).attr('src', r))) })
-    await Promise.allSettled(jobs)
-    await drainAssetQueue()
-    return $.html()
-  } catch {
-    return null
-  }
-}
-
-async function generatePostPages(visited) {
-  let posts
-  try {
-    posts = await fetchAllPublishedPosts()
-  } catch (e) {
-    console.warn(`  ⚠ generatePostPages — ${e.message}`)
-    return
-  }
-
-  if (!posts.length) return
-  console.log(`\n📄  Génération de ${posts.length} pages de contenu...\n`)
-
-  for (const post of posts) {
-    const pathname = getPostPath(post)
-    if (!pathname) continue
-
-    const filePath = routeToFile(pathname)
-
-    // Try to fetch the real Framer page first (it may already exist in Framer CMS)
-    // Fall back to the scraped list page template if not found on Framer
-    let templateHtml = await fetchFramerPage(pathname)
-    if (!templateHtml) {
-      const listPath = POST_TYPE_LIST_TEMPLATES[post.post_type]
-      const listFile = listPath ? routeToFile(listPath) : null
-      templateHtml = (listFile && existsSync(listFile)) ? readFileSync(listFile, 'utf8') : '<html><head></head><body></body></html>'
-    }
-
-    const withCms = await injectCmsSection(templateHtml, pathname)
-    const h = md5(withCms)
-
-    if (!FORCE && state.pages[pathname] === h && existsSync(filePath)) {
-      console.log(`  = ${pathname}`)
-      continue
-    }
-
-    ensureDir(filePath)
-    writeFileSync(filePath, withCms, 'utf8')
-    state.pages[pathname] = h
-    changed = true
-    console.log(`  ✓ post: ${pathname}`)
-  }
-}
-
 async function main() {
   console.log(`\n🔄  Framer Sync — ${BASE_URL}\n`)
   const queue = ['/']
@@ -358,9 +282,6 @@ async function main() {
     visited.add(p)
     await scrapePage(p, visited, queue)
   }
-
-  // Generate individual pages for all published partner posts
-  await generatePostPages(visited)
 
   ensureDir(STATE_FILE)
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2))
