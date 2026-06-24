@@ -3,6 +3,7 @@ import { join, extname, dirname } from 'path'
 import { createHash } from 'crypto'
 import { load } from 'cheerio'
 import { URL } from 'url'
+import { injectCmsSection } from './cms.js'
 
 const BASE_URL = 'https://iiadil.framer.website'
 const OUT_DIR = 'public'
@@ -243,8 +244,8 @@ async function scrapePage(pathname, visited, queue) {
     await Promise.allSettled(jobs)
     await drainAssetQueue()
 
-    const rewritten = $.html()
-    const h = md5(rewritten)
+    const withCms = await injectCmsSection($.html(), pathname)
+    const h = md5(withCms)
     const filePath = routeToFile(pathname)
 
     if (!FORCE && state.pages[pathname] === h && existsSync(filePath)) {
@@ -253,7 +254,7 @@ async function scrapePage(pathname, visited, queue) {
     }
 
     ensureDir(filePath)
-    writeFileSync(filePath, rewritten, 'utf8')
+    writeFileSync(filePath, withCms, 'utf8')
     state.pages[pathname] = h
     changed = true
     console.log(`  ✓ page: ${pathname}`)
