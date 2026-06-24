@@ -113,11 +113,55 @@ async function drainAssetQueue() {
   }
 }
 
+const FRAMER_COMMENT_RE = /<!--\s*(?:Made in Framer[^-]*?|Published [^-]*?)-->/g
+
+function sanitizeHtml($) {
+
+  // Supprimer le script tracker events.framer.com
+  $('script[src*="events.framer.com"]').remove()
+
+  // Supprimer le script de la barre d'édition Framer (inline, contient __framer_force_showing_editorbar_since)
+  $('script:not([src])').each((_, el) => {
+    if ($(el).html().includes('__framer_force_showing_editorbar_since')) $(el).remove()
+  })
+
+  // Supprimer la meta generator Framer
+  $('meta[name="generator"]').remove()
+
+  // Remplacer title par défaut Framer
+  const $title = $('title')
+  if ($title.text().trim() === 'My Framer Site') $title.text('Geospherique')
+
+  // Remplacer les metas description/og/twitter avec valeurs par défaut Framer
+  const defaultDesc = 'Made with Framer'
+  const defaultTitle = 'My Framer Site'
+  const brandDesc = 'Geospherique — Une vision à votre portée'
+  const brandTitle = 'Geospherique'
+
+  $('meta[name="description"]').each((_, el) => {
+    if ($(el).attr('content') === defaultDesc) $(el).attr('content', brandDesc)
+  })
+  $('meta[property="og:title"]').each((_, el) => {
+    if ($(el).attr('content') === defaultTitle) $(el).attr('content', brandTitle)
+  })
+  $('meta[property="og:description"]').each((_, el) => {
+    if ($(el).attr('content') === defaultDesc) $(el).attr('content', brandDesc)
+  })
+  $('meta[name="twitter:title"]').each((_, el) => {
+    if ($(el).attr('content') === defaultTitle) $(el).attr('content', brandTitle)
+  })
+  $('meta[name="twitter:description"]').each((_, el) => {
+    if ($(el).attr('content') === defaultDesc) $(el).attr('content', brandDesc)
+  })
+}
+
 async function scrapePage(pathname, visited, queue) {
   const pageUrl = BASE_URL + pathname
   try {
-    const html = await fetchText(pageUrl)
+    let html = await fetchText(pageUrl)
+    html = html.replace(FRAMER_COMMENT_RE, '')
     const $ = load(html)
+    sanitizeHtml($)
     const jobs = []
 
     $('script[src]').each((_, el) => {
