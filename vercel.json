@@ -17,13 +17,5 @@
       "source": "/les-travers%C3%A9es-de-geospherique/:slug",
       "destination": "/api/post?type=travers%C3%A9e&slug=:slug"
     }
-  ],
-  "headers": [
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "s-maxage=300, stale-while-revalidate=3600" }
-      ]
-    }
   ]
 }

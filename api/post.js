@@ -261,43 +261,17 @@ function renderHtml(post, requestedType) {
 </html>`
 }
 
-function render404() {
-  return `<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Page introuvable — Géosphérique</title>
-  <style>
-    body { font-family: 'EB Garamond', Georgia, serif; background: #000; color: #e8e8e0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-    .wrap { text-align: center; }
-    h1 { font-size: 4rem; font-weight: 400; color: #fff; margin-bottom: 16px; }
-    p { color: #555; margin-bottom: 32px; }
-    a { color: rgba(232,232,224,.6); font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; }
-    a:hover { color: #fff; }
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <h1>404</h1>
-    <p>Cette page n'existe pas encore ou n'est pas publiée.</p>
-    <a href="/">← Retour à l'accueil</a>
-  </div>
-</body>
-</html>`
-}
-
 export default async function handler(req, res) {
   const { type, slug } = req.query
   if (!slug) {
-    res.status(400).setHeader('Content-Type', 'text/html').send(render404())
+    res.redirect(307, '/404')
     return
   }
 
   try {
     const post = await fetchPost(slug)
     if (!post) {
-      res.status(404).setHeader('Content-Type', 'text/html; charset=utf-8').send(render404())
+      res.redirect(307, '/404')
       return
     }
 
@@ -307,6 +281,6 @@ export default async function handler(req, res) {
     res.status(200).send(html)
   } catch (err) {
     console.error('post handler error:', err)
-    res.status(500).setHeader('Content-Type', 'text/html').send(render404())
+    res.redirect(307, '/404')
   }
 }
