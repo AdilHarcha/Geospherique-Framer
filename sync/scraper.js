@@ -263,9 +263,24 @@ async function scrapePage(pathname, visited, queue) {
   }
 }
 
+// Individual post routes are served by api/post.js — skip them during scraping
+const CMS_POST_PREFIXES = [
+  '/geospherique-listes/partager-un-savoir/',
+  '/partager-un-savoir/geospherique-partages/',
+  '/partager-un-savoir/geospherique-tools/',
+  '/les-traversées-de-geospherique/',
+  '/les-travers%C3%A9es-de-geospherique/',
+]
+
+function isCmsPostPage(pathname) {
+  return CMS_POST_PREFIXES.some(prefix => {
+    const slug = pathname.slice(prefix.length)
+    return pathname.startsWith(prefix) && slug.length > 0 && !slug.includes('/')
+  })
+}
+
 async function main() {
   console.log(`\n🔄  Framer Sync — ${BASE_URL}\n`)
-  // Include /404 explicitly — Framer's 404 page must be scraped so Vercel uses it
   const queue = ['/', '/404']
   const visited = new Set()
 
@@ -281,6 +296,7 @@ async function main() {
     const p = queue.shift()
     if (visited.has(p)) continue
     visited.add(p)
+    if (isCmsPostPage(p)) { console.log(`  ⏭ skip CMS post: ${p}`); continue }
     await scrapePage(p, visited, queue)
   }
 
