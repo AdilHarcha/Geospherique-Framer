@@ -128,6 +128,15 @@ function sanitizeHtml($) {
   // Supprimer la meta generator Framer
   $('meta[name="generator"]').remove()
 
+  // Supprimer le badge Framer
+  $('#__framer-badge-container').remove()
+
+  // Supprimer les attributs metadata Framer non fonctionnels sur tous les éléments
+  const FRAMER_META_ATTRS = ['data-framer-generated-page', 'data-framer-ssr-released-at', 'data-framer-page-optimized-at']
+  $('[data-framer-generated-page], [data-framer-ssr-released-at], [data-framer-page-optimized-at]').each((_, el) => {
+    FRAMER_META_ATTRS.forEach(attr => $(el).removeAttr(attr))
+  })
+
   // Remplacer title par défaut Framer
   const $title = $('title')
   if ($title.text().trim() === 'My Framer Site') $title.text('Geospherique')
