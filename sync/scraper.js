@@ -265,7 +265,8 @@ async function scrapePage(pathname, visited, queue) {
 
 async function main() {
   console.log(`\n🔄  Framer Sync — ${BASE_URL}\n`)
-  const queue = ['/']
+  // Include /404 explicitly — Framer's 404 page must be scraped so Vercel uses it
+  const queue = ['/', '/404']
   const visited = new Set()
 
   try {
@@ -281,6 +282,14 @@ async function main() {
     if (visited.has(p)) continue
     visited.add(p)
     await scrapePage(p, visited, queue)
+  }
+
+  // Ensure public/404.html exists so Vercel uses the Framer 404 page for all 404s
+  const notFoundSrc = join(OUT_DIR, '404', 'index.html')
+  const notFoundDest = join(OUT_DIR, '404.html')
+  if (existsSync(notFoundSrc) && !existsSync(notFoundDest)) {
+    writeFileSync(notFoundDest, readFileSync(notFoundSrc))
+    console.log('  ✓ 404.html created for Vercel')
   }
 
   ensureDir(STATE_FILE)
