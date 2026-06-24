@@ -118,6 +118,60 @@ function sectionTraversees(rows) {
 </section>`
 }
 
+function sectionFormations(rows) {
+  if (!rows.length) return ''
+  const cards = rows.map(r => `
+    <article class="geo-cms-card">
+      ${r.main_image ? `<img src="${escapeHtml(r.main_image)}" alt="${escapeHtml(r.title || '')}" loading="lazy">` : ''}
+      <div class="geo-cms-card-body">
+        <h3>${escapeHtml(r.h1 || r.title || '')}</h3>
+        ${r.meta_description ? `<p>${escapeHtml(r.meta_description)}</p>` : ''}
+        ${r.thematique ? `<div><span class="geo-cms-tag">${escapeHtml(r.thematique)}</span></div>` : ''}
+      </div>
+    </article>`).join('')
+  return `${SECTION_STYLE}
+<section class="geo-cms" id="geo-cms-formations" aria-label="Géosphérique Formations">
+  <h2>Les Formations</h2>
+  <div class="geo-cms-grid">${cards}</div>
+</section>`
+}
+
+function sectionAteliers(rows) {
+  if (!rows.length) return ''
+  const cards = rows.map(r => `
+    <article class="geo-cms-card">
+      ${r.main_image ? `<img src="${escapeHtml(r.main_image)}" alt="${escapeHtml(r.title || '')}" loading="lazy">` : ''}
+      <div class="geo-cms-card-body">
+        <h3>${escapeHtml(r.h1 || r.title || '')}</h3>
+        ${r.meta_description ? `<p>${escapeHtml(r.meta_description)}</p>` : ''}
+        ${r.thematique ? `<div><span class="geo-cms-tag">${escapeHtml(r.thematique)}</span></div>` : ''}
+      </div>
+    </article>`).join('')
+  return `${SECTION_STYLE}
+<section class="geo-cms" id="geo-cms-ateliers" aria-label="Géosphérique Ateliers">
+  <h2>Les Ateliers</h2>
+  <div class="geo-cms-grid">${cards}</div>
+</section>`
+}
+
+function sectionOutils(rows) {
+  if (!rows.length) return ''
+  const cards = rows.map(r => `
+    <article class="geo-cms-card">
+      ${r.main_image ? `<img src="${escapeHtml(r.main_image)}" alt="${escapeHtml(r.title || '')}" loading="lazy">` : ''}
+      <div class="geo-cms-card-body">
+        <h3>${escapeHtml(r.h1 || r.title || '')}</h3>
+        ${r.meta_description ? `<p>${escapeHtml(r.meta_description)}</p>` : ''}
+        ${r.thematique ? `<div><span class="geo-cms-tag">${escapeHtml(r.thematique)}</span></div>` : ''}
+      </div>
+    </article>`).join('')
+  return `${SECTION_STYLE}
+<section class="geo-cms" id="geo-cms-outils" aria-label="Géosphérique Outils">
+  <h2>Les Outils</h2>
+  <div class="geo-cms-grid">${cards}</div>
+</section>`
+}
+
 // ─── Page route → section builder map ──────────────────────────────────────
 const PAGE_MAP = {
   '/geospherique-listes': {
@@ -148,9 +202,33 @@ const PAGE_MAP = {
     fetch: () => query(
       'partner_posts',
       'id,title,h1,meta_description,main_image,thematique,slug',
-      'status=eq.published&order=published_at.desc'
+      'status=eq.published&post_type=eq.travers%C3%A9e&order=published_at.desc'
     ),
     build: sectionTraversees,
+  },
+  '/partager-un-savoir/geospherique-formations': {
+    fetch: () => query(
+      'partner_posts',
+      'id,title,h1,meta_description,main_image,thematique,slug',
+      'status=eq.published&post_type=eq.formation&order=published_at.desc'
+    ),
+    build: sectionFormations,
+  },
+  '/partager-un-savoir/geospherique-partages': {
+    fetch: () => query(
+      'partner_posts',
+      'id,title,h1,meta_description,main_image,thematique,slug',
+      'status=eq.published&post_type=eq.atelier&order=published_at.desc'
+    ),
+    build: sectionAteliers,
+  },
+  '/partager-un-savoir/geospherique-tools': {
+    fetch: () => query(
+      'partner_posts',
+      'id,title,h1,meta_description,main_image,thematique,slug',
+      'status=eq.published&post_type=eq.outil&order=published_at.desc'
+    ),
+    build: sectionOutils,
   },
 }
 
@@ -159,6 +237,9 @@ const ALIASES = {
   '/le-marché-des-artistes': '/le-march%C3%A9-des-artistes',
   '/les-traversées-de-geospherique': '/les-travers%C3%A9es-de-geospherique',
 }
+
+// Individual post pages are now served by the Vercel serverless function api/post.js
+// The scraper only handles list pages (injecting Supabase data into Framer-scraped shells)
 
 export async function injectCmsSection(html, pathname) {
   const key = ALIASES[pathname] || pathname
