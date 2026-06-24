@@ -73,20 +73,19 @@ function extractJsUrls(content) {
 }
 
 // Remplacement ciblé des identifiants Framer dans les bundles JS/MJS
-// Appliqué uniquement sur les strings littéraux, pas sur les URLs CDN ni le contenu utilisateur
 function sanitizeJs(text) {
   return text
-    // Attributs data-framer-* en string littéral dans le JS
     .replace(/"data-framer-/g, '"data-geo-')
     .replace(/'data-framer-/g, "'data-geo-")
-    // Variables globales window.__framer__* et __framer_*
     .replace(/__framer__/g, '__geo__')
     .replace(/__framer_/g, '__geo_')
-    // Identifiant camelCase utilisé pour générer data-framer-appear-id
     .replace(/framerAppearId/g, 'geoAppearId')
-    // Types de script custom Framer
     .replace(/"framer\/appear"/g, '"geo/appear"')
     .replace(/"framer\/handover"/g, '"geo/handover"')
+    .replace(/--framer-/g, '--geo-')
+    .replace(/framer-styles-preset-/g, 'geo-styles-preset-')
+    .replace(/framer-text\b/g, 'geo-text')
+    .replace(/\.framer-/g, '.geo-')
 }
 
 async function syncAsset(rawUrl, baseUrl) {
@@ -142,19 +141,21 @@ const FRAMER_COMMENT_RE = /<!--\s*(?:Made in Framer[^-]*?|Published [^-]*?)-->/g
 // (inline scripts + attributs — les bundles JS ont leur propre sanitizeJs)
 function sanitizeHtmlStr(html) {
   return html
-    .replace(/data-framer-hydrate-v2/g, 'data-geo-hydrate-v2')
-    .replace(/data-framer-html-style/g, 'data-geo-html-style')
-    .replace(/data-framer-appear-animation/g, 'data-geo-appear-animation')
-    .replace(/data-framer-appear-id/g, 'data-geo-appear-id')
-    .replace(/data-framer-root/g, 'data-geo-root')
-    .replace(/data-framer-breakpoint-css/g, 'data-geo-breakpoint-css')
-    .replace(/data-framer-css-ssr-minified/g, 'data-geo-css-ssr-minified')
+    .replace(/data-framer-/g, 'data-geo-')
+    .replace(/--framer-/g, '--geo-')
+    .replace(/\.framer-/g, '.geo-')
+    .replace(/framer-styles-preset-/g, 'geo-styles-preset-')
     .replace(/__framer__/g, '__geo__')
     .replace(/__framer_/g, '__geo_')
     .replace(/framerAppearId/g, 'geoAppearId')
     .replace(/type="framer\/appear"/g, 'type="geo/appear"')
     .replace(/type="framer\/handover"/g, 'type="geo/handover"')
-    .replace(/id="__geo__appearAnimationsContent"/g, 'id="__geo__appearAnimationsContent"')
+}
+
+function sanitizeClassAttr(classStr) {
+  return classStr.split(/\s+/)
+    .map(c => c.startsWith('framer-') ? 'geo-' + c.slice(7) : c)
+    .join(' ')
 }
 
 function sanitizeHtml($) {
@@ -214,6 +215,12 @@ async function scrapePage(pathname, visited, queue) {
     html = sanitizeHtmlStr(html)
     const $ = load(html)
     sanitizeHtml($)
+    // Renommer les classes framer-HASH token par token (pas dans les bundles JS)
+    $('[class]').each((_, el) => {
+      const orig = $(el).attr('class')
+      const renamed = sanitizeClassAttr(orig)
+      if (renamed !== orig) $(el).attr('class', renamed)
+    })
     const jobs = []
 
     $('script[src]').each((_, el) => {
