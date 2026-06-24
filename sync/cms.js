@@ -238,84 +238,10 @@ const ALIASES = {
   '/les-traversées-de-geospherique': '/les-travers%C3%A9es-de-geospherique',
 }
 
-// ─── Individual post page injection ────────────────────────────────────────
-
-function buildPostMeta(post) {
-  const title = escapeHtml(post.h1 || post.title || '')
-  const desc = escapeHtml(post.meta_description || '')
-  const img = post.main_image ? escapeHtml(post.main_image) : ''
-  return `
-<style>
-.geo-post{font-family:'EB Garamond',Georgia,serif;background:#000;color:#e8e8e0;padding:80px 40px;box-sizing:border-box;max-width:860px;margin:0 auto}
-.geo-post h1{font-size:clamp(2rem,4vw,3.2rem);font-weight:400;letter-spacing:.02em;margin:0 0 24px;color:#fff;line-height:1.2}
-.geo-post-meta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
-.geo-post-tag{font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border:1px solid #2e2e2e;border-radius:2px;color:#666}
-.geo-post-hero{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;margin-bottom:48px;background:#111}
-.geo-post-body{font-size:1.05rem;line-height:1.8;color:#c8c8c0}
-.geo-post-body p{margin:0 0 1.4em}
-</style>
-<section class="geo-post" id="geo-post-content">
-  ${img ? `<img class="geo-post-hero" src="${img}" alt="${title}" loading="eager">` : ''}
-  <h1>${title}</h1>
-  ${desc ? `<div class="geo-post-meta"><span class="geo-post-tag">${desc}</span></div>` : ''}
-</section>`
-}
-
-function injectPostMeta(html, post) {
-  const $ = { html }
-  // Replace <title>
-  const titleVal = escapeHtml(post.h1 || post.title || 'Géosphérique')
-  html = html.replace(/<title>[^<]*<\/title>/, `<title>${titleVal} — Géosphérique</title>`)
-  // Replace meta description
-  const desc = escapeHtml(post.meta_description || '')
-  html = html.replace(/(<meta\s+name="description"\s+content=")[^"]*(")/i, `$1${desc}$2`)
-  // Inject post section
-  const section = buildPostMeta(post)
-  return html.replace('</body>', section + '\n</body>')
-}
-
-// Route patterns for individual post pages (matches Framer CMS collection structure)
-const POST_TYPE_PATHS = {
-  'formation': '/geospherique-listes/partager-un-savoir',
-  'atelier':   '/partager-un-savoir/geospherique-partages',
-  'outil':     '/partager-un-savoir/geospherique-tools',
-  'traversée': '/les-traversées-de-geospherique',
-}
-
-export function getPostPath(post) {
-  const base = POST_TYPE_PATHS[post.post_type]
-  if (!base || !post.slug) return null
-  return `${base}/${post.slug}`
-}
-
-export async function fetchAllPublishedPosts() {
-  return query(
-    'partner_posts',
-    'id,title,h1,meta_description,main_image,thematique,slug,post_type,content',
-    'status=eq.published&order=published_at.desc'
-  )
-}
+// Individual post pages are now served by the Vercel serverless function api/post.js
+// The scraper only handles list pages (injecting Supabase data into Framer-scraped shells)
 
 export async function injectCmsSection(html, pathname) {
-  // Check individual post routes first
-  for (const [postType, basePath] of Object.entries(POST_TYPE_PATHS)) {
-    if (pathname.startsWith(basePath + '/')) {
-      const slug = pathname.slice(basePath.length + 1)
-      if (!slug) continue
-      try {
-        const rows = await query(
-          'partner_posts',
-          'id,title,h1,meta_description,main_image,thematique,slug,post_type',
-          `status=eq.published&slug=eq.${encodeURIComponent(slug)}`
-        )
-        if (rows.length > 0) return injectPostMeta(html, rows[0])
-      } catch (e) {
-        console.warn(`  ⚠ CMS post ${pathname} — ${e.message}`)
-      }
-      return html
-    }
-  }
-
   const key = ALIASES[pathname] || pathname
   const handler = PAGE_MAP[key]
   if (!handler) return html

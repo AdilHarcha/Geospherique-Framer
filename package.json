@@ -2,6 +2,7 @@
   "name": "geospherique-framer",
   "version": "1.0.0",
   "type": "module",
+  "engines": { "node": "20.x" },
   "scripts": {
     "sync": "node sync/scraper.js",
     "sync:force": "node sync/scraper.js --force"
