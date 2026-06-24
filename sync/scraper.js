@@ -3,7 +3,7 @@ import { join, extname, dirname } from 'path'
 import { createHash } from 'crypto'
 import { load } from 'cheerio'
 import { URL } from 'url'
-import { injectCmsSection } from './cms.js'
+import { injectCmsSection, fetchAllPublishedPosts, getPostPath } from './cms.js'
 
 const BASE_URL = 'https://iiadil.framer.website'
 const OUT_DIR = 'public'
@@ -263,6 +263,56 @@ async function scrapePage(pathname, visited, queue) {
   }
 }
 
+// Template pages to use as base for each post type (scraped Framer pages)
+const POST_TYPE_TEMPLATES = {
+  'formation': '/partager-un-savoir/geospherique-formations',
+  'atelier':   '/partager-un-savoir/geospherique-partages',
+  'outil':     '/geospherique-listes',
+  'traversée': '/les-traversées-de-geospherique',
+}
+
+async function generatePostPages(visited) {
+  let posts
+  try {
+    posts = await fetchAllPublishedPosts()
+  } catch (e) {
+    console.warn(`  ⚠ generatePostPages — ${e.message}`)
+    return
+  }
+
+  if (!posts.length) return
+  console.log(`\n📄  Génération de ${posts.length} pages de contenu...\n`)
+
+  for (const post of posts) {
+    const pathname = getPostPath(post)
+    if (!pathname) continue
+
+    const filePath = routeToFile(pathname)
+    const templatePath = POST_TYPE_TEMPLATES[post.post_type]
+
+    // Load template HTML from already-scraped file
+    const templateFile = routeToFile(templatePath)
+    let templateHtml = ''
+    if (existsSync(templateFile)) {
+      templateHtml = readFileSync(templateFile, 'utf8')
+    }
+
+    const withCms = await injectCmsSection(templateHtml || '<html><body></body></html>', pathname)
+    const h = md5(withCms)
+
+    if (!FORCE && state.pages[pathname] === h && existsSync(filePath)) {
+      console.log(`  = ${pathname}`)
+      continue
+    }
+
+    ensureDir(filePath)
+    writeFileSync(filePath, withCms, 'utf8')
+    state.pages[pathname] = h
+    changed = true
+    console.log(`  ✓ post: ${pathname}`)
+  }
+}
+
 async function main() {
   console.log(`\n🔄  Framer Sync — ${BASE_URL}\n`)
   const queue = ['/']
@@ -282,6 +332,9 @@ async function main() {
     visited.add(p)
     await scrapePage(p, visited, queue)
   }
+
+  // Generate individual pages for all published partner posts
+  await generatePostPages(visited)
 
   ensureDir(STATE_FILE)
   writeFileSync(STATE_FILE, JSON.stringify(state, null, 2))
