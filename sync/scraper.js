@@ -72,6 +72,23 @@ function extractJsUrls(content) {
   return urls
 }
 
+// Remplacement ciblé des identifiants Framer dans les bundles JS/MJS
+// Appliqué uniquement sur les strings littéraux, pas sur les URLs CDN ni le contenu utilisateur
+function sanitizeJs(text) {
+  return text
+    // Attributs data-framer-* en string littéral dans le JS
+    .replace(/"data-framer-/g, '"data-geo-')
+    .replace(/'data-framer-/g, "'data-geo-")
+    // Variables globales window.__framer__* et __framer_*
+    .replace(/__framer__/g, '__geo__')
+    .replace(/__framer_/g, '__geo_')
+    // Identifiant camelCase utilisé pour générer data-framer-appear-id
+    .replace(/framerAppearId/g, 'geoAppearId')
+    // Types de script custom Framer
+    .replace(/"framer\/appear"/g, '"geo/appear"')
+    .replace(/"framer\/handover"/g, '"geo/handover"')
+}
+
 async function syncAsset(rawUrl, baseUrl) {
   let absUrl
   try { absUrl = new URL(rawUrl, baseUrl).href } catch { return rawUrl }
@@ -84,21 +101,27 @@ async function syncAsset(rawUrl, baseUrl) {
   try {
     const buf = await fetchBuf(absUrl)
     const h = md5(buf)
+
+    const ext = new URL(absUrl).pathname.split('.').pop()
+    const isScript = ['js', 'mjs', 'cjs'].includes(ext)
+
     if (!FORCE && state.assets[absUrl] === h && existsSync(localPath)) return localRef(absUrl)
 
     ensureDir(localPath)
-    writeFileSync(localPath, buf)
-    state.assets[absUrl] = h
-    changed = true
-    console.log(`  ↓ ${new URL(absUrl).pathname}`)
 
-    const ext = new URL(absUrl).pathname.split('.').pop()
-    if (['js', 'mjs', 'cjs'].includes(ext)) {
-      const text = buf.toString('utf8')
+    if (isScript) {
+      const text = sanitizeJs(buf.toString('utf8'))
+      writeFileSync(localPath, text, 'utf8')
       for (const url of extractJsUrls(text)) {
         if (!assetDone.has(url)) assetQueue.add(url)
       }
+    } else {
+      writeFileSync(localPath, buf)
     }
+
+    state.assets[absUrl] = h
+    changed = true
+    console.log(`  ↓ ${new URL(absUrl).pathname}`)
   } catch (e) {
     console.warn(`  ⚠ ${absUrl} — ${e.message}`)
   }
@@ -113,11 +136,84 @@ async function drainAssetQueue() {
   }
 }
 
+const FRAMER_COMMENT_RE = /<!--\s*(?:Made in Framer[^-]*?|Published [^-]*?)-->/g
+
+// Remplacement des attributs data-framer-* et identifiants Framer dans le HTML
+// (inline scripts + attributs — les bundles JS ont leur propre sanitizeJs)
+function sanitizeHtmlStr(html) {
+  return html
+    .replace(/data-framer-hydrate-v2/g, 'data-geo-hydrate-v2')
+    .replace(/data-framer-html-style/g, 'data-geo-html-style')
+    .replace(/data-framer-appear-animation/g, 'data-geo-appear-animation')
+    .replace(/data-framer-appear-id/g, 'data-geo-appear-id')
+    .replace(/data-framer-root/g, 'data-geo-root')
+    .replace(/data-framer-breakpoint-css/g, 'data-geo-breakpoint-css')
+    .replace(/data-framer-css-ssr-minified/g, 'data-geo-css-ssr-minified')
+    .replace(/__framer__/g, '__geo__')
+    .replace(/__framer_/g, '__geo_')
+    .replace(/framerAppearId/g, 'geoAppearId')
+    .replace(/type="framer\/appear"/g, 'type="geo/appear"')
+    .replace(/type="framer\/handover"/g, 'type="geo/handover"')
+    .replace(/id="__geo__appearAnimationsContent"/g, 'id="__geo__appearAnimationsContent"')
+}
+
+function sanitizeHtml($) {
+
+  // Supprimer le script tracker events.framer.com
+  $('script[src*="events.framer.com"]').remove()
+
+  // Supprimer le script de la barre d'édition Framer (inline, contient __framer_force_showing_editorbar_since)
+  $('script:not([src])').each((_, el) => {
+    if ($(el).html().includes('__framer_force_showing_editorbar_since')) $(el).remove()
+  })
+
+  // Supprimer la meta generator Framer
+  $('meta[name="generator"]').remove()
+
+  // Supprimer le badge Framer
+  $('#__framer-badge-container').remove()
+
+  // Supprimer les attributs metadata Framer non fonctionnels sur tous les éléments
+  const FRAMER_META_ATTRS = ['data-framer-generated-page', 'data-framer-ssr-released-at', 'data-framer-page-optimized-at']
+  $('[data-framer-generated-page], [data-framer-ssr-released-at], [data-framer-page-optimized-at]').each((_, el) => {
+    FRAMER_META_ATTRS.forEach(attr => $(el).removeAttr(attr))
+  })
+
+  // Remplacer title par défaut Framer
+  const $title = $('title')
+  if ($title.text().trim() === 'My Framer Site') $title.text('Geospherique')
+
+  // Remplacer les metas description/og/twitter avec valeurs par défaut Framer
+  const defaultDesc = 'Made with Framer'
+  const defaultTitle = 'My Framer Site'
+  const brandDesc = 'Geospherique — Une vision à votre portée'
+  const brandTitle = 'Geospherique'
+
+  $('meta[name="description"]').each((_, el) => {
+    if ($(el).attr('content') === defaultDesc) $(el).attr('content', brandDesc)
+  })
+  $('meta[property="og:title"]').each((_, el) => {
+    if ($(el).attr('content') === defaultTitle) $(el).attr('content', brandTitle)
+  })
+  $('meta[property="og:description"]').each((_, el) => {
+    if ($(el).attr('content') === defaultDesc) $(el).attr('content', brandDesc)
+  })
+  $('meta[name="twitter:title"]').each((_, el) => {
+    if ($(el).attr('content') === defaultTitle) $(el).attr('content', brandTitle)
+  })
+  $('meta[name="twitter:description"]').each((_, el) => {
+    if ($(el).attr('content') === defaultDesc) $(el).attr('content', brandDesc)
+  })
+}
+
 async function scrapePage(pathname, visited, queue) {
   const pageUrl = BASE_URL + pathname
   try {
-    const html = await fetchText(pageUrl)
+    let html = await fetchText(pageUrl)
+    html = html.replace(FRAMER_COMMENT_RE, '')
+    html = sanitizeHtmlStr(html)
     const $ = load(html)
+    sanitizeHtml($)
     const jobs = []
 
     $('script[src]').each((_, el) => {
