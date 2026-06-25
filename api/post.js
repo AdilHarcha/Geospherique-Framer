@@ -147,6 +147,25 @@ function injectPost(html, post, postType) {
   // 9. Any remaining thematique anchor text not caught above
   html = html.replace(new RegExp(`>Art d'une vie</a>`, 'g'), `>${escapeAttr(thematique)}</a>`)
 
+  // 10. Replace SSR-rendered title word-spans so React hydration matches the client render.
+  //     Framer SSR wraps each word in an animated <span>. If the SSR text doesn't match
+  //     what React renders client-side (from handoverData), React throws error #419 and
+  //     falls back to the SSR content — showing the template default title instead of ours.
+  const WORD_SPAN_STYLE = 'display:inline-block;opacity:0.001;filter:blur(4px);transform:translateX(5px) translateY(0px) scale(1) rotate(0deg) skewX(0deg) skewY(0deg)'
+  function buildH1Tail(titleText) {
+    const words = titleText.split(' ')
+    const parts = words.map((w, i) => {
+      const esc = w.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      return i === 0 ? `">${esc}</span>` : ` <span style="${WORD_SPAN_STYLE}">${esc}</span>`
+    })
+    return parts.join('') + '</h1>'
+  }
+  const defaultH1Tail = buildH1Tail(defaults.title)
+  const newH1Tail      = buildH1Tail(title || defaults.title)
+  if (defaultH1Tail !== newH1Tail) {
+    html = html.split(defaultH1Tail).join(newH1Tail)
+  }
+
   return html
 }
 
