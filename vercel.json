@@ -1,21 +1,22 @@
 {
   "outputDirectory": "public",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/geospherique-listes/partager-un-savoir/:slug",
-      "destination": "/api/post?type=formation&slug=:slug"
+      "src": "/geospherique-listes/partager-un-savoir/([^/]+)$",
+      "dest": "/api/post?type=formation&slug=$1"
     },
     {
-      "source": "/partager-un-savoir/geospherique-partages/:slug",
-      "destination": "/api/post?type=atelier&slug=:slug"
+      "src": "/partager-un-savoir/geospherique-partages/([^/]+)$",
+      "dest": "/api/post?type=atelier&slug=$1"
     },
     {
-      "source": "/partager-un-savoir/geospherique-tools/:slug",
-      "destination": "/api/post?type=outil&slug=:slug"
+      "src": "/partager-un-savoir/geospherique-tools/([^/]+)$",
+      "dest": "/api/post?type=outil&slug=$1"
     },
     {
-      "source": "/les-travers%C3%A9es-de-geospherique/:slug",
-      "destination": "/api/post?type=travers%C3%A9e&slug=:slug"
-    }
+      "src": "/les-travers%C3%A9es-de-geospherique/([^/]+)$",
+      "dest": "/api/post?type=travers%C3%A9e&slug=$1"
+    },
+    { "handle": "filesystem" }
   ]
 }
