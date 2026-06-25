@@ -127,6 +127,14 @@ function injectPost(html, post, postType) {
     `\\"value\\":\\"${slug}\\"`
   )
 
+  // 5b. pathVariables in handoverData — HTML-entity-encoded inside <script> attribute.
+  //     Framer's React reads this on hydration to resolve the CMS slug; without this
+  //     replacement React ignores the URL and renders the template's demo post ("une-vie").
+  html = html.replace(
+    `pathVariables&quot;:{&quot;AcrJ3wURO&quot;:&quot;${defaults.slug}&quot;}`,
+    `pathVariables&quot;:{&quot;AcrJ3wURO&quot;:&quot;${slug}&quot;}`
+  )
+
   // 6. Thematique display name in handoverData
   html = html.replace(
     new RegExp(`"${defaults.thematique_name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"`, 'g'),
