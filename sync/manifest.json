@@ -1,0 +1,23 @@
+{
+  "_comment": "Géré par sync/add-page.js et sync/sync-pages.js. Ne pas modifier manuellement hash/lastSync.",
+  "pages": {
+    "https://iiadil.framer.website/geospherique-listes/partager-un-savoir/une-vie": {
+      "role": "template",
+      "templateName": "formation",
+      "postType": "formation",
+      "localPath": "api/templates/formation.html",
+      "hash": null,
+      "lastSync": null,
+      "addedAt": "2026-06-25T00:00:00.000Z"
+    },
+    "https://iiadil.framer.website/les-travers%C3%A9es-de-geospherique/wx3byC5qe": {
+      "role": "template",
+      "templateName": "traversee",
+      "postType": "traversée",
+      "localPath": "api/templates/traversee.html",
+      "hash": null,
+      "lastSync": null,
+      "addedAt": "2026-06-25T00:00:00.000Z"
+    }
+  }
+}
