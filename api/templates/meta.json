@@ -1,0 +1,14 @@
+{
+  "formation": {
+    "postType": "formation",
+    "defaultSlug": "une-vie",
+    "defaultTitle": "Une vie",
+    "pathVariablesKey": "AcrJ3wURO"
+  },
+  "traversee": {
+    "postType": "traversée",
+    "defaultSlug": "ba",
+    "defaultTitle": "ba",
+    "pathVariablesKey": null
+  }
+}
