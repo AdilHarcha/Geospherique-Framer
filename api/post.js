@@ -188,7 +188,7 @@ export default async function handler(req, res) {
     const html = injectPost(template, post, postType)
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=3600')
+    res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60')
     res.status(200).send(html)
   } catch (err) {
     console.error('post handler error:', err)
