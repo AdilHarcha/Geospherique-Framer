@@ -77,7 +77,7 @@ function detectSlots(html) {
 
 // ─── Picker + side panel injection ─────────────────────────────────────────
 
-function buildPickerInject(slots) {
+function buildPickerInject(slots, embedded = false) {
   const slotsJson = JSON.stringify(slots)
 
   return `
@@ -87,7 +87,7 @@ function buildPickerInject(slots) {
   ._cp_selected { outline: 3px solid #f59e0b !important; outline-offset: 2px !important; }
 
   #_cp_bar {
-    position: fixed; bottom: 0; left: 0; right: 360px; z-index: 2147483646;
+    position: fixed; bottom: 0; left: 0; right: ${embedded ? '0' : '360px'}; z-index: 2147483646;
     background: rgba(10,10,15,0.92); backdrop-filter: blur(10px);
     padding: 9px 16px; display: flex; align-items: center; gap: 12px;
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -104,6 +104,7 @@ function buildPickerInject(slots) {
   #_cp_panel {
     position: fixed; top: 0; right: 0; bottom: 0;
     width: 360px; z-index: 2147483647;
+    ${embedded ? 'display: none !important;' : ''}
     background: rgba(8,8,12,0.97); backdrop-filter: blur(12px);
     border-left: 1px solid rgba(255,255,255,0.07);
     font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -364,17 +365,44 @@ function buildPickerInject(slots) {
   }, true);
 
   window.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'cms-update-mappings') {
+    if (!e.data) return;
+    if (e.data.type === 'cms-update-mappings') {
       mappings = e.data.mappings || [];
       updateCount(); applyMapped();
+    }
+    if (e.data.type === 'cms-select-slot') {
+      var sel = e.data.selector;
+      document.querySelectorAll('._cp_selected').forEach(function(el) { el.classList.remove('_cp_selected'); });
+      try {
+        var target = document.querySelector(sel);
+        if (target) {
+          target.classList.add('_cp_selected');
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          var info = document.getElementById('_cp_bar_info');
+          if (info) {
+            var tag = '<' + target.tagName.toLowerCase() + '>';
+            var txt = (target.textContent || target.alt || '').trim().replace(/\\s+/g,' ').slice(0,60);
+            info.innerHTML = '<span id="_cp_bar_tag">' + tag + '</span>' +
+              (txt ? '<span id="_cp_bar_text">«\\u00a0' + txt + '\\u00a0»</span>' : '');
+          }
+          document.querySelectorAll('.cp-item').forEach(function(li) {
+            li.classList.remove('active');
+            if (li.dataset.sel === sel) { li.classList.add('active'); activeItem = li; li.scrollIntoView({ block: 'nearest' }); }
+          });
+        }
+      } catch(err) {}
     }
   });
 
   // ── Init ─────────────────────────────────────────────────────────────────
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', buildPanel);
-  } else {
+  function init() {
     buildPanel();
+    window.parent.postMessage({ type: 'cms-slots-ready', slots: SLOTS }, '*');
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
   }
 })();
 </script>
@@ -382,8 +410,9 @@ function buildPickerInject(slots) {
 }
 
 export default function handler(req, res) {
-  const { template = 'formation' } = req.query
+  const { template = 'formation', embedded } = req.query
   const name = (template === 'traversée' || template === 'traversee') ? 'traversee' : 'formation'
+  const isEmbedded = embedded === '1'
 
   try {
     let html = readFileSync(join(__dirname, 'templates', `${name}.html`), 'utf8')
@@ -396,7 +425,7 @@ export default function handler(req, res) {
     const slots = detectSlots(html)
 
     // Inject picker + panel before </body>
-    html = html.replace('</body>', buildPickerInject(slots) + '\n</body>')
+    html = html.replace('</body>', buildPickerInject(slots, isEmbedded) + '\n</body>')
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
