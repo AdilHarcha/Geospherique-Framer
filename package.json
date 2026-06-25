@@ -7,7 +7,11 @@
     "sync": "node sync/scraper.js",
     "sync:force": "node sync/scraper.js --force",
     "sync:templates": "node sync/scrape-templates.js",
-    "sync:templates:local": "node sync/scrape-templates.js --local"
+    "sync:templates:local": "node sync/scrape-templates.js --local",
+    "sync:pages": "node sync/sync-pages.js",
+    "sync:pages:force": "node sync/sync-pages.js --force",
+    "sync:pages:check": "node sync/sync-pages.js --check",
+    "add-page": "node sync/add-page.js"
   },
   "dependencies": {
     "cheerio": "^1.0.0"
