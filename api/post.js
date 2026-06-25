@@ -37,7 +37,7 @@ function escapeAttr(str) {
 }
 
 async function fetchPost(slug) {
-  const url = `${SUPABASE_URL}/rest/v1/partner_posts?slug=eq.${encodeURIComponent(slug)}&status=eq.published&select=id,title,h1,meta_description,main_image,thematique,post_type,slug,published_at&limit=1`
+  const url = `${SUPABASE_URL}/rest/v1/platform_posts?slug=eq.${encodeURIComponent(slug)}&select=id,title,h1,meta_description,main_image,thematique,post_type,slug,published_at&limit=1`
   const res = await fetch(url, {
     headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
   })
