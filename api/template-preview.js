@@ -461,28 +461,31 @@ function buildPickerInject(geoMappings = [], isEmbedded = false) {
 
   function buildTree() {
     var tree = document.getElementById('_cp_tree');
-    if (!tree || tree.hasChildNodes()) return;
+    if (!tree) return false;
+    // Use .children.length (elements only) — hasChildNodes() counts whitespace text nodes too
+    if (tree.children.length > 0) return true;
     var body = document.body;
-    if (!body) return;
+    if (!body || body.children.length === 0) return false;
+    var added = 0;
     for (var i = 0; i < body.children.length; i++) {
       var c = body.children[i];
       if (SKIP_TAGS[c.tagName] || (c.id && c.id.startsWith('_cp'))) continue;
       tree.appendChild(buildRow(c, 0));
+      added++;
     }
+    if (added === 0) return false;
     applyMappingBadges();
     postToParent({ type:'cms-devtools-ready' });
+    return true;
   }
 
   function init() {
-    // Try immediately, then retry after paint to handle slow static HTML parsing
-    buildTree();
-    if (!document.getElementById('_cp_tree').hasChildNodes()) {
-      requestAnimationFrame(function() {
-        buildTree();
-        // Final fallback after 300ms
-        setTimeout(buildTree, 300);
-      });
-    }
+    if (buildTree()) return;
+    var tries = 0;
+    var timer = setInterval(function() {
+      tries++;
+      if (buildTree() || tries >= 15) clearInterval(timer);
+    }, 100);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
@@ -493,19 +496,59 @@ function buildPickerInject(geoMappings = [], isEmbedded = false) {
 
 // ─── Load page data from Supabase by page_id ─────────────────────────────────
 async function fetchPageData(pageId) {
-  const url = `${SUPABASE_URL}/rest/v1/cms_pages?id=eq.${encodeURIComponent(pageId)}&select=html,geo_mappings&limit=1`
+  const url = `${SUPABASE_URL}/rest/v1/cms_pages?id=eq.${encodeURIComponent(pageId)}&select=html,geo_mappings,collection_id&limit=1`
   const res = await fetch(url, {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   })
   if (!res.ok) return null
   const rows = await res.json()
   if (!rows[0]) return null
-  return { html: rows[0].html || null, geoMappings: rows[0].geo_mappings || [] }
+  return {
+    html: rows[0].html || null,
+    geoMappings: rows[0].geo_mappings || [],
+    collectionId: rows[0].collection_id || null,
+  }
+}
+
+// ─── Load CMS collection by id ────────────────────────────────────────────────
+async function fetchCollection(collectionId) {
+  const url = `${SUPABASE_URL}/rest/v1/cms_collections?id=eq.${encodeURIComponent(collectionId)}&select=table_name,post_type&limit=1`
+  const res = await fetch(url, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
+  if (!res.ok) return null
+  const rows = await res.json()
+  return rows[0] || null
+}
+
+// ─── Load a single CMS record by id ──────────────────────────────────────────
+async function fetchRecord(tableName, recordId) {
+  const url = `${SUPABASE_URL}/rest/v1/${encodeURIComponent(tableName)}?id=eq.${encodeURIComponent(recordId)}&limit=1`
+  const res = await fetch(url, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } })
+  if (!res.ok) return null
+  const rows = await res.json()
+  return rows[0] || null
+}
+
+// ─── Apply geo_mappings to HTML using record data ─────────────────────────────
+function applyRecordToHtml($, geoMappings, record) {
+  geoMappings.forEach(m => {
+    if (!m.sel || !m.db_field) return
+    const value = record[m.db_field]
+    if (value == null) return
+    const el = $(m.sel).first()
+    if (!el.length) return
+    // Replace text content — preserve the element itself, just swap its inner text
+    const tag = el.prop('tagName')?.toLowerCase()
+    if (tag === 'img') {
+      el.attr('src', value).attr('alt', value)
+    } else {
+      el.text(String(value))
+    }
+  })
 }
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
-  const { template, page_id, embedded } = req.query
+  const { template, page_id, embedded, record_id } = req.query
   const isEmbedded = embedded === '1'
 
   let html
@@ -519,6 +562,19 @@ export default async function handler(req, res) {
     }
     html = data.html
     geoMappings = data.geoMappings
+
+    // If a record_id is provided, fetch and inject the CMS data
+    if (record_id && data.collectionId && geoMappings.length > 0) {
+      const col = await fetchCollection(data.collectionId)
+      if (col?.table_name) {
+        const record = await fetchRecord(col.table_name, record_id)
+        if (record) {
+          const $tmp = load(html)
+          applyRecordToHtml($tmp, geoMappings, record)
+          html = $tmp.html()
+        }
+      }
+    }
   } else {
     // Legacy: load from local file (formation / traversee templates)
     const name = (template === 'traversée' || template === 'traversee') ? 'traversee' : 'formation'
