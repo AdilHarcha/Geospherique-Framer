@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { load } from 'cheerio'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -185,27 +186,88 @@ function injectPost(html, post, postType) {
   return html
 }
 
+// ─── Fetch CMS template + mappings from cms_pages ────────────────────────────
+async function fetchCmsTemplate(postType) {
+  // 1. Find collection by post_type
+  const colRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/cms_collections?post_type=eq.${encodeURIComponent(postType)}&select=id&limit=1`,
+    { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+  )
+  if (!colRes.ok) return null
+  const cols = await colRes.json()
+  if (!cols[0]?.id) return null
+
+  // 2. Find cms-template page for this collection
+  const pageRes = await fetch(
+    `${SUPABASE_URL}/rest/v1/cms_pages?collection_id=eq.${cols[0].id}&role=eq.cms-template&select=html,geo_mappings&limit=1`,
+    { headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` } }
+  )
+  if (!pageRes.ok) return null
+  const pages = await pageRes.json()
+  const page = pages[0]
+  if (!page?.html || !page?.geo_mappings?.length) return null
+  return page
+}
+
+// ─── Apply geo_mappings to HTML with real record data ─────────────────────────
+function applyMappings($, geoMappings, record) {
+  geoMappings.forEach(m => {
+    if (!m.sel || !m.db_field) return
+    const value = record[m.db_field]
+    if (value == null || value === '') return
+    const el = $(m.sel).first()
+    if (!el.length) return
+    const tag = el.prop('tagName')?.toLowerCase()
+    if (tag === 'img') {
+      el.attr('src', String(value)).attr('alt', String(value))
+    } else {
+      el.text(String(value))
+    }
+  })
+}
+
 export default async function handler(req, res) {
   const { type, slug } = req.query
-  if (!slug) {
-    res.redirect(307, '/404')
-    return
-  }
+  if (!slug) { res.redirect(307, '/404'); return }
 
   try {
     const post = await fetchPost(slug)
-    if (!post) {
-      res.redirect(307, '/404')
-      return
-    }
+    if (!post) { res.redirect(307, '/404'); return }
 
     const postType = post.post_type || type || 'formation'
+
+    // ── Try new CMS template (cms_pages + geo_mappings) first ─────────────────
+    const cmsTemplate = await fetchCmsTemplate(postType)
+    if (cmsTemplate) {
+      const $ = load(cmsTemplate.html)
+      $('script').remove()
+      $('meta[http-equiv]').filter((_, el) => {
+        const v = ($(el).attr('http-equiv') || '').toLowerCase()
+        return v === 'x-frame-options' || v === 'content-security-policy'
+      }).remove()
+
+      applyMappings($, cmsTemplate.geo_mappings, post)
+
+      // Always update meta tags regardless of mappings
+      const title = post.h1 || post.title || ''
+      const desc = post.meta_description || ''
+      $('title').text(`${title} — Géosphérique`)
+      $('meta[name="description"]').attr('content', desc)
+      $('meta[property="og:title"]').attr('content', title)
+      $('meta[property="og:description"]').attr('content', desc)
+
+      res.setHeader('Content-Type', 'text/html; charset=utf-8')
+      res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120')
+      return res.status(200).send($.html())
+    }
+
+    // ── Fallback: old static file + string injection ───────────────────────────
     const template = loadTemplate(postType)
     const html = injectPost(template, post, postType)
-
     res.setHeader('Content-Type', 'text/html; charset=utf-8')
     res.setHeader('Cache-Control', 's-maxage=30, stale-while-revalidate=60')
     res.status(200).send(html)
+
   } catch (err) {
     console.error('post handler error:', err)
     res.redirect(307, '/404')
