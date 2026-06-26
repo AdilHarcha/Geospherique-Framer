@@ -456,20 +456,19 @@ export default async function handler(req, res) {
     }
   }
 
-  // Use cheerio to reliably strip all scripts + CSP/X-Frame headers
-  {
-    const $ = load(html)
-    $('script').remove()
-    $('meta[http-equiv="X-Frame-Options"]').remove()
-    $('meta[http-equiv="x-frame-options"]').remove()
-    $('meta[http-equiv="Content-Security-Policy"]').remove()
-    $('meta[http-equiv="content-security-policy"]').remove()
-    html = $.html()
-  }
+  // Parse with cheerio — strip scripts, meta restrictions, inject DevTools if embedded
+  const $ = load(html)
+  $('script').remove()
+  $('meta[http-equiv]').filter((_, el) => {
+    const v = ($(el).attr('http-equiv') || '').toLowerCase()
+    return v === 'x-frame-options' || v === 'content-security-policy'
+  }).remove()
 
   if (isEmbedded) {
-    html = html.replace('</body>', buildPickerInject() + '\n</body>')
+    $('body').append(buildPickerInject())
   }
+
+  html = $.html()
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
