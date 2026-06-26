@@ -10,58 +10,102 @@ const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJvc3pqdW9yaG1wZ3p1bHRzYW51Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1ODczODQsImV4cCI6MjA4NDE2MzM4NH0.D3gP76reh7U_g0RqJm_RV3u0232HDv9HikqnYAeBJhc'
 
 const MOBILE_CLASS = 'hidden-1ikagkv'
-const GEO_RE = /^geo(text|image|link|collection)\d*/i
 
-// ─── Detect geo* slots only ──────────────────────────────────────────────────
+// Generic Framer layer names to skip (auto-generated, not meaningful)
+const GENERIC_RE = /^(frame|stack|container|group|section|rectangle|ellipse|polygon|vector|image|text|div|row|column|grid|flex|layout|component|variant|layer|page|slide|card|item|cell|icon|button|link|nav|header|footer|hero|banner|wrapper|inner|outer|content|background|overlay|spacer|separator|divider)\s*\d*$/i
+
+function isMobileEl($, el) {
+  let node = el
+  while (node && node.tagName) {
+    if (($(node).attr('class') || '').split(/\s+/).includes(MOBILE_CLASS)) return true
+    node = node.parent
+  }
+  return false
+}
+
+function elType($, el) {
+  const $el = $(el)
+  if (el.tagName === 'a' || el.tagName === 'A') return 'link'
+  if (el.tagName === 'img' || el.tagName === 'IMG') return 'image'
+  if ($el.find('img').length && !$el.text().trim()) return 'image'
+  if ($el.find('a').length === $el.children().length) return 'link'
+  return 'text'
+}
+
+function elPreview($, el, type) {
+  const $el = $(el)
+  if (type === 'image') {
+    const img = $el.is('img') ? $el : $el.find('img').first()
+    return img.attr('alt') || img.attr('src')?.split('/').pop()?.split('?')[0] || ''
+  }
+  if (type === 'link') {
+    return $el.text().trim().replace(/\s+/g, ' ').slice(0, 50) || $el.attr('href') || ''
+  }
+  return $el.text().trim().replace(/\s+/g, ' ').slice(0, 60)
+}
+
+// ─── Auto-detect elements from Framer HTML ───────────────────────────────────
 function detectGeoSlots(html) {
   const $ = load(html)
   const slots = []
-  const seen = new Set()
+  const seenSel = new Set()
 
-  $('[data-geo-name]').each((_, el) => {
-    const geoName = $(el).attr('data-geo-name') || ''
-    if (!GEO_RE.test(geoName)) return
-    if (seen.has(geoName)) return // deduplicate: first occurrence wins
+  function addSlot(name, sel, type, preview) {
+    if (seenSel.has(sel)) return
+    seenSel.add(sel)
+    slots.push({ name, type, sel, preview })
+  }
 
-    // Skip mobile-only variants
-    let node = el
-    let isMobile = false
-    while (node && node.tagName) {
-      const cls = ($(node).attr('class') || '').split(/\s+/)
-      if (cls.includes(MOBILE_CLASS)) { isMobile = true; break }
-      node = node.parent
-    }
-    if (isMobile) return
-
-    seen.add(geoName)
-
-    const typeMatch = geoName.match(/^geo(text|image|link|collection)/i)
-    const type = typeMatch ? typeMatch[1].toLowerCase() : 'text'
-
-    const $el = $(el)
-    let preview = ''
-    if (type === 'image') {
-      const img = $el.find('img').first()
-      preview = img.attr('alt') || img.attr('src')?.split('/').pop()?.split('?')[0] || ''
-      if (!preview) {
-        const m = ($el.attr('style') || '').match(/url\(['"]?([^'")\s]+)/)
-        if (m) preview = m[1].split('/').pop().split('?')[0]
-      }
-    } else if (type === 'link') {
-      preview = $el.text().trim().replace(/\s+/g, ' ').slice(0, 50) || $el.attr('href') || ''
-    } else {
-      preview = $el.text().trim().replace(/\s+/g, ' ').slice(0, 60)
-    }
-
-    slots.push({ name: geoName, type, sel: `[data-geo-name="${geoName}"]`, preview })
+  // 1. Named Framer layers (data-framer-name) — user-defined names in layers panel
+  $('[data-framer-name]').each((_, el) => {
+    if (isMobileEl($, el)) return
+    const name = $(el).attr('data-framer-name') || ''
+    if (!name || GENERIC_RE.test(name.trim())) return
+    const sel = `[data-framer-name="${name}"]`
+    const type = elType($, el)
+    const preview = elPreview($, el, type)
+    addSlot(name, sel, type, preview)
   })
 
-  const texts = slots.filter(s => s.type === 'text')
-  const images = slots.filter(s => s.type === 'image')
-  const links = slots.filter(s => s.type === 'link')
-  const collections = slots.filter(s => s.type === 'collection')
+  // 2. Headings with id (h1–h3)
+  $('h1,h2,h3').each((_, el) => {
+    if (isMobileEl($, el)) return
+    const id = $(el).attr('id')
+    const text = $(el).text().trim().replace(/\s+/g, ' ')
+    if (!text) return
+    const sel = id ? `#${id}` : null
+    if (!sel) return
+    addSlot(`<${el.tagName.toLowerCase()}>`, sel, 'text', text.slice(0, 60))
+  })
 
-  return { texts, images, links, collections }
+  // 3. Top-level <a> with href
+  $('a[href]').each((_, el) => {
+    if (isMobileEl($, el)) return
+    const href = $(el).attr('href') || ''
+    if (!href || href === '#') return
+    const text = $(el).text().trim().replace(/\s+/g, ' ').slice(0, 40) || href
+    const id = $(el).attr('id')
+    const sel = id ? `#${id}` : `a[href="${href}"]`
+    addSlot(text || href, sel, 'link', text || href)
+  })
+
+  // 4. <img> with meaningful src
+  $('img').each((_, el) => {
+    if (isMobileEl($, el)) return
+    const src = $(el).attr('src') || ''
+    if (!src || src.startsWith('data:')) return
+    const id = $(el).attr('id')
+    const alt = $(el).attr('alt') || src.split('/').pop()?.split('?')[0] || 'image'
+    const sel = id ? `#${id}` : `img[src="${src.split('?')[0]}"]`
+    addSlot(alt, sel, 'image', alt)
+  })
+
+  return {
+    texts: slots.filter(s => s.type === 'text'),
+    images: slots.filter(s => s.type === 'image'),
+    links: slots.filter(s => s.type === 'link'),
+    collections: slots.filter(s => s.type === 'collection'),
+  }
 }
 
 // ─── Picker injection ────────────────────────────────────────────────────────
@@ -138,12 +182,12 @@ function buildPickerInject(slots, embedded = false) {
 
 <div id="_cp_panel">
   <div id="_cp_panel_header">
-    <h2>Emplacements geo*</h2>
+    <h2>Éléments détectés</h2>
     <span id="_cp_total" style="font-size:11px;color:#4b5563;">${totalSlots} détectés</span>
   </div>
   <div id="_cp_panel_body">
     ${totalSlots === 0
-      ? '<div id="_cp_empty">Aucun élément <code style="color:#818cf8">geo*</code> détecté.<br>Nommez vos éléments Framer<br><code style="color:#818cf8">geotext1</code>, <code style="color:#f59e0b">geoimage1</code>, <code style="color:#10b981">geolink1</code>…</div>'
+      ? '<div id="_cp_empty">Aucun élément détecté.<br>Nommez vos calques dans Framer<br>pour qu\'ils apparaissent ici.</div>'
       : '<div id="_cp_empty_notice">Chargement…</div>'
     }
   </div>
