@@ -395,26 +395,41 @@ function buildPickerInject() {
     selectPageEl(el);
   }, true);
 
+  // ── Apply action to el + its mobile twin (same data-framer-name) ─────────
+  function applyAction(action, el) {
+    var targets = [el];
+    var fname = el && el.getAttribute && el.getAttribute('data-framer-name');
+    if (fname) {
+      document.querySelectorAll('[data-framer-name="' + fname.replace(/"/g, '\\"') + '"]').forEach(function(other) {
+        if (other !== el) targets.push(other);
+      });
+    }
+    targets.forEach(function(t) {
+      if (action === 'hide') {
+        t.style.display = t.style.display === 'none' ? '' : 'none';
+      } else if (action === 'delete') {
+        t.remove();
+      }
+    });
+  }
+
   // ── Messages from parent ──────────────────────────────────────────────────
   window.addEventListener('message', function(e) {
     if (!e.data || !e.data.type) return;
     if (e.data.type === 'cms-action') {
       if (!selectedEl) return;
-      if (e.data.action === 'hide') {
-        selectedEl.style.display = selectedEl.style.display === 'none' ? '' : 'none';
-      } else if (e.data.action === 'delete') {
-        selectedEl.remove();
-        selectedEl = null;
-      }
+      applyAction(e.data.action, selectedEl);
+      if (e.data.action === 'delete') selectedEl = null;
       window.parent.postMessage({ type:'cms-html-updated', html:'<!DOCTYPE html>' + document.documentElement.outerHTML }, '*');
     }
   });
 
   // ── Init ──────────────────────────────────────────────────────────────────
-  function init() {
+  function buildTree() {
     var tree = document.getElementById('_cp_tree');
-    if (!tree) return;
+    if (!tree || tree.hasChildNodes()) return;
     var body = document.body;
+    if (!body) return;
     for (var i = 0; i < body.children.length; i++) {
       var c = body.children[i];
       if (SKIP_TAGS[c.tagName] || (c.id && c.id.startsWith('_cp'))) continue;
@@ -422,6 +437,19 @@ function buildPickerInject() {
     }
     window.parent.postMessage({ type:'cms-devtools-ready' }, '*');
   }
+
+  function init() {
+    // Try immediately, then retry after paint to handle slow static HTML parsing
+    buildTree();
+    if (!document.getElementById('_cp_tree').hasChildNodes()) {
+      requestAnimationFrame(function() {
+        buildTree();
+        // Final fallback after 300ms
+        setTimeout(buildTree, 300);
+      });
+    }
+  }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
