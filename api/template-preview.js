@@ -108,12 +108,22 @@ function detectGeoSlots(html) {
   }
 }
 
-// ─── DevTools injection (embedded=1 only) ────────────────────────────────────
-function buildPickerInject() {
+// ─── DevTools injection ───────────────────────────────────────────────────────
+function buildPickerInject(geoMappings = [], isEmbedded = false) {
+  const mappingsJson = JSON.stringify(geoMappings)
   return `
+<script>window._CMS_MAPPINGS = ${mappingsJson}; window._CMS_EMBEDDED = ${isEmbedded};</script>
+` + `
 <style id="_cp_style">
   ._cp_hover { outline: 2px solid #6366f1 !important; outline-offset: 1px !important; cursor: crosshair !important; }
   ._cp_selected { outline: 2px solid #f59e0b !important; outline-offset: 2px !important; }
+  ._cp_mapped { outline: 2px solid #7c3aed !important; outline-offset: 2px !important; }
+  ._cp_mapped_badge {
+    position: absolute; z-index: 2147483640;
+    background: #7c3aed; color: #fff; font-size: 9px; font-family: -apple-system,sans-serif;
+    font-weight: 600; padding: 2px 6px; border-radius: 4px; pointer-events: none;
+    white-space: nowrap; transform: translateY(-100%); margin-top: -2px;
+  }
   @keyframes _cp_flash { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} 35%{box-shadow:0 0 0 14px rgba(245,158,11,0.4)} 65%{box-shadow:0 0 0 6px rgba(245,158,11,0.12)} }
   ._cp_flash { animation: _cp_flash 1s ease-out !important; }
 
@@ -193,6 +203,12 @@ function buildPickerInject() {
   var selectedEl = null;
   var hoveredEl = null;
   var elToRow = new WeakMap();
+  var MAPPINGS = window._CMS_MAPPINGS || [];
+  var IS_EMBEDDED = window._CMS_EMBEDDED || false;
+
+  function postToParent(msg) {
+    if (IS_EMBEDDED) window.parent.postMessage(msg, '*');
+  }
 
   // ── Build stable CSS selector ─────────────────────────────────────────────
   function buildSel(el) {
@@ -235,7 +251,7 @@ function buildPickerInject() {
     document.querySelectorAll('.dn-row.dn-active').forEach(function(r) { r.classList.remove('dn-active'); });
     if (row) { row.classList.add('dn-active'); row.scrollIntoView({ block:'nearest', behavior:'smooth' }); }
     // Notify parent
-    window.parent.postMessage({
+    postToParent({
       type: 'cms-element-selected',
       selector: buildSel(el),
       tagName: el.tagName.toLowerCase(),
@@ -420,11 +436,29 @@ function buildPickerInject() {
       if (!selectedEl) return;
       applyAction(e.data.action, selectedEl);
       if (e.data.action === 'delete') selectedEl = null;
-      window.parent.postMessage({ type:'cms-html-updated', html:'<!DOCTYPE html>' + document.documentElement.outerHTML }, '*');
+      postToParent({ type:'cms-html-updated', html:'<!DOCTYPE html>' + document.documentElement.outerHTML });
     }
   });
 
   // ── Init ──────────────────────────────────────────────────────────────────
+  // ── Apply CMS mapping badges on page ─────────────────────────────────────
+  function applyMappingBadges() {
+    MAPPINGS.forEach(function(m) {
+      var el = document.querySelector(m.sel);
+      if (!el || isCpEl(el)) return;
+      el.classList.add('_cp_mapped');
+      // Position a badge above the element
+      var badge = document.createElement('div');
+      badge.className = '_cp_mapped_badge';
+      badge.textContent = '⬡ ' + (m.db_field || m.geo_name);
+      badge.style.position = 'absolute';
+      var rect = el.getBoundingClientRect();
+      badge.style.top = (rect.top + window.scrollY - 22) + 'px';
+      badge.style.left = rect.left + 'px';
+      document.body.appendChild(badge);
+    });
+  }
+
   function buildTree() {
     var tree = document.getElementById('_cp_tree');
     if (!tree || tree.hasChildNodes()) return;
@@ -435,7 +469,8 @@ function buildPickerInject() {
       if (SKIP_TAGS[c.tagName] || (c.id && c.id.startsWith('_cp'))) continue;
       tree.appendChild(buildRow(c, 0));
     }
-    window.parent.postMessage({ type:'cms-devtools-ready' }, '*');
+    applyMappingBadges();
+    postToParent({ type:'cms-devtools-ready' });
   }
 
   function init() {
@@ -456,15 +491,16 @@ function buildPickerInject() {
 </script>`
 }
 
-// ─── Load HTML from Supabase by page_id ──────────────────────────────────────
-async function fetchPageHtml(pageId) {
-  const url = `${SUPABASE_URL}/rest/v1/cms_pages?id=eq.${encodeURIComponent(pageId)}&select=html&limit=1`
+// ─── Load page data from Supabase by page_id ─────────────────────────────────
+async function fetchPageData(pageId) {
+  const url = `${SUPABASE_URL}/rest/v1/cms_pages?id=eq.${encodeURIComponent(pageId)}&select=html,geo_mappings&limit=1`
   const res = await fetch(url, {
     headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
   })
   if (!res.ok) return null
   const rows = await res.json()
-  return rows[0]?.html || null
+  if (!rows[0]) return null
+  return { html: rows[0].html || null, geoMappings: rows[0].geo_mappings || [] }
 }
 
 // ─── Handler ─────────────────────────────────────────────────────────────────
@@ -473,13 +509,16 @@ export default async function handler(req, res) {
   const isEmbedded = embedded === '1'
 
   let html
+  let geoMappings = []
 
   if (page_id) {
-    html = await fetchPageHtml(page_id)
-    if (!html) {
+    const data = await fetchPageData(page_id)
+    if (!data || !data.html) {
       return res.status(404).send(`<html><body style="font-family:sans-serif;padding:2rem;color:#6b7280">
         <p>Page introuvable : <code>${page_id}</code></p></body></html>`)
     }
+    html = data.html
+    geoMappings = data.geoMappings
   } else {
     // Legacy: load from local file (formation / traversee templates)
     const name = (template === 'traversée' || template === 'traversee') ? 'traversee' : 'formation'
@@ -491,7 +530,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Parse with cheerio — strip scripts, meta restrictions, inject DevTools if embedded
+  // Parse with cheerio — strip scripts + meta restrictions
   const $ = load(html)
   $('script').remove()
   $('meta[http-equiv]').filter((_, el) => {
@@ -499,8 +538,9 @@ export default async function handler(req, res) {
     return v === 'x-frame-options' || v === 'content-security-policy'
   }).remove()
 
-  if (isEmbedded) {
-    $('body').append(buildPickerInject())
+  // Inject DevTools for any page_id page (embedded or standalone)
+  if (page_id) {
+    $('body').append(buildPickerInject(geoMappings, isEmbedded))
   }
 
   html = $.html()
