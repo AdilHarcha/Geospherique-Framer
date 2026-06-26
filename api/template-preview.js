@@ -7,11 +7,25 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 
 // ─── Auto-detect connection points from template HTML ───────────────────────
 
+// Section names to skip when reading data-geo-name (too generic)
+const SKIP_SECTION_NAMES = new Set(['desktop','phone','tablet','mobile','variant','container','frame','group'])
+const SKIP_SECTION_RE = /^(variant|desktop|phone|tablet|mobile)\s/i
+
+// Mobile-only variant class (hidden on desktop)
+const MOBILE_CLASS = 'hidden-1ikagkv'
+
+function isInsideMobile($, el) {
+  let node = el
+  while (node) {
+    const cls = $(node).attr('class') || ''
+    if (cls.split(/\s+/).includes(MOBILE_CLASS)) return true
+    node = node.parent && node.parent.tagName ? node.parent : null
+  }
+  return false
+}
+
 function detectSlots(html) {
   const $ = load(html)
-  const texts = []
-  const images = []
-  const links = []
 
   const SKIP_TAGS = new Set(['html','head','body','script','style','meta','link','noscript','svg','path','circle','rect','line','polygon'])
   const SKIP_ID_RE = /^_cp|__geo|__framer/
@@ -24,55 +38,115 @@ function detectSlots(html) {
     return tag + cls
   }
 
-  // Text slots — leaf nodes with visible text content
-  $('*').each((_, el) => {
-    const tag = el.tagName ? el.tagName.toLowerCase() : ''
-    if (SKIP_TAGS.has(tag)) return
-    const $el = $(el)
-    if ($el.children().length > 0) return // not a leaf
-    const text = $el.text().trim().replace(/\s+/g, ' ')
-    if (!text || text.length < 2) return
-    // skip if inside badge or picker UI
-    if ($el.closest('[id*="geo-badge"],[id*="framer-badge"],[id^="_cp"]').length) return
-    texts.push({ sel: getSelector(el), tag, preview: text.slice(0, 60) })
-  })
+  function getSectionName($el, idx) {
+    // Walk descendants for meaningful data-geo-name
+    let name = null
+    $el.find('[data-geo-name]').each((_, el) => {
+      const n = $(el).attr('data-geo-name') || ''
+      if (!n || /^\d+$/.test(n)) return
+      const lower = n.toLowerCase()
+      if (SKIP_SECTION_NAMES.has(lower) || SKIP_SECTION_RE.test(n)) return
+      name = n; return false // break
+    })
+    if (name) return name
+    // Fallback to first h-tag text
+    const hTag = $el.find('h1,h2,h3').first().text().trim().replace(/\s+/g,' ').slice(0, 40)
+    if (hTag) return hTag
+    return `Section ${idx + 1}`
+  }
 
-  // Image slots
-  $('img').each((_, el) => {
-    const $el = $(el)
-    const src = $el.attr('src') || ''
-    const alt = $el.attr('alt') || ''
-    if (!src) return
-    const preview = alt || src.split('/').pop().split('?')[0].slice(0, 40)
-    images.push({ sel: getSelector(el), tag: 'img', preview })
-  })
-
-  // Background-image elements
-  $('[style]').each((_, el) => {
-    const style = $(el).attr('style') || ''
-    if (!style.includes('background-image') || !style.includes('url(')) return
-    const m = style.match(/url\(['"]?([^'")\s]+)/)
-    if (!m) return
-    const preview = m[1].split('/').pop().split('?')[0].slice(0, 40)
-    images.push({ sel: getSelector(el), tag: 'bg-img', preview })
-  })
-
-  // Link slots
-  $('a[href]').each((_, el) => {
-    const $el = $(el)
-    const href = $el.attr('href') || ''
-    if (!href || href.startsWith('#') || href.startsWith('javascript')) return
-    const text = $el.text().trim().replace(/\s+/g, ' ').slice(0, 40) || href.slice(0, 40)
-    links.push({ sel: getSelector(el), tag: 'a', preview: text, href })
-  })
-
-  // Deduplicate by selector
   function dedup(arr) {
     const seen = new Set()
     return arr.filter(x => { if (seen.has(x.sel)) return false; seen.add(x.sel); return true })
   }
 
-  return { texts: dedup(texts), images: dedup(images), links: dedup(links) }
+  function collectInSection($container) {
+    const texts = [], images = [], links = []
+
+    // Text — leaf nodes
+    $container.find('*').each((_, el) => {
+      const tag = el.tagName ? el.tagName.toLowerCase() : ''
+      if (SKIP_TAGS.has(tag)) return
+      const $el = $(el)
+      if ($el.children().length > 0) return
+      const cls = $el.attr('class') || ''
+      if (cls.split(/\s+/).includes(MOBILE_CLASS)) return
+      if (isInsideMobile($, el)) return
+      const text = $el.text().trim().replace(/\s+/g, ' ')
+      if (!text || text.length < 2) return
+      if ($el.closest('[id*="geo-badge"],[id*="framer-badge"],[id^="_cp"]').length) return
+      texts.push({ sel: getSelector(el), tag, preview: text.slice(0, 60) })
+    })
+
+    // Images
+    $container.find('img').each((_, el) => {
+      if (isInsideMobile($, el)) return
+      const $el = $(el)
+      const src = $el.attr('src') || ''
+      if (!src) return
+      const alt = $el.attr('alt') || ''
+      const preview = alt || src.split('/').pop().split('?')[0].slice(0, 40)
+      images.push({ sel: getSelector(el), tag: 'img', preview })
+    })
+
+    // Background images
+    $container.find('[style]').each((_, el) => {
+      if (isInsideMobile($, el)) return
+      const style = $(el).attr('style') || ''
+      if (!style.includes('background-image') || !style.includes('url(')) return
+      const m = style.match(/url\(['"]?([^'")\s]+)/)
+      if (!m) return
+      const preview = m[1].split('/').pop().split('?')[0].slice(0, 40)
+      images.push({ sel: getSelector(el), tag: 'bg-img', preview })
+    })
+
+    // Links
+    $container.find('a[href]').each((_, el) => {
+      if (isInsideMobile($, el)) return
+      const $el = $(el)
+      const href = $el.attr('href') || ''
+      if (!href || href.startsWith('#') || href.startsWith('javascript')) return
+      const text = $el.text().trim().replace(/\s+/g, ' ').slice(0, 40) || href.slice(0, 40)
+      links.push({ sel: getSelector(el), tag: 'a', preview: text, href })
+    })
+
+    return {
+      texts: dedup(texts),
+      images: dedup(images),
+      links: dedup(links),
+    }
+  }
+
+  // Find main container
+  const $main = $('.geo-NVaL2')
+  if (!$main.length) {
+    // Fallback: single section with everything
+    const all = collectInSection($('body'))
+    return { sections: [{ id: 'sec_0', name: 'Contenu', ...all }] }
+  }
+
+  const sections = []
+  $main.children().each((idx, el) => {
+    const $el = $(el)
+    const cls = $el.attr('class') || ''
+    // Skip mobile-only sections at top level
+    if (cls.split(/\s+/).includes(MOBILE_CLASS)) return
+
+    const slots = collectInSection($el)
+    const total = slots.texts.length + slots.images.length + slots.links.length
+    if (total === 0) return
+
+    const name = getSectionName($el, idx)
+    sections.push({ id: `sec_${idx}`, name, ...slots })
+  })
+
+  // If no sections found, fallback
+  if (sections.length === 0) {
+    const all = collectInSection($('body'))
+    return { sections: [{ id: 'sec_0', name: 'Contenu', ...all }] }
+  }
+
+  return { sections }
 }
 
 // ─── Picker + side panel injection ─────────────────────────────────────────
@@ -123,26 +197,43 @@ function buildPickerInject(slots, embedded = false) {
   #_cp_panel_body::-webkit-scrollbar-track { background: transparent; }
   #_cp_panel_body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
-  .cp-section { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  /* Page sections (grouped like Framer layers) */
+  .cp-page-section { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .cp-page-section-header {
+    padding: 8px 16px 6px; display: flex; align-items: center; gap: 6px;
+    cursor: pointer; user-select: none;
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid #6366f1;
+  }
+  .cp-page-section-header:hover { background: rgba(255,255,255,0.05); }
+  .cp-page-section-name { flex: 1; font-size: 11px; font-weight: 600; color: #c4b5fd; letter-spacing: .03em; }
+  .cp-page-section-badge { font-size: 10px; color: #4b5563; }
+  .cp-page-section-arrow { color: #4b5563; font-size: 9px; transition: transform .2s; }
+  .cp-page-section.open .cp-page-section-arrow { transform: rotate(90deg); }
+  .cp-page-section-items { display: none; }
+  .cp-page-section.open .cp-page-section-items { display: block; }
+
+  /* Type sub-sections inside page sections */
+  .cp-section { }
   .cp-section-header {
-    padding: 10px 16px; display: flex; align-items: center; gap: 8px;
-    cursor: pointer; user-select: none; transition: background .15s;
+    padding: 6px 16px 5px 28px; display: flex; align-items: center; gap: 8px;
+    cursor: pointer; user-select: none;
   }
-  .cp-section-header:hover { background: rgba(255,255,255,0.03); }
-  .cp-section-icon { font-size: 14px; width: 20px; text-align: center; flex-shrink: 0; }
-  .cp-section-title { flex: 1; font-size: 12px; font-weight: 600; color: #d1d5db; }
+  .cp-section-header:hover { background: rgba(255,255,255,0.02); }
+  .cp-section-icon { font-size: 11px; width: 16px; text-align: center; flex-shrink: 0; color: #6b7280; }
+  .cp-section-title { flex: 1; font-size: 10px; font-weight: 500; color: #6b7280; text-transform: uppercase; letter-spacing: .06em; }
   .cp-section-badge {
-    font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 999px;
-    background: rgba(99,102,241,0.2); color: #818cf8;
+    font-size: 9px; font-weight: 600; padding: 1px 5px; border-radius: 999px;
+    background: rgba(99,102,241,0.15); color: #818cf8;
   }
-  .cp-section-arrow { color: #4b5563; font-size: 10px; transition: transform .2s; }
+  .cp-section-arrow { color: #374151; font-size: 9px; transition: transform .2s; }
   .cp-section.open .cp-section-arrow { transform: rotate(90deg); }
   .cp-section-items { display: none; }
   .cp-section.open .cp-section-items { display: block; }
 
   .cp-item {
-    padding: 7px 16px 7px 44px; display: flex; align-items: center; gap: 8px;
-    cursor: pointer; transition: background .12s; border-radius: 0;
+    padding: 6px 16px 6px 44px; display: flex; align-items: center; gap: 8px;
+    cursor: pointer; transition: background .12s;
   }
   .cp-item:hover { background: rgba(255,255,255,0.04); }
   .cp-item.active { background: rgba(245,158,11,0.1); }
@@ -187,9 +278,17 @@ function buildPickerInject(slots, embedded = false) {
   var activeItem = null;
 
   // ── Utilities ────────────────────────────────────────────────────────────
+  function allItems() {
+    var items = [];
+    (SLOTS.sections || []).forEach(function(sec) {
+      items = items.concat(sec.texts || [], sec.images || [], sec.links || []);
+    });
+    return items;
+  }
+
   function updateCount() {
     var n = mappings.length;
-    var total = SLOTS.texts.length + SLOTS.images.length + SLOTS.links.length;
+    var total = allItems().length;
     var el = document.getElementById('_cp_count');
     if (el) el.textContent = n + (n > 1 ? ' mappés' : ' mappé');
     var tot = document.getElementById('_cp_mapped_total');
@@ -271,48 +370,72 @@ function buildPickerInject(slots, embedded = false) {
     if (!body) return;
     body.innerHTML = '';
 
-    var sections = [
-      { key: 'texts',  icon: '✦', label: 'Textes',  tagClass: '',          items: SLOTS.texts  },
-      { key: 'images', icon: '◻', label: 'Images',  tagClass: 'img-tag',   items: SLOTS.images },
-      { key: 'links',  icon: '⤷', label: 'Liens',   tagClass: 'link-tag',  items: SLOTS.links  },
+    var TYPE_DEFS = [
+      { key: 'texts',  icon: '✦', label: 'Textes',  tagClass: ''         },
+      { key: 'images', icon: '◻', label: 'Images',  tagClass: 'img-tag'  },
+      { key: 'links',  icon: '⤷', label: 'Liens',   tagClass: 'link-tag' },
     ];
 
-    sections.forEach(function(sec) {
-      if (!sec.items.length) return;
-      var div = document.createElement('div');
-      div.className = 'cp-section open';
-      var header = document.createElement('div');
-      header.className = 'cp-section-header';
-      header.innerHTML =
-        '<span class="cp-section-icon">' + sec.icon + '</span>' +
-        '<span class="cp-section-title">' + sec.label + '</span>' +
-        '<span class="cp-section-badge">' + sec.items.length + '</span>' +
-        '<span class="cp-section-arrow">▶</span>';
-      var itemsDiv = document.createElement('div');
-      itemsDiv.className = 'cp-section-items';
+    (SLOTS.sections || []).forEach(function(pageSec) {
+      var total = (pageSec.texts||[]).length + (pageSec.images||[]).length + (pageSec.links||[]).length;
+      if (!total) return;
 
-      sec.items.forEach(function(slot) {
-        var li = document.createElement('div');
-        li.className = 'cp-item';
-        li.dataset.sel = slot.sel;
-        li.dataset.tag = slot.tag;
-        li.dataset.preview = slot.preview;
-        if (slot.href) li.dataset.href = slot.href;
-        li.innerHTML =
-          '<span class="cp-item-tag ' + sec.tagClass + '">' + slot.tag + '</span>' +
-          '<span class="cp-item-preview">' + slot.preview.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' +
-          '<span class="cp-item-dot"></span>';
-        li.addEventListener('click', function() { selectItem(li); });
-        itemsDiv.appendChild(li);
+      var pageDiv = document.createElement('div');
+      pageDiv.className = 'cp-page-section open';
+
+      var pageHeader = document.createElement('div');
+      pageHeader.className = 'cp-page-section-header';
+      pageHeader.innerHTML =
+        '<span class="cp-page-section-name">' + pageSec.name.replace(/</g,'&lt;') + '</span>' +
+        '<span class="cp-page-section-badge">' + total + '</span>' +
+        '<span class="cp-page-section-arrow">▶</span>';
+
+      var pageItems = document.createElement('div');
+      pageItems.className = 'cp-page-section-items';
+
+      TYPE_DEFS.forEach(function(td) {
+        var items = pageSec[td.key] || [];
+        if (!items.length) return;
+
+        var typeDiv = document.createElement('div');
+        typeDiv.className = 'cp-section open';
+
+        var typeHeader = document.createElement('div');
+        typeHeader.className = 'cp-section-header';
+        typeHeader.innerHTML =
+          '<span class="cp-section-icon">' + td.icon + '</span>' +
+          '<span class="cp-section-title">' + td.label + '</span>' +
+          '<span class="cp-section-badge">' + items.length + '</span>' +
+          '<span class="cp-section-arrow">▶</span>';
+
+        var typeItems = document.createElement('div');
+        typeItems.className = 'cp-section-items';
+
+        items.forEach(function(slot) {
+          var li = document.createElement('div');
+          li.className = 'cp-item';
+          li.dataset.sel = slot.sel;
+          li.dataset.tag = slot.tag;
+          li.dataset.preview = slot.preview;
+          if (slot.href) li.dataset.href = slot.href;
+          li.innerHTML =
+            '<span class="cp-item-tag ' + td.tagClass + '">' + slot.tag + '</span>' +
+            '<span class="cp-item-preview">' + slot.preview.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>' +
+            '<span class="cp-item-dot"></span>';
+          li.addEventListener('click', function() { selectItem(li); });
+          typeItems.appendChild(li);
+        });
+
+        typeHeader.addEventListener('click', function() { typeDiv.classList.toggle('open'); });
+        typeDiv.appendChild(typeHeader);
+        typeDiv.appendChild(typeItems);
+        pageItems.appendChild(typeDiv);
       });
 
-      header.addEventListener('click', function() {
-        div.classList.toggle('open');
-      });
-
-      div.appendChild(header);
-      div.appendChild(itemsDiv);
-      body.appendChild(div);
+      pageHeader.addEventListener('click', function() { pageDiv.classList.toggle('open'); });
+      pageDiv.appendChild(pageHeader);
+      pageDiv.appendChild(pageItems);
+      body.appendChild(pageDiv);
     });
 
     updateCount();
@@ -356,7 +479,6 @@ function buildPickerInject(slots, embedded = false) {
     for (var i = 0; i < mappings.length; i++) { if (mappings[i].selector === selector) { existing = mappings[i]; break; } }
     document.querySelectorAll('._cp_selected').forEach(function(e) { e.classList.remove('_cp_selected'); });
     el.classList.add('_cp_selected');
-    // Highlight matching item in panel
     document.querySelectorAll('.cp-item').forEach(function(li) {
       li.classList.remove('active');
       if (li.dataset.sel === selector) { li.classList.add('active'); activeItem = li; li.scrollIntoView({ block: 'nearest' }); }
