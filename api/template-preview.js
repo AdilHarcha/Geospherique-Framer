@@ -118,6 +118,8 @@ function buildPickerInject(slots, embedded = false) {
   ._cp_hover { outline: 2px solid #6366f1 !important; outline-offset: 1px !important; cursor: crosshair !important; }
   ._cp_mapped { outline: 2px solid #10b981 !important; outline-offset: 1px !important; }
   ._cp_selected { outline: 3px solid #f59e0b !important; outline-offset: 2px !important; }
+  @keyframes _cp_flash { 0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)} 30%{box-shadow:0 0 0 12px rgba(245,158,11,0.35)} 60%{box-shadow:0 0 0 6px rgba(245,158,11,0.15)} }
+  ._cp_flash { animation: _cp_flash 0.9s ease-out !important; }
 
   #_cp_bar {
     position: fixed; bottom: 0; left: 0; right: ${embedded ? '0' : '360px'}; z-index: 2147483646;
@@ -326,10 +328,22 @@ function buildPickerInject(slots, embedded = false) {
     if (e.data.type === 'cms-update-mappings') { mappings = e.data.mappings || []; updateCount(); applyMapped(); }
     if (e.data.type === 'cms-select-slot') {
       var sel = e.data.selector;
-      document.querySelectorAll('._cp_selected').forEach(function(el) { el.classList.remove('_cp_selected'); });
+      document.querySelectorAll('._cp_selected,._cp_flash').forEach(function(el) {
+        el.classList.remove('_cp_selected','_cp_flash');
+      });
       try {
         var t = document.querySelector(sel);
-        if (t) { t.classList.add('_cp_selected'); t.scrollIntoView({ behavior:'smooth', block:'center' }); }
+        if (t) {
+          t.classList.add('_cp_selected');
+          // Flash animation (remove + re-add to retrigger)
+          void t.offsetWidth;
+          t.classList.add('_cp_flash');
+          t.addEventListener('animationend', function() { t.classList.remove('_cp_flash'); }, { once: true });
+          // Scroll window to element's absolute position (works inside Framer overflow:hidden containers)
+          var rect = t.getBoundingClientRect();
+          var absTop = rect.top + window.scrollY;
+          window.scrollTo({ top: Math.max(0, absTop - window.innerHeight / 2 + rect.height / 2), behavior: 'smooth' });
+        }
       } catch(err) {}
       document.querySelectorAll('.cp-item').forEach(function(li) {
         li.classList.remove('active');
