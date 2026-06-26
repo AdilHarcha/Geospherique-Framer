@@ -215,7 +215,11 @@ function applyMappings($, geoMappings, record) {
     if (!m.sel || !m.db_field) return
     const value = record[m.db_field]
     if (value == null || value === '') return
-    const el = $(m.sel).first()
+    // Try stored selector first; fall back to data-framer-name if geo_name provided
+    let el = $(m.sel).first()
+    if (!el.length && m.geo_name) {
+      el = $(`[data-framer-name="${m.geo_name}"]`).first()
+    }
     if (!el.length) return
     const tag = el.prop('tagName')?.toLowerCase()
     if (tag === 'img') {
@@ -240,13 +244,15 @@ export default async function handler(req, res) {
     const cmsTemplate = await fetchCmsTemplate(postType)
     if (cmsTemplate) {
       const $ = load(cmsTemplate.html)
+
+      // Apply mappings BEFORE removing scripts, so nth-child indices are stable
+      applyMappings($, cmsTemplate.geo_mappings, post)
+
       $('script').remove()
       $('meta[http-equiv]').filter((_, el) => {
         const v = ($(el).attr('http-equiv') || '').toLowerCase()
         return v === 'x-frame-options' || v === 'content-security-policy'
       }).remove()
-
-      applyMappings($, cmsTemplate.geo_mappings, post)
 
       // Always update meta tags regardless of mappings
       const title = post.h1 || post.title || ''
