@@ -460,6 +460,10 @@ export default async function handler(req, res) {
   html = html.replace(/<meta[^>]+http-equiv=["']?[Xx]-[Ff]rame-[Oo]ptions["']?[^>]*>/gi, '')
   html = html.replace(/<meta[^>]+[Cc]ontent-[Ss]ecurity-[Pp]olicy[^>]*>/gi, '')
 
+  // Strip all Framer JS — causes React hydration errors and massive load times.
+  // The page renders fine as pure HTML/CSS (Framer SSR outputs complete static markup).
+  html = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+
   if (isEmbedded) {
     html = html.replace('</body>', buildPickerInject() + '\n</body>')
   }
