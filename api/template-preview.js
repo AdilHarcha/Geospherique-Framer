@@ -126,7 +126,7 @@ function buildPickerInject() {
   }
   #_cp_bar_tag { color: #818cf8; flex-shrink: 0; }
   #_cp_bar_name { color: #f59e0b; flex-shrink: 0; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #_cp_bar_text { color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  #_cp_bar_text { color: #9ca3af; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
   #_cp_panel {
     position: fixed; top: 0; right: 0; bottom: 0; width: 340px; z-index: 2147483647;
@@ -152,16 +152,17 @@ function buildPickerInject() {
   .dn { user-select: none; }
   .dn-row {
     display: flex; align-items: center; gap: 3px; cursor: pointer;
-    padding: 1.5px 0; border-left: 2px solid transparent;
+    padding: 2px 0; border-left: 2px solid transparent; min-height: 22px;
   }
-  .dn-row:hover { background: rgba(255,255,255,0.04); }
+  .dn-row:hover { background: rgba(255,255,255,0.05); }
   .dn-row.dn-active { background: rgba(245,158,11,0.1); border-left-color: #f59e0b; }
   .dn-row.dn-hover { background: rgba(99,102,241,0.08); border-left-color: #6366f1; }
   .dn-toggle {
-    width: 14px; height: 14px; flex-shrink: 0; display: flex;
-    align-items: center; justify-content: center; color: #4b5563; font-size: 8px;
+    width: 20px; height: 20px; flex-shrink: 0; display: flex;
+    align-items: center; justify-content: center; color: #6b7280; font-size: 10px;
+    border-radius: 3px;
   }
-  .dn-toggle:hover { color: #9ca3af; }
+  .dn-toggle:hover { color: #e5e7eb; background: rgba(255,255,255,0.08); }
   .dn-tag { color: #818cf8; }
   .dn-fname {
     font-family: -apple-system,sans-serif; font-size: 9px; font-weight: 500;
@@ -170,7 +171,7 @@ function buildPickerInject() {
     max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .dn-id { color: #34d399; font-size: 10px; }
-  .dn-preview { color: #374151; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .dn-preview { color: #6b7280; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
   .dn-children { }
 </style>
 
@@ -320,8 +321,7 @@ function buildPickerInject() {
 
     elToRow.set(el, row);
 
-    toggle.addEventListener('click', function(e) {
-      e.stopPropagation();
+    function expandToggle() {
       if (!hasKids) return;
       expanded = !expanded;
       toggle.textContent = expanded ? '▼' : '▶';
@@ -333,11 +333,18 @@ function buildPickerInject() {
         }
       }
       childrenDiv.style.display = expanded ? '' : 'none';
+    }
+
+    toggle.addEventListener('click', function(e) {
+      e.stopPropagation();
+      expandToggle();
     });
 
     row.addEventListener('click', function(e) {
       e.stopPropagation();
       selectPageEl(el);
+      // Auto-expand children on row click so user can drill down immediately
+      if (hasKids && !expanded) expandToggle();
     });
 
     wrapper.appendChild(row);
