@@ -343,8 +343,10 @@ export default async function handler(req, res) {
   html = html.replace(/<meta[^>]+http-equiv=["']?[Xx]-[Ff]rame-[Oo]ptions["']?[^>]*>/gi, '')
   html = html.replace(/<meta[^>]+[Cc]ontent-[Ss]ecurity-[Pp]olicy[^>]*>/gi, '')
 
-  const slots = detectGeoSlots(html)
-  html = html.replace('</body>', buildPickerInject(slots, isEmbedded) + '\n</body>')
+  if (isEmbedded) {
+    const slots = detectGeoSlots(html)
+    html = html.replace('</body>', buildPickerInject(slots, true) + '\n</body>')
+  }
 
   res.setHeader('Content-Type', 'text/html; charset=utf-8')
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
