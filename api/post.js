@@ -38,13 +38,27 @@ function escapeAttr(str) {
 }
 
 async function fetchPost(slug) {
-  const url = `${SUPABASE_URL}/rest/v1/platform_posts?slug=eq.${encodeURIComponent(slug)}&select=id,title,h1,meta_description,main_image,thematique,post_type,slug,published_at&limit=1`
+  const url = `${SUPABASE_URL}/rest/v1/platform_posts?slug=eq.${encodeURIComponent(slug)}&select=id,source_id,title,h1,meta_description,main_image,thematique,post_type,slug,published_at&limit=1`
   const res = await fetch(url, {
     headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
   })
   if (!res.ok) return null
   const rows = await res.json()
-  return rows[0] || null
+  const post = rows[0]
+  if (!post) return null
+
+  // Enrich with full partner_posts data if source_id exists
+  if (post.source_id) {
+    const ppUrl = `${SUPABASE_URL}/rest/v1/partner_posts?id=eq.${encodeURIComponent(post.source_id)}&limit=1`
+    const ppRes = await fetch(ppUrl, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+    })
+    if (ppRes.ok) {
+      const ppRows = await ppRes.json()
+      if (ppRows[0]) Object.assign(post, ppRows[0])
+    }
+  }
+  return post
 }
 
 function loadTemplate(postType) {
